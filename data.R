@@ -1,10 +1,11 @@
 ########################### Load in libraries ###########################
 
-library(dplyr)
+library(tidyverse)
 library(ggplot2)
 library(janitor)
 library(readr)
 library(readxl)
+library(RCurl)
 
 
 
@@ -15,6 +16,11 @@ library(readxl)
 raw_data <- read_excel("T:/OA-Dashboard/oa-dashboard/Endfassung.xlsx",
                          sheet = "Worksheet")
 
+x <- getURL("https://raw.github.com/medbib-charite/oa-dashboard/blob/main/Endfassung.xlsx")
+
+y <- "https://raw.github.com/medbib-charite/oa-dashboard/blob/main/Endfassung.xlsx"
+
+raw_data <- read_excel(y, sheet = "Worksheet")
 
 ########################### Clean data ###########################
 data <- raw_data %>%
