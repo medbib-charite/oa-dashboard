@@ -1,0 +1,56 @@
+---
+title: "Open Access Dashboard "
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: rows
+    vertical_layout: scroll
+    source_code: embed
+---
+
+```{r setup, include=FALSE}
+library(flexdashboard)
+
+source("data_1.R", encoding = 'UTF-8')
+```
+
+
+<font size="7"> Open access status of articles in which <br>Charité scientists were involved </font>
+
+
+
+Row {data-height=500}
+-----------------------------------------------------------------------
+
+### Open access status in absolute numbers
+
+```{r}
+status_absolute
+# {.column data-height=1800} style="height:100pc;"
+```
+
+### Open access status in %
+
+```{r}
+status_percent
+```
+
+Row {data-height=150}
+-----------------------------------------------------------------------
+
+<font size="7"> Open access status of articles of which <br>a Charité scientists was the corresponding author </font>
+
+
+Row {data-height=500}
+-----------------------------------------------------------------------
+
+### Open access status in absolute numbers
+
+```{r}
+status_corresponding_absolute
+```
+
+### Open access status in %
+
+```{r}
+status_corresponding_percent
+```
