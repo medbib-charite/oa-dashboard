@@ -1,0 +1,83 @@
+---
+title: "Open Access Dashboard "
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: rows
+    vertical_layout: scroll
+    source_code: embed
+    
+# author: Jan Taubitz
+# email: jan.taubitz@charite.de
+---
+
+```{r setup, include=FALSE}
+library(flexdashboard)
+
+source("data_1.R", encoding = 'UTF-8')
+```
+
+Row {data-height=150}{.tabset}
+-----------------------------------------------------------------------
+
+### 2018
+
+```{r}
+item_2018
+```
+
+### 2019
+
+```{r}
+item_2019
+```
+
+### 2020
+
+```{r}
+item_2020
+```
+
+
+Row {data-height=120}
+-----------------------------------------------------------------------
+
+<font size="6"> Open Access-Status von Artikeln mit Charité-Beteiligung insgesamt und von Artikeln mit Charité-Corresponding Author 2018 - 2019</font>
+
+
+Row {data-height=500}
+-----------------------------------------------------------------------
+
+
+### Artikel mit Charité-Beteiligung
+
+```{r}
+status_percent
+```
+
+### Artikel mit Charité-Corresponding Author
+
+```{r}
+status_corresponding_percent
+```
+
+
+Row {data-height=120}
+-----------------------------------------------------------------------
+
+<font size="6"> Open Access-Status von Artikeln mit Charité-Beteiligung auf Journal-Ebene im Jahr 2020 </font>
+
+
+Row {data-height=500}
+-----------------------------------------------------------------------
+
+### Open access status in absolute numbers
+
+```{r}
+journal_absolute
+```
+
+### Open access status in %
+
+```{r}
+journal_percent
+```
