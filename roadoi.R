@@ -25,3 +25,6 @@ data_unpaywall <- roadoi::oadoi_fetch(dois = data$doi,
 # http_proxy=http://proxy.charite.de:8080/
 # https_proxy=http://proxy.charite.de:8080/
 # 2x http://...
+
+########################### Literature documentations ###########################
+# https://subugoe.github.io/scholcomm_analytics/posts/unpaywall_evidence/
