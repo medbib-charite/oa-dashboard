@@ -1,7 +1,7 @@
 ---
 title: "Datenvergleich"
 date: "11.06.2021"
-output: pdf_document
+output: html_document
 ---
 
 ```{r setup, include=FALSE}
@@ -71,15 +71,20 @@ bih_data_doi <- bih_data %>%
   filter(!is.na(doi)) %>%
   select(doi, title, year, OA_color) %>%
   mutate(OA_color = replace_na(OA_color, "kein ergebnis")) %>%
-  mutate(OA_color = factor(OA_color, levels = c("green", "gold", "hybrid", "bronze", "closed", "kein ergebnis")))
+  mutate(OA_color = factor(OA_color, levels = c("green", "gold", "hybrid", "bronze", "closed", "kein ergebnis"))) %>%
+  mutate(doi = str_replace_all(doi, c("%28" = "(", "%29" = ")")), .after = "doi") # Repair dois in bih dataset
 
 data_doi <- data %>% 
   filter(!str_detect(doi, "keine DOI")) 
 
-%>%
-  select(doi, titel, jahr, oa_status)
+#%>%
+#  select(doi, titel, jahr, oa_status)
+
+
 
 ```
+
+
 
 Keine DOI hatten `r nrow(data) - nrow(data_doi)` Publikationen der Medbib-Daten und `r nrow(bih_data) - nrow(bih_data_doi)` Publikationen der BIH-Daten. Diese Publikationen wurden aus den Datensätzen entfernt. Somit wurden `r nrow(data_doi)` Publikationen aus dem Medbib-Datensatz und `r nrow(bih_data_doi)` Publikationen aus dem BIH-Datensatz ausgewertet.
 
@@ -118,17 +123,17 @@ In einem nächsten Schritt wurde der OA-Status überprüft.
 ```{r}
 # sort(table(data_left_join_check$in_bih_dataset), decreasing = TRUE)
 
-data_oa_status_indent <- data_inner_join %>%
+data_oa_status_ident <- data_inner_join %>%
   mutate(oa_status_identical = if_else(oa_status == OA_color, TRUE, FALSE)) %>%
   filter(oa_status_identical == FALSE)
 ```
 
-`r nrow(data_oa_status_indent)` von den `r nrow(data_inner_join)` in beiden Datensätzen enthaltenen Publikationen wurden nicht mit dem identischen Open-Access-Status identifiziert.
+`r nrow(data_oa_status_ident)` von den `r nrow(data_inner_join)` in beiden Datensätzen enthaltenen Publikationen wurden nicht mit dem identischen Open-Access-Status identifiziert.
 
 Diese Datensätze wurde zur weiteren Überprüfung in einer Excel-Tabelle ausgegeben.
 
 ```{r}
-write_xlsx(data_oa_status_indent, "data_oa_status_not_indentical.xlsx")
+write_xlsx(data_oa_status_ident, "data_oa_status_not_identical.xlsx")
 ```
 
 
@@ -150,9 +155,3 @@ data_left_join_check <- data_left_join %>%
 write_xlsx(data_left_join_check, "data_medbib_bih_check.xlsx")
 ```
 
-
-
-to-Do- Tabelle von UF aktualisiseren um Spalte: 
-corresponding author
-hat bih/hat bih nicht 
-OA-Status identisch, OA-Status nicht identisch.
