@@ -1,0 +1,158 @@
+---
+title: "Datenvergleich"
+date: "11.06.2021"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = FALSE,
+  message = FALSE,
+  warning = FALSE,
+  collapse = TRUE,
+  options(scipen = 999)
+)
+
+library(kableExtra)
+
+source("data_1.R", encoding = 'UTF-8')
+```
+
+```{r}
+#bih_data_raw <- read_csv("publications_cha_dashboard.csv")
+
+#bih_data <- publications_cha_dashboard %>%
+ # filter(year >= 2018)
+```
+
+## Anzahl Publikationen
+
+Der Datensatz der Medizinischen Bibliothek enthält **`r nrow(data)` Publikationen** für den Zeitraum 2018 bis 2020. 
+
+Der BIH-Datensatz enthält **`r nrow(bih_data)` Publikationen** für den Zeitraum 2018 bis 2020.
+
+### Publikationen in den Datensätzen nach Jahren
+Auf die einzelnen Jahre des Untersuchungszeitraums bezogen ergibt sich folgende Verteilung:
+
+```{r}
+df_1 <- data %>%
+  rename(year = jahr) %>%
+  group_by(year) %>%
+  summarise(medbib = n())
+
+df_2 <- bih_data %>%
+  group_by(year) %>%
+  summarise(bih = n())
+
+df <- df_1 %>%
+  inner_join(df_2, by = "year")
+```
+
+```{r}
+table <- kable(df) %>%
+  kable_styling(position = "center")
+table
+```
+
+```{r include = FALSE}
+df %>% pivot_longer(!year, names_to = "dataset", values_to = "publ") %>%
+ggplot(aes(x = year, y = publ, fill = dataset )) +
+  geom_col(position = "dodge") +
+  labs(title = "Publikationen in den Datensätzen nach Jahren")
+```
+
+## Überschneidungen und Abweichungen
+### Vergleich der Datensätze anhand der DOI
+
+Um die Überschneidungen und Abweichungen mit einem eideutigen Identifier analysieren zu können, wurden nur die Publikationen mit einer DOI verwendet.
+
+```{r}
+bih_data_doi <- bih_data %>%
+  filter(!is.na(doi)) %>%
+  select(doi, title, year, OA_color) %>%
+  mutate(OA_color = replace_na(OA_color, "kein ergebnis")) %>%
+  mutate(OA_color = factor(OA_color, levels = c("green", "gold", "hybrid", "bronze", "closed", "kein ergebnis")))
+
+data_doi <- data %>% 
+  filter(!str_detect(doi, "keine DOI")) 
+
+%>%
+  select(doi, titel, jahr, oa_status)
+
+```
+
+Keine DOI hatten `r nrow(data) - nrow(data_doi)` Publikationen der Medbib-Daten und `r nrow(bih_data) - nrow(bih_data_doi)` Publikationen der BIH-Daten. Diese Publikationen wurden aus den Datensätzen entfernt. Somit wurden `r nrow(data_doi)` Publikationen aus dem Medbib-Datensatz und `r nrow(bih_data_doi)` Publikationen aus dem BIH-Datensatz ausgewertet.
+
+
+```{r}
+data_inner_join <- inner_join(data_doi, bih_data_doi, by = "doi")
+data_full_join <- full_join(data_doi, bih_data_doi, by = "doi")
+
+data_left_join <- left_join(data_doi, bih_data_doi, by = "doi")
+
+data_only_medbib <- data_full_join %>%
+  filter(is.na(year))
+
+data_only_bih <- data_full_join %>%
+  filter(is.na(jahr))
+```
+
+Beide Datensätze wurden anhand der DOI miteinander verbunden. Der verbundendene Datensatz enthält `r nrow(data_full_join)` Publikationen. `r nrow(data_inner_join)` der Publikationen sind in beiden Datensätzen enthalten.
+
+Der Medbib-Datensatz enthält `r nrow(data_only_medbib)` Publikationen, die nicht im BIH-Datensatz enthalten sind.
+
+Der BIH-Datensatz enthält wiederum `r nrow(data_only_bih)` Publikationen, die nicht im Medbib-Datensatz enthalten sind. 
+
+Die BIH-Daten, die nicht im Medbib-Datensatz enthalten sind, wurden zur weiteren Überprüfung in einer Excel-Tabelle ausgegeben.
+
+```{r}
+write_xlsx(data_only_bih, "data_only_bih.xlsx")
+
+write_xlsx(data_only_medbib, "data_only_medbib.xlsx")
+```
+
+### Überprüfung des OA-Status
+
+In einem nächsten Schritt wurde der OA-Status überprüft.
+
+```{r}
+# sort(table(data_left_join_check$in_bih_dataset), decreasing = TRUE)
+
+data_oa_status_indent <- data_inner_join %>%
+  mutate(oa_status_identical = if_else(oa_status == OA_color, TRUE, FALSE)) %>%
+  filter(oa_status_identical == FALSE)
+```
+
+`r nrow(data_oa_status_indent)` von den `r nrow(data_inner_join)` in beiden Datensätzen enthaltenen Publikationen wurden nicht mit dem identischen Open-Access-Status identifiziert.
+
+Diese Datensätze wurde zur weiteren Überprüfung in einer Excel-Tabelle ausgegeben.
+
+```{r}
+write_xlsx(data_oa_status_indent, "data_oa_status_not_indentical.xlsx")
+```
+
+
+```{r}
+# create new columns to original data set
+
+data_left_join_check <- data_left_join %>%
+  mutate(
+    oa_status_identical = if_else(oa_status == OA_color, TRUE, FALSE),
+    .after = "corresponding_author_cha"
+  ) %>%
+  mutate(oa_status_identical = replace_na(oa_status_identical, "kein Ergebnis")) %>%
+  mutate(in_bih_dataset = if_else(year %in% c(2018, 2019, 2020), TRUE, FALSE),
+         .after = "corresponding_author_cha") %>%
+  select(-title, - year, -OA_color)
+```
+
+```{r}
+write_xlsx(data_left_join_check, "data_medbib_bih_check.xlsx")
+```
+
+
+
+to-Do- Tabelle von UF aktualisiseren um Spalte: 
+corresponding author
+hat bih/hat bih nicht 
+OA-Status identisch, OA-Status nicht identisch.

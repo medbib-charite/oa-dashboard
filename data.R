@@ -2,30 +2,27 @@
 
 library(tidyverse)
 library(ggplot2)
+library(highcharter)
 library(janitor)
 library(readr)
 library(readxl)
 library(RCurl)
 
 
-
-
-
 ########################### Load in data ###########################
 
-raw_data <- read_excel("T:/OA-Dashboard/oa-dashboard/Endfassung.xlsx",
-                         sheet = "Worksheet")
+raw_data <- read_excel("Endfassung.xlsx",
+                       sheet = "Worksheet")
 
-x <- getURL("https://raw.github.com/medbib-charite/oa-dashboard/blob/main/Endfassung.xlsx")
-
-y <- "https://raw.github.com/medbib-charite/oa-dashboard/blob/main/Endfassung.xlsx"
-
-raw_data <- read_excel(y, sheet = "Worksheet")
+# raw_data <- read_excel("T:/OA-Dashboard/oa-dashboard/Endfassung.xlsx",
+#                         sheet = "Worksheet")
 
 ########################### Clean data ###########################
 data <- raw_data %>%
   clean_names() %>%
-  mutate(oa_status = tolower(oa_status))
+  mutate(oa_status = tolower(oa_status)) %>%
+  mutate(oa_status = replace_na(oa_status, "kein ergebnis")) %>%
+  mutate(oa_status = factor(oa_status, levels = c("green", "gold", "hybrid", "bronze", "closed", "kein ergebnis")))
 
 ########################### Exploratory data analysis ###########################
 
@@ -36,17 +33,51 @@ n_occur <- data.frame(table(data$titel))
 
 ########################### Exploratory visualizations ###########################
 
-
 data %>%
   ggplot(aes(x = jahr, fill = oa_status)) +
   geom_bar()
 
 
-########################### Load in data ###########################
+data_sum <- data %>%
+  group_by(jahr, oa_status) %>%
+  summarise(value = n()) %>%
+  mutate(percentage = round(value / sum(value) * 100, 1))
+
+color <- c("#5cff0a", "#ffdc0a", "#0ac7ff", "#cd7f32", "#262c2f", "darkgray")
+text <- "In hac habitasse platea dictumst. Nam hendrerit elementum lacus. Suspendisse potenti. Vestibulum id aliquet neque. Praesent vel est est. Integer molestie consequat erat nec facilisis. Pellentesque scelerisque posuere nulla eu interdum. Aliquam et mauris scelerisque, fermentum arcu vel, imperdiet neque."
+
+hchart(
+  data_sum,
+  "column",
+  hcaes(x = jahr, y = value, group = oa_status)
+  ) %>%
+  hc_plotOptions(series = list(stacking = "normal")) %>%
+  hc_colors(color) %>%
+  hc_title(text = "Open access status in absolute numbers", style = list(fontSize = "28px"))
+
+hchart(
+  data_sum,
+  "column",
+  hcaes(x = jahr, y = percentage, group = oa_status)
+) %>%
+  hc_plotOptions(series = list(stacking = "normal")) %>%
+  hc_colors(color) %>%
+  hc_title(text = "Open access status of articles in which Charité scientists were involved (in %)", align = "left", style = list(fontSize = "28px")) %>%
+  hc_subtitle(text = text, align = "left", style = list(fontSize = "16px")) %>%
+  hc_yAxis(labels = list(format = '{value} %'),
+           max = 100)
+
+
+%>%
+  hc_tooltip(shared = TRUE, split = TRUE)
+
+
+########################### To do ###########################
 #Sheet Unpaywall vergessen
 #Charite Metrics Dashboard
 #Göttingen anschauen
 #Treffen 24. Juni
+#Compare data with cha-dashboard
 
 
 
