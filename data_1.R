@@ -71,7 +71,8 @@ status_percent <-
   hc_plotOptions(series = list(stacking = "normal")) %>%
   hc_colors(color) %>%
   hc_yAxis(labels = list(format = '{value} %'),
-           max = 100, reversedStacks = FALSE)
+           max = 100, reversedStacks = FALSE) %>%
+  hc_tooltip(pointFormat = "<b>{point.oa_status}</b><br>{point.value} Artikel ({point.percent} %)")
 
 # reversed bar stacks https://www.highcharts.com/forum/viewtopic.php?t=10916
 
@@ -113,10 +114,12 @@ status_corresponding_percent <-
   hc_plotOptions(series = list(stacking = "normal")) %>%
   hc_colors(color) %>%
   hc_yAxis(labels = list(format = '{value} %'),
-           max = 100, reversedStacks = FALSE)
+           max = 100, reversedStacks = FALSE) %>%
+  hc_tooltip(pointFormat = "<b>{point.oa_status}</b><br>{point.value} Artikel ({point.percent} %)")
 
 # hc_title(text = "Open access status of articles of which a Charité scientists was the corresponding author (in %)", align = "left", style = list(fontSize = "28px")) %>%
 # hc_subtitle(text = text, align = "left", style = list(fontSize = "12px")) %>%
+
 
 
 item_2018 <- data_corresponding_sum %>%
@@ -124,13 +127,14 @@ item_2018 <- data_corresponding_sum %>%
   hchart(
     "item",
     hcaes(name = oa_status, y = value),
-    name = "oa_status",
-    marker = list(symbol = "square"),
-    showInLegend = TRUE
+  #  name = "Anzahl",
+    tooltip = list(pointFormat = "{point.value} Artikel ({point.percent} %)"),
+    marker = list(symbol = "round"),
+    showInLegend = FALSE
   ) %>%
-  hc_title(
-    text = "2018"
-  ) %>%
+#  hc_title(
+#    text = "2018"
+#  ) %>%
   hc_colors(color)
 
 item_2019 <- data_corresponding_sum %>%
@@ -138,13 +142,14 @@ item_2019 <- data_corresponding_sum %>%
   hchart(
     "item",
     hcaes(name = oa_status, y = value),
-    name = "oa_status",
-    marker = list(symbol = "square"),
-    showInLegend = TRUE
+  #  name = "Anzahl",
+    tooltip = list(pointFormat = "{point.value} Artikel ({point.percent} %)"),
+    marker = list(symbol = "round"),
+    showInLegend = FALSE
   ) %>%
-  hc_title(
-    text = "2019"
-  ) %>%
+#  hc_title(
+#    text = "2019"
+#  ) %>%
   hc_colors(color)
 
 item_2020 <- data_corresponding_sum %>%
@@ -152,13 +157,14 @@ item_2020 <- data_corresponding_sum %>%
   hchart(
   "item",
   hcaes(name = oa_status, y = value),
-  name = "oa_status",
-  marker = list(symbol = "square"),
+#  name = "Anzahl",
+  tooltip = list(pointFormat = "{point.value} Artikel ({point.percent} %)"),
+  marker = list(symbol = "round"),
   showInLegend = TRUE
 ) %>%
-  hc_title(
-    text = "2020"
-  ) %>%
+#  hc_title(
+#    text = "2020"
+#  ) %>%
   hc_colors(color)
 
 
@@ -190,7 +196,8 @@ journal_absolute <- journal_data_2 %>%
            max = 20,
            scrollbar = list(enabled = TRUE)) %>%
   hc_size(height = 500) %>%
-  hc_yAxis(reversedStacks = FALSE)
+  hc_yAxis(reversedStacks = FALSE) %>%
+  hc_tooltip(pointFormat = "<b>{point.oa_status}</b><br>{point.value} Artikel ({point.percent} %)<br>{point.value_zs} Artikel insgesamt")
 
 journal_percent <- journal_data_2 %>%
   hchart("bar", hcaes(x = zeitschrift, y = percent, group = oa_status)) %>%
@@ -201,7 +208,8 @@ journal_percent <- journal_data_2 %>%
            scrollbar = list(enabled = TRUE)) %>%
   hc_yAxis(labels = list(format = '{value} %'),
                          max = 100, reversedStacks = FALSE) %>%
-  hc_size(height = 500)
+  hc_size(height = 500) %>%
+  hc_tooltip(pointFormat = "<b>{point.oa_status}</b><br>{point.value} Artikel ({point.percent} %)<br>{point.value_zs} Artikel insgesamt")
 
 
 ########################### End journals ###########################

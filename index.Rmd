@@ -16,22 +16,25 @@ library(flexdashboard)
 source("data_1.R", encoding = 'UTF-8')
 ```
 
-Row {data-height=150}{.tabset}
+Row {data-height=150}
 -----------------------------------------------------------------------
 
-### 2018
+### 2018 - Open Access-Status von Artikeln mit Charité-Corresponding Author
 
 ```{r}
 item_2018
 ```
 
-### 2019
+Row {data-height=150}
+-----------------------------------------------------------------------
+### 2019 - Open Access-Status von Artikeln mit Charité-Corresponding Author
 
 ```{r}
 item_2019
 ```
-
-### 2020
+Row {data-height=200}
+-----------------------------------------------------------------------
+### 2020 - Open Access-Status von Artikeln mit Charité-Corresponding Author
 
 ```{r}
 item_2020
@@ -40,6 +43,8 @@ item_2020
 
 Row {data-height=120}
 -----------------------------------------------------------------------
+
+### Analyse 1
 
 <font size="6"> Open Access-Status von Artikeln mit Charité-Beteiligung insgesamt und von Artikeln mit Charité-Corresponding Author 2018 - 2019</font>
 
@@ -63,6 +68,8 @@ status_corresponding_percent
 
 Row {data-height=120}
 -----------------------------------------------------------------------
+
+### Analyse 2
 
 <font size="6"> Open Access-Status von Artikeln mit Charité-Beteiligung auf Journal-Ebene im Jahr 2020 </font>
 
