@@ -1,7 +1,7 @@
 ---
 title: "Datenvergleich"
-date: "11.06.2021"
-output: html_document
+date: "15.06.2021"
+output: pdf_document
 ---
 
 ```{r setup, include=FALSE}
@@ -16,11 +16,11 @@ knitr::opts_chunk$set(
 library(kableExtra)
 
 source("data_1.R", encoding = 'UTF-8')
+load("data/data_unpaywall.Rda")
 ```
 
 ```{r}
 #bih_data_raw <- read_csv("publications_cha_dashboard.csv")
-
 #bih_data <- publications_cha_dashboard %>%
  # filter(year >= 2018)
 ```
@@ -64,40 +64,53 @@ ggplot(aes(x = year, y = publ, fill = dataset )) +
 ## Überschneidungen und Abweichungen
 ### Vergleich der Datensätze anhand der DOI
 
-Um die Überschneidungen und Abweichungen mit einem eideutigen Identifier analysieren zu können, wurden nur die Publikationen mit einer DOI verwendet.
+Um die Überschneidungen und Abweichungen mit einem eindeutigen Identifier analysieren zu können, wurden nur die Publikationen mit einer DOI verwendet.
 
 ```{r}
+# Clean and manipulate bih data
+
 bih_data_doi <- bih_data %>%
   filter(!is.na(doi)) %>%
   select(doi, title, year, OA_color) %>%
   mutate(OA_color = replace_na(OA_color, "kein ergebnis")) %>%
-  mutate(OA_color = factor(OA_color, levels = c("green", "gold", "hybrid", "bronze", "closed", "kein ergebnis"))) %>%
-  mutate(doi = str_replace_all(doi, c("%28" = "(", "%29" = ")")), .after = "doi") # Repair dois in bih dataset
+  mutate(OA_color = factor(OA_color, levels = oa_status_colors)) %>%
+  mutate(doi = str_replace_all(doi, c("%28" = "(", "%29" = ")")),
+         .after = "doi") %>% # Repair dois in bih dataset
+  mutate(doi = tolower(doi)) # Convert dois to lower case
 
 data_doi <- data %>% 
-  filter(!str_detect(doi, "keine DOI")) 
-
-#%>%
-#  select(doi, titel, jahr, oa_status)
-
-
+  filter(!str_detect(doi, "keine DOI")) %>%
+  mutate(doi = tolower(doi)) # Convert dois to lower case
+  
+  
+# Test if dois are identical  
+#data_doi <- data %>% 
+#  filter(!str_detect(doi, "keine DOI")) %>%  
+#  mutate(doi_2 = tolower(doi), .after = doi) %>%
+#  mutate(doi_identical = if_else(doi == doi_2, TRUE, FALSE))
 
 ```
-
 
 
 Keine DOI hatten `r nrow(data) - nrow(data_doi)` Publikationen der Medbib-Daten und `r nrow(bih_data) - nrow(bih_data_doi)` Publikationen der BIH-Daten. Diese Publikationen wurden aus den Datensätzen entfernt. Somit wurden `r nrow(data_doi)` Publikationen aus dem Medbib-Datensatz und `r nrow(bih_data_doi)` Publikationen aus dem BIH-Datensatz ausgewertet.
 
 
 ```{r}
+# Join datasets
+# Only dois that are in both datasets
 data_inner_join <- inner_join(data_doi, bih_data_doi, by = "doi")
+
+# All dois from both datasets
 data_full_join <- full_join(data_doi, bih_data_doi, by = "doi")
 
+# All dois from medbib dataset
 data_left_join <- left_join(data_doi, bih_data_doi, by = "doi")
 
+# Only dois from medbib dataset
 data_only_medbib <- data_full_join %>%
   filter(is.na(year))
 
+# Only dois from bih dataset
 data_only_bih <- data_full_join %>%
   filter(is.na(jahr))
 ```
@@ -108,12 +121,11 @@ Der Medbib-Datensatz enthält `r nrow(data_only_medbib)` Publikationen, die nich
 
 Der BIH-Datensatz enthält wiederum `r nrow(data_only_bih)` Publikationen, die nicht im Medbib-Datensatz enthalten sind. 
 
-Die BIH-Daten, die nicht im Medbib-Datensatz enthalten sind, wurden zur weiteren Überprüfung in einer Excel-Tabelle ausgegeben.
+Die BIH-Daten, die nicht im Medbib-Datensatz enthalten sind, wurden in der Datentabelle in der Spalte `in_bih_dataset` mit logischen Operatoren gekennzeichnet.
 
 ```{r}
-write_xlsx(data_only_bih, "data_only_bih.xlsx")
-
-write_xlsx(data_only_medbib, "data_only_medbib.xlsx")
+# write_xlsx(data/data_only_bih, "data_only_bih.xlsx")
+# write_xlsx(data/data_only_medbib, "data_only_medbib.xlsx")
 ```
 
 ### Überprüfung des OA-Status
@@ -130,28 +142,87 @@ data_oa_status_ident <- data_inner_join %>%
 
 `r nrow(data_oa_status_ident)` von den `r nrow(data_inner_join)` in beiden Datensätzen enthaltenen Publikationen wurden nicht mit dem identischen Open-Access-Status identifiziert.
 
-Diese Datensätze wurde zur weiteren Überprüfung in einer Excel-Tabelle ausgegeben.
+Diese Datensätze wurden zur weiteren Überprüfung in der Datentabelle in der Spalte `oa_status_identical_medbib_bih` mit logischen Operatoren gekennzeichnet.
 
 ```{r}
-write_xlsx(data_oa_status_ident, "data_oa_status_not_identical.xlsx")
+# write_xlsx(data/data_oa_status_ident, "data_oa_status_not_identical.xlsx")
 ```
 
 
 ```{r}
-# create new columns to original data set
+# Create new columns to original data set
 
 data_left_join_check <- data_left_join %>%
   mutate(
-    oa_status_identical = if_else(oa_status == OA_color, TRUE, FALSE),
-    .after = "corresponding_author_cha"
-  ) %>%
-  mutate(oa_status_identical = replace_na(oa_status_identical, "kein Ergebnis")) %>%
+    oa_status_identical_medbib_bih = if_else(oa_status == OA_color, TRUE, FALSE),
+    .before = "corresponding_author_cha") %>%
+  mutate(oa_status_identical_medbib_bih = replace_na(oa_status_identical_medbib_bih, "kein Ergebnis")) %>%
   mutate(in_bih_dataset = if_else(year %in% c(2018, 2019, 2020), TRUE, FALSE),
          .after = "corresponding_author_cha") %>%
-  select(-title, - year, -OA_color)
+  mutate(OA_color = as.character(OA_color)) %>%
+  mutate(OA_color = replace_na(OA_color, "kein Ergebnis")) %>%
+  mutate(oa_status_bih = factor(OA_color, levels = oa_status_colors),
+         .after = "oa_status") %>%
+  select(-title, -year, -OA_color)
+```
+
+
+```{r}
+# Join data with unpaywall data
+
+data_unpaywall_oa_status_year <- data_unpaywall %>%
+  select(doi, oa_status_unpaywall = oa_status, year_unpaywall = year) %>%
+  mutate(doi = tolower(doi)) # dois to lower case
+
+data_left_join_check_medbib_bih_unpaywall <-
+  left_join(data_left_join_check, data_unpaywall_oa_status_year, by = "doi") %>%
+  relocate(oa_status_unpaywall, .after = oa_status_bih) %>%
+  mutate(
+    oa_status_identical_medbib_unpaywall = if_else(oa_status ==
+                                                     oa_status_unpaywall, TRUE,
+                                                   FALSE),
+    .before = "corresponding_author_cha"
+  ) %>%
+  mutate(
+    oa_status_identical_medbib_unpaywall = replace_na(oa_status_identical_medbib_unpaywall, "kein Ergebnis")
+  ) %>%
+  mutate(year_unpaywall = as.numeric(year_unpaywall)) %>%
+  mutate(year_medbib_unpaywall_identical = if_else(jahr == year_unpaywall, TRUE, FALSE)) %>%
+  mutate(
+    year_medbib_unpaywall_identical = replace_na(year_medbib_unpaywall_identical, "kein Ergebnis")
+  ) %>%
+  mutate(jahr_medbib = jahr, .before = year_unpaywall)
+
+
+# Analysis publication year medbib and unpaywall data
+# sort(table(data_left_join_check_medbib_bih_unpaywall$year_medbib_unpaywall_identical), decreasing = TRUE)
+
+# Analysis oa status medbib and unpaywall data
+# sort(table(data_left_join_check_medbib_bih_unpaywall$oa_status_identical_medbib_unpaywall), decreasing = TRUE)
+
+# Analysis oa status medbib and bih data
+# sort(table(data_left_join_check_medbib_bih_unpaywall$oa_status_identical_medbib_bih), decreasing = TRUE)
+
+#data_left_join_check_medbib_bih_unpaywall %>%
+#  group_by(oa_status_identical_medbib_bih) %>%
+#  summarise(oa_status_identical_medbib_bih = n())
+
+year_medbib_unpaywall_not_identical <- nrow(data_left_join_check_medbib_bih_unpaywall %>% filter(year_medbib_unpaywall_identical == FALSE))
+
+oa_status_medbib_unpaywall_not_identical <- nrow(data_left_join_check_medbib_bih_unpaywall %>% filter(oa_status_identical_medbib_unpaywall == FALSE))
+
+oa_status_medbib_bih_not_identical <- nrow(data_left_join_check_medbib_bih_unpaywall %>% filter(oa_status_identical_medbib_bih == FALSE))
 ```
 
 ```{r}
-write_xlsx(data_left_join_check, "data_medbib_bih_check.xlsx")
+# Write XLSX-file
+write_xlsx(data_left_join_check_medbib_bih_unpaywall, "data/data_medbib_bih_unpaywall_check.xlsx")
 ```
 
+## Datenvergleich Medbib und Unpaywall
+
+Der Vergleich der Medbib-Daten mit den Unpaywall-Daten ergab, dass der der Open Access-Status in `r oa_status_medbib_unpaywall_not_identical` Fällen nicht identisch ist.
+
+Die Erscheinungsjahre sind in `r year_medbib_unpaywall_not_identical` Fällen nicht identisch. 
+
+Die Abweichungen wurden in der Datentabelle in jeweils einer neuen Spalte (`oa_status_identical_medbib_unpaywall` und `year_medbib_unpaywall_identical` mit logischen Operatoren gekennzeichnet.

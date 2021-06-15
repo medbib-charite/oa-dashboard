@@ -1,6 +1,7 @@
 ########################### Load source ###########################
 
 source("data_1.R", encoding = 'UTF-8')
+source("Datenvergleich.Rmd", encoding = 'UTF-8')
 
 library(roadoi)
 
@@ -15,9 +16,42 @@ sample_data <- data_doi %>%
 
 # https://cran.r-project.org/web/packages/roadoi/vignettes/intro.html
 
-data_unpaywall <- roadoi::oadoi_fetch(dois = data$doi,
+data_doi_2020 <- data_doi %>%
+  filter(jahr == 2020) %>%
+  select(doi)
+
+data_doi_2019 <- data_doi %>%
+  filter(jahr == 2019) %>%
+  select(doi)
+
+data_doi_2018 <- data_doi %>%
+  filter(jahr == 2018) %>%
+  select(doi)
+
+data_unpaywall_2018 <- roadoi::oadoi_fetch(dois = data_doi_2018$doi,
             email = "jan.taubitz@charite.de",
             .progress = "text")
+
+warnings_2020 <- warnings()
+save(data_unpaywall_2020, file = "data/data_unpaywall_2020.Rda")
+save(warnings_2020, file = "data/warnings_2020.Rda")
+# load("data_unpaywall_2020.Rda")
+
+warnings_2019 <- warnings()
+save(data_unpaywall_2019, file = "data/data_unpaywall_2019.Rda")
+save(warnings_2019, file = "data/warnings_2019.Rda")
+# load("data_unpaywall_2019.Rda")
+
+warnings_2018 <- warnings()
+save(data_unpaywall_2018, file = "data/data_unpaywall_2018.Rda")
+save(warnings_2018, file = "data/warnings_2018.Rda")
+# load("data/data_unpaywall_2019.Rda")
+
+data_unpaywall <- rbind(data_unpaywall_2018, data_unpaywall_2019, data_unpaywall_2020)
+save(data_unpaywall, file = "data/data_unpaywall.Rda")
+
+sort(table(data_unpaywall$publisher), decreasing = TRUE)
+sapply(data_unpaywall, function(x) length(unique(x)))
 
 ########################### Proxy settings ###########################
 # https://support.rstudio.com/hc/en-us/articles/200488488-Configuring-R-to-Use-an-HTTP-or-HTTPS-Proxy
