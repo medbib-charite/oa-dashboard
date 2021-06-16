@@ -1,7 +1,7 @@
 ########################### Load source ###########################
 
 source("data_1.R", encoding = 'UTF-8')
-source("Datenvergleich.Rmd", encoding = 'UTF-8')
+source("datenvergleich.Rmd", encoding = 'UTF-8')
 
 library(roadoi)
 
@@ -49,8 +49,11 @@ save(warnings_2018, file = "data/warnings_2018.Rda")
 
 data_unpaywall <- rbind(data_unpaywall_2018, data_unpaywall_2019, data_unpaywall_2020)
 save(data_unpaywall, file = "data/data_unpaywall.Rda")
+load("data/data_unpaywall.Rda")
+
 
 sort(table(data_unpaywall$publisher), decreasing = TRUE)
+sort(table(data_unpaywall$journal_is_in_doaj), decreasing = TRUE)
 sapply(data_unpaywall, function(x) length(unique(x)))
 
 ########################### Proxy settings ###########################
@@ -61,4 +64,25 @@ sapply(data_unpaywall, function(x) length(unique(x)))
 # 2x http://...
 
 ########################### Literature documentations ###########################
+# https://cran.r-project.org/web/packages/roadoi/vignettes/intro.html
 # https://subugoe.github.io/scholcomm_analytics/posts/unpaywall_evidence/
+
+
+########################### Analysis ###########################
+
+# Percent of article that were oa
+# Percent of articles that were published in a doaj-journal
+
+# Percent of article with Corresponding author
+
+is_oa <- sort(table(data_unpaywall$is_oa), decreasing = TRUE)
+is_oa
+is_oa <- round(9427/sum(is_oa)*100, 1)
+
+is_doaj <- sort(table(data_unpaywall$journal_is_in_doaj), decreasing = TRUE)
+is_doaj
+is_doaj <- round(4152/sum(is_doaj)*100, 1)
+
+is_corresponding <- sort(table(data$corresponding_author_cha), decreasing = TRUE)
+is_corresponding
+is_corresponding <- round(6292/sum(is_corresponding)*100, 1)

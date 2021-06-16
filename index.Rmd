@@ -14,7 +14,16 @@ output:
 library(flexdashboard)
 
 source("data_1.R", encoding = 'UTF-8')
+source("rcrossref.R", encoding = 'UTF-8')
 ```
+
+<style>
+body {
+  max-width: 1200px; 
+  margin: 0 auto 0 auto;
+}
+</style>
+
 
 Row {data-height=150}
 -----------------------------------------------------------------------
@@ -88,3 +97,79 @@ journal_absolute
 ```{r}
 journal_percent
 ```
+
+Row 
+-----------------------------------------------------------------------
+
+```{r}
+########################### Analysis ###########################
+
+# Percent of article that were oa
+# Percent of article with Corresponding author
+# Percent of articles that were published in a doaj-journal
+
+load("data/data_unpaywall.Rda")
+
+is_oa <- sort(table(data_unpaywall$is_oa), decreasing = TRUE)
+is_oa <- round(9427/sum(is_oa)*100, 1)
+
+is_doaj <- sort(table(data_unpaywall$journal_is_in_doaj), decreasing = TRUE)
+is_doaj <- round(4152/sum(is_doaj)*100, 1)
+
+is_corresponding <- sort(table(data$corresponding_author_cha), decreasing = TRUE)
+is_corresponding <- round(6292/sum(is_corresponding)*100, 1)
+```
+
+
+### Open Access-Artikel 2018-2020
+
+```{r}
+rate <- is_oa
+gauge(rate, min = 0, max = 100, symbol = ' %', label= "Daten von Unpaywall", gaugeSectors(
+  success = c(50, 100), warning = c(30, 49), danger = c(0, 29)
+))
+```
+
+### Autor ist Corresponding 2018-2020
+
+```{r}
+rate <- is_corresponding
+gauge(rate, min = 0, max = 100, symbol = ' %', label= "Daten von Medbib", gaugeSectors(
+  success = c(40, 100), warning = c(30, 39), danger = c(0, 29)
+))
+```
+
+### Journal ist DOAJ 2018-2020
+
+```{r}
+rate <- is_doaj
+gauge(rate, min = 0, max = 100, symbol = ' %', label= "Daten von Unpaywall", gaugeSectors(
+  success = c(50, 100), warning = c(20, 49), danger = c(0, 19)
+))
+```
+
+
+
+Row {data-height=120}
+-----------------------------------------------------------------------
+
+### Analyse 3
+
+<font size="6"> Median und Mittelwert der Zitierungen von den 2018 publizierten Artikeln mit Charité-Beteiligung (Daten von Crossref)</font>
+
+Row 
+-----------------------------------------------------------------------
+
+###
+
+```{r}
+median_citation
+```
+
+###
+
+```{r}
+mean_citation
+```
+
+
