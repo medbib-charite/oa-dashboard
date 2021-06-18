@@ -173,3 +173,22 @@ mean_citation
 ```
 
 
+Row {data-height=120}
+-----------------------------------------------------------------------
+
+### Analyse 3
+
+<font size="6"> Lizenzen der 2018-2019 publizierten Artikeln mit Charité-Beteiligung</font>
+
+Row 
+-----------------------------------------------------------------------
+
+###
+
+```{r}
+load("charts/chart_lizenzen.Rda")
+chart_lizenzen
+```
+
+###
+

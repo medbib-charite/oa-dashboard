@@ -9,7 +9,7 @@ data_doi <- data %>%
   filter(!str_detect(doi, "keine DOI"))
 
 sample_data <- data_doi %>%
-  sample_n(size = 50) %>%
+  sample_n(size = 10) %>%
   mutate(doi = tolower(doi))
 
 data_doi_2018 <- data_doi %>%
@@ -65,3 +65,17 @@ mean_citation <-
 #ggplot(data_citation_join, aes(oa_status, fill=count)) +
 #  geom_bar()
 
+
+########################### Load license data from crossref ###########################
+# https://github.com/subugoe/metacheck/blob/main/R/metrics_cc.R
+
+
+#req <- get_cr_md(sample_data$doi)
+
+#cr_licenses(query = sample_data$doi)
+
+#cr_citation_count(doi = sample_data$doi)
+
+#'
+#' # Then, check article-level compliance
+#  out <- cr_compliance_overview(req)

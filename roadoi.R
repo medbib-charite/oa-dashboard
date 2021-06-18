@@ -86,3 +86,65 @@ is_doaj <- round(4152/sum(is_doaj)*100, 1)
 is_corresponding <- sort(table(data$corresponding_author_cha), decreasing = TRUE)
 is_corresponding
 is_corresponding <- round(6292/sum(is_corresponding)*100, 1)
+
+
+########################### Analyse Licences  ###########################
+
+
+data_license_unnest <- data_unpaywall %>%
+  # 1. Unnest the list structure
+  unnest(oa_locations, keep_empty = TRUE) %>%
+  # 2. Clean the license strings and create "others" category
+  mutate(license = case_when(grepl("specific|cc0|implied|pd", license, ignore.case = TRUE) ~ "sonstige Lizenz",
+                             TRUE ~ license)) %>%
+  select(doi, license)
+
+
+data_license_unnest_2 <- data_license_unnest %>%
+  drop_na() %>%
+  # 3. Keep only distinct doi-license rows
+  distinct(doi, license, .keep_all = TRUE) %>%
+  # 4. Create column with logical operator that shows dois > 1
+  group_by(doi) %>%
+  mutate(dupe = n() > 1) %>%
+  filter(dupe == TRUE) %>%
+  # 5. Select only rows with shortest (== best) license
+  mutate(min = min(nchar(license))) %>%
+  mutate(best = if_else(nchar(license) == min, TRUE, FALSE)) %>%
+  filter(best == TRUE) %>%
+  select(doi, license)
+
+########################### Combine lists  ###########################
+
+data_license_unnest_distinct <- data_license_unnest %>%
+  distinct(doi, .keep_all = TRUE)
+
+data_license_final <- rbind(data_license_unnest_2, data_license_unnest_distinct) %>%
+  distinct(doi, .keep_all = TRUE) %>%
+  mutate(license = replace_na(license, "kein Ergebnis")) %>%
+  mutate(license = factor(license, levels = c("cc-by", "cc-by-nc", "cc-by-sa", "cc-by-nd", "cc-by-nc-sa", "cc-by-nc-nd", "sonstige Lizenz", "kein Ergebnis")))
+
+data_license_final_count <- data_license_final %>%
+  group_by(license) %>%
+  summarise(count = n())
+
+# test
+
+test <- data_license_unnest_2 %>%
+  left_join(data_license_final, by = "doi") %>%
+  mutate(test = if_else(license.x == license.y, TRUE, FALSE))
+
+# https://stackoverflow.com/questions/6986657/find-duplicated-rows-based-on-2-columns-in-data-frame-in-r
+
+# 740 Artikel haben mindestens zwei unterschiedliche Lizenzen
+
+########################### Visualize licenses  ###########################
+
+chart_lizenzen <- data_license_final_count %>%
+  hchart("column",
+         hcaes(x = license, y = count)) %>%
+  hc_title(text = "Lizenzen") %>%
+  hc_subtitle(text = "Daten zu Lizenzen von Unpaywall") %>%
+  hc_tooltip(pointFormat = "{point.count} Artikel")
+
+save(chart_lizenzen, file = "charts/chart_lizenzen.Rda")
