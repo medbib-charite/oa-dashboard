@@ -138,11 +138,30 @@ test <- data_license_unnest_2 %>%
 
 # 740 Artikel haben mindestens zwei unterschiedliche Lizenzen
 
+########################### Add oa_status to data  ###########################
+
+data_doi <- data %>%
+  filter(!str_detect(doi, "keine DOI")) %>%
+  mutate(doi = tolower(doi)) # Convert dois to lower case
+
+data_medbib_license <- data_doi %>%
+  select(doi, oa_status)
+
+data_license_oa_status_final <- data_medbib_license %>%
+  inner_join(data_license_final, by = "doi")
+
+data_license_oa_status_final_count <- data_license_oa_status_final %>%
+  group_by(license, oa_status) %>%
+  summarise(count = n())
+
+
 ########################### Visualize licenses  ###########################
 
-chart_lizenzen <- data_license_final_count %>%
+chart_lizenzen <- data_license_oa_status_final_count %>%
   hchart("column",
-         hcaes(x = license, y = count)) %>%
+         hcaes(x = license, y = count, group = oa_status)) %>%
+  hc_plotOptions(series = list(stacking = "normal")) %>%
+  hc_colors(color) %>%
   hc_title(text = "Lizenzen") %>%
   hc_subtitle(text = "Daten zu Lizenzen von Unpaywall") %>%
   hc_tooltip(pointFormat = "{point.count} Artikel")
