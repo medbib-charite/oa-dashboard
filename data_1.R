@@ -2,6 +2,7 @@
 
 
 library(highcharter)
+library(htmlwidgets)
 library(janitor)
 library(readxl)
 library(tidyverse)
@@ -25,7 +26,8 @@ color <- c("#F4C244", "#A0CBDA", "#4FAC5B", "#D85DBF", "#2C405E", "#5F7036")
 
 data <- raw_data %>%
   clean_names() %>%
-  mutate(oa_status = tolower(oa_status)) %>%
+  mutate(doi = tolower(doi), # Convert dois to lower case
+         oa_status = tolower(oa_status)) %>%
   mutate(oa_status = replace_na(oa_status, "kein ergebnis")) %>%
   mutate(oa_status = factor(oa_status, levels = oa_status_colors)) %>%
   mutate(corresponding_author_cha = if_else(row_number() %in% c(1:6292), TRUE, FALSE), .after = "oa_status")
@@ -60,6 +62,8 @@ status_absolute <-
   hc_plotOptions(series = list(stacking = "normal")) %>%
   hc_colors(color) %>%
   hc_yAxis(reversedStacks = FALSE)
+
+saveWidget(status_absolute, file = "status_absolute.html") # , selfcontained = TRUE
 
 # %>% hc_title(text = "Open access status in absolute numbers", align = "left", style = list(fontSize = "12px"))
 # %>% hc_subtitle(text = text, align = "left", style = list(fontSize = "12px"))

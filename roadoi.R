@@ -6,7 +6,7 @@ source("datenvergleich.Rmd", encoding = 'UTF-8')
 library(roadoi)
 
 data_doi <- data %>%
-  filter(!str_detect(doi, "keine DOI"))
+  filter(!str_detect(doi, "keine doi"))
 
 sample_data <- data_doi %>%
   sample_n(size = 100)
@@ -141,8 +141,7 @@ test <- data_license_unnest_2 %>%
 ########################### Add oa_status to data  ###########################
 
 data_doi <- data %>%
-  filter(!str_detect(doi, "keine DOI")) %>%
-  mutate(doi = tolower(doi)) # Convert dois to lower case
+  filter(!str_detect(doi, "keine doi"))
 
 data_medbib_license <- data_doi %>%
   select(doi, oa_status)

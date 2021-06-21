@@ -6,15 +6,13 @@ source("data_1.R", encoding = 'UTF-8')
 library(rcrossref)
 
 data_doi <- data %>%
-  filter(!str_detect(doi, "keine DOI"))
+  filter(!str_detect(doi, "keine doi"))
 
 sample_data <- data_doi %>%
-  sample_n(size = 10) %>%
-  mutate(doi = tolower(doi))
+  sample_n(size = 10)
 
 data_doi_2018 <- data_doi %>%
-  filter(jahr == 2018) %>%
-  mutate(doi = tolower(doi))
+  filter(jahr == 2018)
 
 ########################### Load data from crossref ###########################
 
