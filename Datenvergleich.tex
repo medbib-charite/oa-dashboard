@@ -1,0 +1,175 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+%
+\documentclass[
+]{article}
+\usepackage{amsmath,amssymb}
+\usepackage{lmodern}
+\usepackage{ifxetex,ifluatex}
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math}
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
+\hypersetup{
+  pdftitle={Datenvergleich},
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+\urlstyle{same} % disable monospaced font for URLs
+\usepackage[margin=1in]{geometry}
+\usepackage{graphicx}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+% Set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{wrapfig}
+\usepackage{float}
+\usepackage{colortbl}
+\usepackage{pdflscape}
+\usepackage{tabu}
+\usepackage{threeparttable}
+\usepackage{threeparttablex}
+\usepackage[normalem]{ulem}
+\usepackage{makecell}
+\usepackage{xcolor}
+\ifluatex
+  \usepackage{selnolig}  % disable illegal ligatures
+\fi
+
+\title{Datenvergleich}
+\author{}
+\date{\vspace{-2.5em}15.06.2021}
+
+\begin{document}
+\maketitle
+
+\hypertarget{anzahl-publikationen}{%
+\subsection{Anzahl Publikationen}\label{anzahl-publikationen}}
+
+Der Datensatz der Medizinischen Bibliothek enthält \textbf{15178
+Publikationen} für den Zeitraum 2018 bis 2020.
+
+Der BIH-Datensatz enthält \textbf{13252 Publikationen} für den Zeitraum
+2018 bis 2020.
+
+\hypertarget{publikationen-in-den-datensuxe4tzen-nach-jahren}{%
+\subsubsection{Publikationen in den Datensätzen nach
+Jahren}\label{publikationen-in-den-datensuxe4tzen-nach-jahren}}
+
+Auf die einzelnen Jahre des Untersuchungszeitraums bezogen ergibt sich
+folgende Verteilung:
+
+\begin{table}
+\centering
+\begin{tabular}{r|r|r}
+\hline
+year & medbib & bih\\
+\hline
+2018 & 4421 & 3906\\
+\hline
+2019 & 4676 & 4329\\
+\hline
+2020 & 6081 & 5017\\
+\hline
+\end{tabular}
+\end{table}
+
+\hypertarget{uxfcberschneidungen-und-abweichungen}{%
+\subsection{Überschneidungen und
+Abweichungen}\label{uxfcberschneidungen-und-abweichungen}}
+
+\hypertarget{vergleich-der-datensuxe4tze-anhand-der-doi}{%
+\subsubsection{Vergleich der Datensätze anhand der
+DOI}\label{vergleich-der-datensuxe4tze-anhand-der-doi}}
+
+Um die Überschneidungen und Abweichungen mit einem eindeutigen
+Identifier analysieren zu können, wurden nur die Publikationen mit einer
+DOI verwendet.
+
+Keine DOI hatten 179 Publikationen der Medbib-Daten und 99 Publikationen
+der BIH-Daten. Diese Publikationen wurden aus den Datensätzen entfernt.
+Somit wurden 14999 Publikationen aus dem Medbib-Datensatz und 13153
+Publikationen aus dem BIH-Datensatz ausgewertet.
+
+Beide Datensätze wurden anhand der DOI miteinander verbunden. Der
+verbundendene Datensatz enthält 15694 Publikationen. 12460 der
+Publikationen sind in beiden Datensätzen enthalten.
+
+Der Medbib-Datensatz enthält 2541 Publikationen, die nicht im
+BIH-Datensatz enthalten sind.
+
+Der BIH-Datensatz enthält wiederum 693 Publikationen, die nicht im
+Medbib-Datensatz enthalten sind.
+
+Die BIH-Daten, die nicht im Medbib-Datensatz enthalten sind, wurden in
+der Datentabelle in der Spalte \texttt{in\_bih\_dataset} mit logischen
+Operatoren gekennzeichnet.
+
+\hypertarget{uxfcberpruxfcfung-des-oa-status}{%
+\subsubsection{Überprüfung des
+OA-Status}\label{uxfcberpruxfcfung-des-oa-status}}
+
+In einem nächsten Schritt wurde der OA-Status überprüft.
+
+981 von den 12460 in beiden Datensätzen enthaltenen Publikationen wurden
+nicht mit dem identischen Open-Access-Status identifiziert.
+
+Diese Datensätze wurden zur weiteren Überprüfung in der Datentabelle in
+der Spalte \texttt{oa\_status\_identical\_medbib\_bih} mit logischen
+Operatoren gekennzeichnet.
+
+\hypertarget{datenvergleich-medbib-und-unpaywall}{%
+\subsection{Datenvergleich Medbib und
+Unpaywall}\label{datenvergleich-medbib-und-unpaywall}}
+
+Der Vergleich der Medbib-Daten mit den Unpaywall-Daten ergab, dass der
+der Open Access-Status in 282 Fällen nicht identisch ist.
+
+Die Erscheinungsjahre sind in 1905 Fällen nicht identisch.
+
+Die Abweichungen wurden in der Datentabelle in jeweils einer neuen
+Spalte (\texttt{oa\_status\_identical\_medbib\_unpaywall} und
+\texttt{year\_medbib\_unpaywall\_identical} mit logischen Operatoren
+gekennzeichnet.
+
+\end{document}

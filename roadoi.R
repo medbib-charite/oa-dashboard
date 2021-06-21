@@ -71,13 +71,15 @@ sapply(data_unpaywall, function(x) length(unique(x)))
 ########################### Analysis ###########################
 
 # Percent of article that were oa
+
 # Percent of articles that were published in a doaj-journal
 
 # Percent of article with Corresponding author
 
-is_oa <- sort(table(data_unpaywall$is_oa), decreasing = TRUE)
-is_oa
-is_oa <- round(9427/sum(is_oa)*100, 1)
+is_oa <- data %>%
+  group_by(jahr, is_oa) %>%
+  summarise(value = n()) %>%
+  mutate(perc = round(value / sum(value) * 100, 1))
 
 is_doaj <- sort(table(data_unpaywall$journal_is_in_doaj), decreasing = TRUE)
 is_doaj
@@ -122,7 +124,7 @@ data_license_unnest_distinct <- data_license_unnest %>%
 data_license_final <- rbind(data_license_unnest_2, data_license_unnest_distinct) %>%
   distinct(doi, .keep_all = TRUE) %>%
   mutate(license = replace_na(license, "kein Ergebnis")) %>%
-  mutate(license = factor(license, levels = c("cc-by", "cc-by-nc", "cc-by-sa", "cc-by-nd", "cc-by-nc-sa", "cc-by-nc-nd", "sonstige Lizenz", "kein Ergebnis")))
+  mutate(license = factor(license, levels = c("cc-by", "cc-by-nc", "cc-by-sa", "cc-by-nc-sa", "cc-by-nd", "cc-by-nc-nd", "sonstige Lizenz", "kein Ergebnis")))
 
 data_license_final_count <- data_license_final %>%
   group_by(license) %>%
@@ -153,10 +155,17 @@ data_license_oa_status_final_count <- data_license_oa_status_final %>%
   group_by(license, oa_status) %>%
   summarise(count = n())
 
+data_license_oa_status_final_count_2 <- data_license_oa_status_final_count %>%
+  group_by(license) %>%
+  spread(oa_status, count, fill = 0) %>% # to solve order problem
+  gather(oa_status, count, 2:7) %>%
+  mutate(oa_status = factor(oa_status, levels = oa_status_colors)) %>%
+  arrange(license)
+
 
 ########################### Visualize licenses  ###########################
 
-chart_lizenzen <- data_license_oa_status_final_count %>%
+chart_lizenzen <- data_license_oa_status_final_count_2 %>%
   hchart("column",
          hcaes(x = license, y = count, group = oa_status)) %>%
   hc_plotOptions(series = list(stacking = "normal")) %>%
@@ -166,3 +175,52 @@ chart_lizenzen <- data_license_oa_status_final_count %>%
   hc_tooltip(pointFormat = "{point.count} Artikel")
 
 save(chart_lizenzen, file = "charts/chart_lizenzen.Rda")
+
+chart_lizenzen_oa <- data_license_oa_status_final_count_2 %>%
+  filter(oa_status %in% c("gold", "hybrid", "green")) %>%
+  hchart("column",
+         hcaes(x = license, y = count, group = oa_status)) %>%
+  hc_plotOptions(series = list(stacking = "normal")) %>%
+  hc_colors(color) %>%
+  hc_title(text = "Lizenzen") %>%
+  hc_subtitle(text = "Nur Open Access-Artikel, Daten zu Lizenzen von Unpaywall") %>%
+  hc_tooltip(pointFormat = "{point.count} Artikel")
+
+save(chart_lizenzen_oa, file = "charts/chart_lizenzen_oa.Rda")
+
+
+oa_status_colors <- c("gold", "hybrid", "green", "bronze", "closed", "kein ergebnis")
+color <- c("#F4C244", "#A0CBDA", "#4FAC5B", "#D85DBF", "#2C405E", "#5F7036")
+
+
+color_treemap <- c("#2C405E", "#F4C244", "#D85DBF", "#A0CBDA", "#4FAC5B", "#5F7036")
+
+hchart(
+  data_to_hierarchical(
+    data = data_license_oa_status_final_count_2,
+    group_vars = c(oa_status, license),
+    size_var = count,
+    colors = color_treemap),
+  type = "treemap",
+  levelIsConstant = FALSE,
+  animation = list(defer = 1000, duration = 0),
+  allowDrillToNode = TRUE,
+  #  allowTraversingTree = TRUE,
+  layoutAlgorithm = "squarified",
+  levels = list(
+    list(
+      level = 1,
+      dataLabels = list(enabled = TRUE),
+      borderWidth = 4,
+      colorVariation = list(key = 'brightness', to = 0.2)
+    ),
+    list(
+      level = 2,
+      dataLabels = list(enabled = FALSE),
+      borderWidth = 1,
+      colorVariation = list(key = 'brightness', to = 0.2)
+    )
+  )
+) %>%
+  hc_title(text = "Lizenzen - Treemap Chart") %>%
+  hc_subtitle(text = "Daten zu Lizenzen von Unpaywall")

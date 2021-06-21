@@ -30,7 +30,8 @@ data <- raw_data %>%
          oa_status = tolower(oa_status)) %>%
   mutate(oa_status = replace_na(oa_status, "kein ergebnis")) %>%
   mutate(oa_status = factor(oa_status, levels = oa_status_colors)) %>%
-  mutate(corresponding_author_cha = if_else(row_number() %in% c(1:6292), TRUE, FALSE), .after = "oa_status")
+  mutate(is_oa = if_else(oa_status %in% c("gold", "hybrid", "green"), TRUE, FALSE), .after = "oa_status") %>%
+  mutate(corresponding_author_cha = if_else(row_number() %in% c(1:6292), TRUE, FALSE), .after = "is_oa")
 
 
 ########################### Exploratory data analysis ###########################
@@ -63,7 +64,7 @@ status_absolute <-
   hc_colors(color) %>%
   hc_yAxis(reversedStacks = FALSE)
 
-saveWidget(status_absolute, file = "status_absolute.html") # , selfcontained = TRUE
+# saveWidget(status_absolute, file = "status_absolute.html") # , selfcontained = TRUE
 
 # %>% hc_title(text = "Open access status in absolute numbers", align = "left", style = list(fontSize = "12px"))
 # %>% hc_subtitle(text = text, align = "left", style = list(fontSize = "12px"))

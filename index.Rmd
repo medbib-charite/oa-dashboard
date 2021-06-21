@@ -25,37 +25,12 @@ body {
 </style>
 
 
-Row {data-height=150}
------------------------------------------------------------------------
-
-### 2018 - Open Access-Status von Artikeln mit Charité-Corresponding Author
-
-```{r}
-item_2018
-```
-
-Row {data-height=150}
------------------------------------------------------------------------
-### 2019 - Open Access-Status von Artikeln mit Charité-Corresponding Author
-
-```{r}
-item_2019
-```
-Row {data-height=200}
------------------------------------------------------------------------
-### 2020 - Open Access-Status von Artikeln mit Charité-Corresponding Author
-
-```{r}
-item_2020
-```
-
-
 Row {data-height=120}
 -----------------------------------------------------------------------
 
 ### Analyse 1
 
-<font size="6"> Open Access-Status von Artikeln mit Charité-Beteiligung insgesamt und von Artikeln mit Charité-Corresponding Author 2018 - 2019</font>
+<font size="6"> Open Access-Status von Artikeln mit Charité-Beteiligung insgesamt und von Artikeln mit Charité-Corresponding Author 2018-2020</font>
 
 
 Row {data-height=500}
@@ -110,8 +85,10 @@ Row
 
 load("data/data_unpaywall.Rda")
 
-is_oa <- sort(table(data_unpaywall$is_oa), decreasing = TRUE)
-is_oa <- round(9427/sum(is_oa)*100, 1)
+is_oa <- data %>%
+  group_by(jahr, is_oa) %>%
+  summarise(value = n()) %>%
+  mutate(perc = round(value / sum(value) * 100, 1))
 
 is_doaj <- sort(table(data_unpaywall$journal_is_in_doaj), decreasing = TRUE)
 is_doaj <- round(4152/sum(is_doaj)*100, 1)
@@ -121,14 +98,40 @@ is_corresponding <- round(6292/sum(is_corresponding)*100, 1)
 ```
 
 
-### Open Access-Artikel 2018-2020
+### Open Access-Artikel 2018
 
 ```{r}
-rate <- is_oa
-gauge(rate, min = 0, max = 100, symbol = ' %', label= "Daten von Unpaywall", gaugeSectors(
+rate <- is_oa %>% filter(jahr == 2018 & is_oa == TRUE) %>% pull(perc)
+
+
+gauge(rate, min = 0, max = 100, symbol = ' %', label= "Daten von Medbib", gaugeSectors(
   success = c(50, 100), warning = c(30, 49), danger = c(0, 29)
 ))
 ```
+
+### Open Access-Artikel 2019
+
+```{r}
+rate <- is_oa %>% filter(jahr == 2019 & is_oa == TRUE) %>% pull(perc)
+
+gauge(rate, min = 0, max = 100, symbol = ' %', label= "Daten von Medbib", gaugeSectors(
+  success = c(50, 100), warning = c(30, 49), danger = c(0, 29)
+))
+```
+
+### Open Access-Artikel 2020
+
+```{r}
+rate <- is_oa %>% filter(jahr == 2020 & is_oa == TRUE) %>% pull(perc)
+
+gauge(rate, min = 0, max = 100, symbol = ' %', label= "Daten von Medbib", gaugeSectors(
+  success = c(50, 100), warning = c(30, 49), danger = c(0, 29)
+))
+```
+
+
+Row 
+-----------------------------------------------------------------------
 
 ### Autor ist Corresponding 2018-2020
 
@@ -147,6 +150,7 @@ gauge(rate, min = 0, max = 100, symbol = ' %', label= "Daten von Unpaywall", gau
   success = c(50, 100), warning = c(20, 49), danger = c(0, 19)
 ))
 ```
+
 
 
 
@@ -176,9 +180,9 @@ mean_citation
 Row {data-height=120}
 -----------------------------------------------------------------------
 
-### Analyse 3
+### Analyse 4
 
-<font size="6"> Lizenzen der 2018-2019 publizierten Artikeln mit Charité-Beteiligung</font>
+<font size="6"> Lizenzen der mit Charité-Beteiligung publizierten Artikel</font>
 
 Row 
 -----------------------------------------------------------------------
@@ -192,3 +196,40 @@ chart_lizenzen
 
 ###
 
+```{r}
+load("charts/chart_lizenzen_oa.Rda")
+chart_lizenzen_oa
+```
+
+
+Row {data-height=100}
+-----------------------------------------------------------------------
+
+### Analyse 5
+
+<font size="4"> Ein <b>Itemchart</b> zeigt jeden Artikel als einzelnen Punkt. Durch den Itemchart kann in einem Jahresvergleich gut die absolute Anzahl der Artikel repräsentiert als auch das prozentuale Verhältnis des OA-Status angezeigt werden.</font>
+
+
+Row {data-height=150}
+-----------------------------------------------------------------------
+
+### 2018 - Open Access-Status von Artikeln mit Charité-Corresponding Author
+
+```{r}
+item_2018
+```
+
+Row {data-height=150}
+-----------------------------------------------------------------------
+### 2019 - Open Access-Status von Artikeln mit Charité-Corresponding Author
+
+```{r}
+item_2019
+```
+Row {data-height=200}
+-----------------------------------------------------------------------
+### 2020 - Open Access-Status von Artikeln mit Charité-Corresponding Author
+
+```{r}
+item_2020
+```
