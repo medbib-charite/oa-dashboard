@@ -24,55 +24,6 @@ body {
 }
 </style>
 
-
-Row {data-height=120}
------------------------------------------------------------------------
-
-### Analyse 1
-
-<font size="6"> Open Access-Status von Artikeln mit Charité-Beteiligung insgesamt und von Artikeln mit Charité-Corresponding Author 2018-2020</font>
-
-
-Row {data-height=500}
------------------------------------------------------------------------
-
-
-### Artikel mit Charité-Beteiligung
-
-```{r}
-status_percent
-```
-
-### Artikel mit Charité-Corresponding Author
-
-```{r}
-status_corresponding_percent
-```
-
-
-Row {data-height=120}
------------------------------------------------------------------------
-
-### Analyse 2
-
-<font size="6"> Open Access-Status von Artikeln mit Charité-Beteiligung auf Journal-Ebene im Jahr 2020 </font>
-
-
-Row {data-height=500}
------------------------------------------------------------------------
-
-### Open access status in absolute numbers
-
-```{r}
-journal_absolute
-```
-
-### Open access status in %
-
-```{r}
-journal_percent
-```
-
 Row 
 -----------------------------------------------------------------------
 
@@ -151,6 +102,53 @@ gauge(rate, min = 0, max = 100, symbol = ' %', label= "Daten von Unpaywall", gau
 ))
 ```
 
+Row {data-height=120}
+-----------------------------------------------------------------------
+
+### Analyse 1
+
+<font size="6"> Open Access-Status von Artikeln mit Charité-Beteiligung insgesamt und von Artikeln mit Charité-Corresponding Author 2018-2020</font>
+
+
+Row {data-height=500}
+-----------------------------------------------------------------------
+
+
+### Artikel mit Charité-Beteiligung
+
+```{r}
+status_percent
+```
+
+### Artikel mit Charité-Corresponding Author
+
+```{r}
+status_corresponding_percent
+```
+
+
+Row {data-height=120}
+-----------------------------------------------------------------------
+
+### Analyse 2
+
+<font size="6"> Open Access-Status von Artikeln mit Charité-Beteiligung auf Journal-Ebene im Jahr 2020 </font>
+
+
+Row {data-height=500}
+-----------------------------------------------------------------------
+
+### Open access status in absolute numbers
+
+```{r}
+journal_absolute
+```
+
+### Open access status in %
+
+```{r}
+journal_percent
+```
 
 
 
