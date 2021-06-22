@@ -209,7 +209,7 @@ journal_percent <- journal_data_2 %>%
   hc_plotOptions(series = list(stacking = "normal")) %>%
   hc_colors(color) %>%
   hc_xAxis(min = 0,
-           max = 20,
+           max = 15,
            scrollbar = list(enabled = TRUE)) %>%
   hc_yAxis(labels = list(format = '{value} %'),
                          max = 100, reversedStacks = FALSE) %>%
@@ -221,6 +221,46 @@ journal_percent <- journal_data_2 %>%
 
 ########################### Publishers ###########################
 
+load("data/data_unpaywall.Rda")
+
+data_publisher <- data_unpaywall %>%
+  select(doi, publisher)
+
+data_publisher_join <- data %>%
+  filter(jahr == 2020) %>%
+  select(doi, oa_status) %>%
+  left_join(data_publisher, by = "doi")
+
+
+data_publisher_join_sum <- data_publisher_join %>%
+  group_by(publisher, oa_status) %>%
+  summarise(value = n(), .groups = "drop_last") %>%
+  mutate(value_pub = sum(value)) %>%
+  ungroup() %>%
+  filter(value_pub >= 5) %>%
+  mutate(publisher = forcats::fct_reorder(publisher, -value_pub))
+
+
+data_publisher_join_sum_2 <- data_publisher_join_sum %>%
+  group_by(publisher) %>%
+  spread(oa_status, value, fill = 0) %>%
+  gather(oa_status, value, 3:8) %>%
+  mutate(oa_status = factor(oa_status, levels = oa_status_colors)) %>%
+  mutate(percent = round(value / sum(value) * 100, 1)) %>%
+  drop_na()
+
+publisher_absolute <- data_publisher_join_sum_2 %>%
+  hchart("bar", hcaes(x = publisher, y = value, group = oa_status)) %>%
+  hc_plotOptions(series = list(stacking = "normal")) %>%
+  hc_colors(color) %>%
+  hc_xAxis(min = 0,
+           max = 15,
+           scrollbar = list(enabled = TRUE)) %>%
+  hc_size(height = 500) %>%
+  hc_yAxis(reversedStacks = FALSE) %>%
+  hc_tooltip(pointFormat = "<b>{point.oa_status}</b><br>{point.value} Artikel ({point.percent} %)<br>{point.value_pub} Artikel insgesamt")
+
+########################### Use publisher data from medbib dataset ###########################
 
 data_publisher <- data %>%
   mutate(publisher = tolower(verlag)) %>%
@@ -249,14 +289,9 @@ data_publisher_sum <- data_publisher %>%
   arrange(-value, .by_group = TRUE)
 
 
-data_publisher_sum %>%
-  hchart(
-  "column",
-  hcaes(x = jahr, y = value, group = publisher)
-) %>%
-  hc_plotOptions(series = list(stacking = "normal", showInLegend = TRUE))
-
 # ordering bar plots https://github.com/jbkunst/highcharter/issues/363
+
+########################### End publisher ###########################
 
 ########################### To do ###########################
 #Sheet Unpaywall vergessen

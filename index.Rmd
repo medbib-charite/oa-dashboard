@@ -132,24 +132,23 @@ Row {data-height=120}
 
 ### Analyse 2
 
-<font size="6"> Open Access-Status von Artikeln mit Charité-Beteiligung auf Journal-Ebene im Jahr 2020 </font>
+<font size="6"> Open Access-Status von Artikeln mit Charité-Beteiligung auf Verlags- und Journal-Ebene im Jahr 2020 </font>
 
 
 Row {data-height=500}
 -----------------------------------------------------------------------
 
-### Open access status in absolute numbers
+### Publisher in absolute numbers
+
+```{r}
+publisher_absolute
+```
+
+### Journals in absolute numbers
 
 ```{r}
 journal_absolute
 ```
-
-### Open access status in %
-
-```{r}
-journal_percent
-```
-
 
 
 Row {data-height=120}

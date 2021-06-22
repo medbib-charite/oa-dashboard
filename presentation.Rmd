@@ -93,33 +93,12 @@ load("charts/chart_lizenzen.Rda")
 chart_lizenzen
 ```
 
-Grundlage für die Visualisierungen ist grundsätzlich die DOI, das Veröffentlichungsjahr und der Open-Access-Status.
-
-Weitere sind die Zeitschrift, der Verlag, die Lizenzen (Unpaywall), die Zitierungen (Crossref).
-
-### Statische vs interaktive Charts
-
-
-
-Interaktive Charts zeigen die präzisen Zahlen und lassen das hereinzoomen zu.
-
-Statische Charts geben die einzelnen Zahlen nicht gut wieder. Durch Annotationen lassen sich Geschichten präziser formulieren.
-
-
-## Veröffentlichung
 
 ### Dashboard
 
-Viele Informationen auf einem Blick.
+https://medbib-charite.github.io/oa-dashboard/
 
-Probleme mit der Integration von Text.
+### Ausbau
 
-Performance-Probleme bei vielen interaktiven Grafiken
-
-### Website bibliothek.charite.de
-
-Jede Grafik muss als iframe integriert werden. Ein Test mit Frau Lambrecht läuft.
-
-### externe Website
-
-Eine externe Website bietet Flexibilität und 
+1. Welche Daten fehlen? Wo können diese Daten bezogen werden?
+2. Vorschläge für Visualisierungen
