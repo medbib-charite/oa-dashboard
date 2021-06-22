@@ -138,18 +138,28 @@ Row {data-height=120}
 Row {data-height=500}
 -----------------------------------------------------------------------
 
-### Publisher in absolute numbers
+### Verlage in absoluten Zahlen
 
 ```{r}
 publisher_absolute
 ```
 
-### Journals in absolute numbers
+### Verlage in absoluten Zahlen
+
+```{r}
+publisher_donut
+```
+
+Row {data-height=500}
+-----------------------------------------------------------------------
+
+### Zeitschriften in absoluten Zahlen
 
 ```{r}
 journal_absolute
 ```
 
+###
 
 Row {data-height=120}
 -----------------------------------------------------------------------

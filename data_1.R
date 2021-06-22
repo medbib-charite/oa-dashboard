@@ -198,7 +198,7 @@ journal_absolute <- journal_data_2 %>%
   hc_plotOptions(series = list(stacking = "normal")) %>%
   hc_colors(color) %>%
   hc_xAxis(min = 0,
-           max = 20,
+           max = 15,
            scrollbar = list(enabled = TRUE)) %>%
   hc_size(height = 500) %>%
   hc_yAxis(reversedStacks = FALSE) %>%
@@ -231,6 +231,19 @@ data_publisher_join <- data %>%
   select(doi, oa_status) %>%
   left_join(data_publisher, by = "doi")
 
+publisher_donut <- data_publisher_join %>%
+  group_by(publisher) %>%
+  summarise(value = n()) %>%
+  mutate(publisher_2 = if_else(value <= 500, "andere Verlage", publisher)) %>%
+  group_by(publisher_2) %>%
+  summarise(value = sum(value)) %>%
+  mutate(perc = round(value / sum(value) * 100, 1)) %>%
+  arrange(-value) %>%
+  hchart("pie",
+         hcaes(x = publisher_2, y = value),
+         size = "65%",
+         innerSize = "50%") %>%
+  hc_tooltip(pointFormat = "{point.value} Artikel ({point.perc} %)")
 
 data_publisher_join_sum <- data_publisher_join %>%
   group_by(publisher, oa_status) %>%
@@ -299,7 +312,7 @@ data_publisher_sum <- data_publisher %>%
 #Göttingen anschauen
 #Treffen 24. Juni
 #Compare data with cha-dashboard
-
+# Pie chart for publisher
 
 
 
