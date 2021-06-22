@@ -1,30 +1,125 @@
 ---
-title: "Präsentation der Daten und Visualisierungen"
+title: "Datenanalyse und Datenvisualisierung von Charité-Publikationen"
 author: "Jan Taubitz"
 date: "23.06.2021"
 output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(
+  echo = FALSE,
+  message = FALSE,
+  warning = FALSE,
+  collapse = TRUE,
+  options(scipen = 999)
+)
+
+source("data_1.R", encoding = 'UTF-8')
+load("data/data_unpaywall.Rda")
+
+library(kableExtra)
+
 ```
 
-## R Markdown
+## Datengrundlage
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+Die Datengrundlage sind eine Erhebung in bibliographischen Datenbanken von 2018 bis 2020 erschienen Publikationen mit Charité-Beteiligung.
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+Das Ergebnis ist eine Tabelle mit **15178 Zeilen** und **17 Spalten**.
 
-```{r cars}
-summary(cars)
+```{r}
+raw_data %>% filter(DOI == "10.1002/acn3.662") %>%
+  kbl() %>%
+  kable_styling() %>%
+  scroll_box(width = "100%", height = "250px",
+  box_css = "border: 1px solid #ddd; padding: 5px; "
+)
 ```
 
-## Including Plots
 
-You can also embed plots, for example:
+## Datenanreicherung
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+Anahnd der DOIs können die Daten mit weiteren Informationen angereichert werden.
+
+Beispielsweise liefert die Unpaywall-Schnittstelle u.a. Informationen zu Lizenzen, zu einheitlichen Verlagsbezeichnungen und zum DOAJ-Status.
+
+```{r}
+data_unpaywall[6, ] %>%
+  kbl() %>%
+  kable_styling() %>%
+  scroll_box(width = "100%", height = "250px",
+  box_css = "border: 1px solid #ddd; padding: 5px; "
+)
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+Mit Crossref-Daten können die Zitierungen der einzelnen Artikel angezeigt werden.
+
+
+## Datenanalyse und Datenvisualisierung
+
+### Beispiel 1: Open Access-Status von Artikeln mit Charité-Corresponding Author 2018-2020  
+
+#### Datenanalyse
+```{r}
+data_corresponding_sum %>%
+  kbl(align = "llll") %>%
+  kable_styling() %>%
+  scroll_box(width = "50%", height = "250px",
+  box_css = "border: 1px solid #ddd; padding: 5px; "
+)
+```
+#### Visualisierung
+```{r}
+status_corresponding_percent %>% hc_title(text = "Open Access-Status von Artikeln mit Charité-Corresponding Author")
+```
+
+
+### Beispiel 2: Lizenzen der mit Charité-Beteiligung 2018-2020 publizierten Artikel  
+
+#### Datenanalyse
+```{r}
+load("data/data_license_oa_status_final_count_2.Rda")
+
+data_license_oa_status_final_count_2 %>%
+  kbl(align = "lll") %>%
+  kable_styling() %>%
+  scroll_box(width = "50%", height = "250px",
+  box_css = "border: 1px solid #ddd; padding: 5px; "
+)
+```
+#### Visualisierung
+```{r}
+load("charts/chart_lizenzen.Rda")
+chart_lizenzen
+```
+
+Grundlage für die Visualisierungen ist grundsätzlich die DOI, das Veröffentlichungsjahr und der Open-Access-Status.
+
+Weitere sind die Zeitschrift, der Verlag, die Lizenzen (Unpaywall), die Zitierungen (Crossref).
+
+### Statische vs interaktive Charts
+
+
+
+Interaktive Charts zeigen die präzisen Zahlen und lassen das hereinzoomen zu.
+
+Statische Charts geben die einzelnen Zahlen nicht gut wieder. Durch Annotationen lassen sich Geschichten präziser formulieren.
+
+
+## Veröffentlichung
+
+### Dashboard
+
+Viele Informationen auf einem Blick.
+
+Probleme mit der Integration von Text.
+
+Performance-Probleme bei vielen interaktiven Grafiken
+
+### Website bibliothek.charite.de
+
+Jede Grafik muss als iframe integriert werden. Ein Test mit Frau Lambrecht läuft.
+
+### externe Website
+
+Eine externe Website bietet Flexibilität und 

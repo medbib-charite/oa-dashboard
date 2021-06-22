@@ -162,6 +162,8 @@ data_license_oa_status_final_count_2 <- data_license_oa_status_final_count %>%
   mutate(oa_status = factor(oa_status, levels = oa_status_colors)) %>%
   arrange(license)
 
+save(data_license_oa_status_final_count_2, file = "data/data_license_oa_status_final_count_2.Rda")
+
 
 ########################### Visualize licenses  ###########################
 
