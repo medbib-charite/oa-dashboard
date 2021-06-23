@@ -1,6 +1,17 @@
-########################### Load in libraries ###########################
+#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# Manipulation and Visualization of Medbib dataset ----
+# jan.taubitz@charite.de - 2021
+#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+##+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+## Clean the workspace ----
+##+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+rm(list = ls())
+
+##+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+## Load libraries ----
+##+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 library(highcharter)
 library(htmlwidgets)
 library(janitor)
@@ -8,53 +19,57 @@ library(readxl)
 library(tidyverse)
 library(writexl)
 
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# Load data ----
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-########################### Load in data ###########################
+endfassung <- "raw_data/Endfassung.xlsx"
 
-raw_data <- read_excel("Endfassung.xlsx",
+raw_data <- read_excel(endfassung,
                        sheet = "Worksheet")
 
-# raw_data <- read_excel("T:/OA-Dashboard/oa-dashboard/Endfassung.xlsx",
-#                         sheet = "Worksheet")
-
-########################### Clean data ###########################
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# Define color and oa-status variables ----
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 oa_status_colors <- c("gold", "hybrid", "green", "bronze", "closed", "kein ergebnis")
 color <- c("#F4C244", "#A0CBDA", "#4FAC5B", "#D85DBF", "#2C405E", "#5F7036")
-#color <- c("#5cff0a", "#ffdc0a", "#0ac7ff", "#cd7f32", "#262c2f", "darkgray")
 
+
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# Clean data, create some new variables ----
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 data <- raw_data %>%
   clean_names() %>%
-  mutate(doi = tolower(doi), # Convert dois to lower case
-         oa_status = tolower(oa_status)) %>%
+  mutate(doi = tolower(doi),
+         oa_status = tolower(oa_status)) %>% # Convert dois and oa_status to lower case
+  distinct(doi, .keep_all = TRUE) %>%
   mutate(oa_status = replace_na(oa_status, "kein ergebnis")) %>%
   mutate(oa_status = factor(oa_status, levels = oa_status_colors)) %>%
   mutate(is_oa = if_else(oa_status %in% c("gold", "hybrid", "green"), TRUE, FALSE), .after = "oa_status") %>%
   mutate(corresponding_author_cha = if_else(row_number() %in% c(1:6292), TRUE, FALSE), .after = "is_oa")
 
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# Exploratory data analysis ----
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-########################### Exploratory data analysis ###########################
+#sapply(data, function(x) length(unique(x)))
+#sort(table(data$document_type), decreasing = TRUE)
+#n_occur <- data.frame(table(data$titel))
 
-sapply(data, function(x) length(unique(x)))
-sort(table(data$document_type), decreasing = TRUE)
-
-n_occur <- data.frame(table(data$titel))
-
-########################### Exploratory visualizations ###########################
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# Visualizations of year and oa_status ----
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 data %>%
   ggplot(aes(x = jahr, fill = oa_status)) +
   geom_bar()
 
-
 data_sum <- data %>%
   group_by(jahr, oa_status) %>%
   summarise(value = n()) %>%
   mutate(percent = round(value / sum(value) * 100, 1))
-
-
-text <- "In hac habitasse platea dictumst. Nam hendrerit elementum lacus. Suspendisse potenti. Vestibulum id aliquet neque. Praesent vel est est. Integer molestie consequat erat nec facilisis. Pellentesque scelerisque posuere nulla eu interdum."
 
 status_absolute <-
   hchart(data_sum,
@@ -65,7 +80,6 @@ status_absolute <-
   hc_yAxis(reversedStacks = FALSE)
 
 # saveWidget(status_absolute, file = "status_absolute.html") # , selfcontained = TRUE
-
 # %>% hc_title(text = "Open access status in absolute numbers", align = "left", style = list(fontSize = "12px"))
 # %>% hc_subtitle(text = text, align = "left", style = list(fontSize = "12px"))
 
@@ -81,20 +95,15 @@ status_percent <-
 
 # reversed bar stacks https://www.highcharts.com/forum/viewtopic.php?t=10916
 
-# hc_title(text = "Open access status of articles in %", align = "left", style = list(fontSize = "12px")) %>%
-# hc_subtitle(text = text, align = "left", style = list(fontSize = "12px")) %>%
-# hc_tooltip(shared = TRUE, split = TRUE)
-
-########################### Plot corresponding authors ###########################
-
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# Visualizations of year and oa_status corresponding authors ----
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 data_corresponding_sum <- data %>%
   filter(corresponding_author_cha == TRUE) %>%
   group_by(jahr, oa_status) %>%
   summarise(value = n()) %>%
   mutate(percent = round(value / sum(value) * 100, 1))
-
-text <- "In hac habitasse platea dictumst. Nam hendrerit elementum lacus. Suspendisse potenti. Vestibulum id aliquet neque. Praesent vel est est. Integer molestie consequat erat nec facilisis. Pellentesque scelerisque posuere nulla eu interdum."
 
 status_corresponding_absolute <-
   hchart(
@@ -105,10 +114,6 @@ status_corresponding_absolute <-
   hc_plotOptions(series = list(stacking = "normal")) %>%
   hc_colors(color) %>%
   hc_yAxis(reversedStacks = FALSE)
-
-
-# hc_title(text = "Open access status of articles of which a Charité scientists was the corresponding author(in absolute numbers)", align = "left", style = list(fontSize = "28px")) %>%
-# hc_subtitle(text = text, align = "left", style = list(fontSize = "12px"))
 
 status_corresponding_percent <-
   hchart(
@@ -122,10 +127,9 @@ status_corresponding_percent <-
            max = 100, reversedStacks = FALSE) %>%
   hc_tooltip(pointFormat = "<b>{point.oa_status}</b><br>{point.value} Artikel ({point.percent} %)")
 
-# hc_title(text = "Open access status of articles of which a Charité scientists was the corresponding author (in %)", align = "left", style = list(fontSize = "28px")) %>%
-# hc_subtitle(text = text, align = "left", style = list(fontSize = "12px")) %>%
-
-
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# Visualizations of year and oa_status item chart ----
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 item_2018 <- data_corresponding_sum %>%
   filter(jahr == 2018) %>%
@@ -137,9 +141,6 @@ item_2018 <- data_corresponding_sum %>%
     marker = list(symbol = "round"),
     showInLegend = FALSE
   ) %>%
-#  hc_title(
-#    text = "2018"
-#  ) %>%
   hc_colors(color)
 
 item_2019 <- data_corresponding_sum %>%
@@ -152,9 +153,6 @@ item_2019 <- data_corresponding_sum %>%
     marker = list(symbol = "round"),
     showInLegend = FALSE
   ) %>%
-#  hc_title(
-#    text = "2019"
-#  ) %>%
   hc_colors(color)
 
 item_2020 <- data_corresponding_sum %>%
@@ -167,13 +165,11 @@ item_2020 <- data_corresponding_sum %>%
   marker = list(symbol = "round"),
   showInLegend = TRUE
 ) %>%
-#  hc_title(
-#    text = "2020"
-#  ) %>%
   hc_colors(color)
 
-
-########################### Journals ###########################
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# Visualizations of journals and oa_status ----
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 journal_data <- data %>%
   filter(jahr == 2020) %>%
@@ -190,8 +186,6 @@ journal_data_2 <- journal_data %>%
   gather(oa_status, value, 3:8) %>%
   mutate(oa_status = factor(oa_status, levels = oa_status_colors)) %>%
   mutate(percent = round(value / sum(value) * 100, 1))
-
-########################### Plot journals ###########################
 
 journal_absolute <- journal_data_2 %>%
   hchart("bar", hcaes(x = zeitschrift, y = value, group = oa_status)) %>%
@@ -216,12 +210,11 @@ journal_percent <- journal_data_2 %>%
   hc_size(height = 500) %>%
   hc_tooltip(pointFormat = "<b>{point.oa_status}</b><br>{point.value} Artikel ({point.percent} %)<br>{point.value_zs} Artikel insgesamt")
 
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# Visualizations of publishers and oa_status ----
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-########################### End journals ###########################
-
-########################### Publishers ###########################
-
-load("data/data_unpaywall.Rda")
+load("data/data_unpaywall.Rda") # get publisher names from unpaywall dataset
 
 data_publisher <- data_unpaywall %>%
   select(doi, publisher)
@@ -230,20 +223,6 @@ data_publisher_join <- data %>%
   filter(jahr == 2020) %>%
   select(doi, oa_status) %>%
   left_join(data_publisher, by = "doi")
-
-publisher_donut <- data_publisher_join %>%
-  group_by(publisher) %>%
-  summarise(value = n()) %>%
-  mutate(publisher_2 = if_else(value <= 500, "andere Verlage", publisher)) %>%
-  group_by(publisher_2) %>%
-  summarise(value = sum(value)) %>%
-  mutate(perc = round(value / sum(value) * 100, 1)) %>%
-  arrange(-value) %>%
-  hchart("pie",
-         hcaes(x = publisher_2, y = value),
-         size = "65%",
-         innerSize = "50%") %>%
-  hc_tooltip(pointFormat = "{point.value} Artikel ({point.perc} %)")
 
 data_publisher_join_sum <- data_publisher_join %>%
   group_by(publisher, oa_status) %>%
@@ -273,7 +252,23 @@ publisher_absolute <- data_publisher_join_sum_2 %>%
   hc_yAxis(reversedStacks = FALSE) %>%
   hc_tooltip(pointFormat = "<b>{point.oa_status}</b><br>{point.value} Artikel ({point.percent} %)<br>{point.value_pub} Artikel insgesamt")
 
-########################### Use publisher data from medbib dataset ###########################
+publisher_donut <- data_publisher_join %>%
+  group_by(publisher) %>%
+  summarise(value = n()) %>%
+  mutate(publisher_2 = if_else(value <= 500, "andere Verlage", publisher)) %>%
+  group_by(publisher_2) %>%
+  summarise(value = sum(value)) %>%
+  mutate(perc = round(value / sum(value) * 100, 1)) %>%
+  arrange(-value) %>%
+  hchart("pie",
+         hcaes(x = publisher_2, y = value),
+         size = "65%",
+         innerSize = "50%") %>%
+  hc_tooltip(pointFormat = "{point.value} Artikel ({point.perc} %)")
+
+##++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+## Clean publisher column from medbib dataset ----
+##++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 data_publisher <- data %>%
   mutate(publisher = tolower(verlag)) %>%
@@ -301,47 +296,24 @@ data_publisher_sum <- data_publisher %>%
   mutate(publisher = forcats::fct_reorder(publisher, value)) %>%
   arrange(-value, .by_group = TRUE)
 
-
 # ordering bar plots https://github.com/jbkunst/highcharter/issues/363
 
-########################### End publisher ###########################
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# Exploratory data analysis of bih dataset ----
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-########################### To do ###########################
-#Sheet Unpaywall vergessen
-#Charite Metrics Dashboard
-#Göttingen anschauen
-#Treffen 24. Juni
-#Compare data with cha-dashboard
-# Pie chart for publisher
-
-
-
-
-
-
-
-
-
-
-########################### publications_cha_dashboard ###########################
-
-publications_cha_dashboard <- read_csv("publications_cha_dashboard.csv")
+raw_data_publications_cha_dashboard <- "raw_data/publications_cha_dashboard.csv"
+publications_cha_dashboard <- read_csv(raw_data_publications_cha_dashboard)
 
 
 bih_data <- publications_cha_dashboard %>%
   filter(year >= 2018 & year <= 2020)
-
-#doi_na schauen
-#dois bih anzeigen
-#dois medbib anzeigen
-
-#oa_status vergleichen
-
 
 sapply(data, function(x) length(unique(x)))
 sort(table(publications_cha_dashboard$OA_color), decreasing = TRUE)
 
 n_occur <- data.frame(table(data$titel))
 
-
-########################### End ###########################
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# End ----
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

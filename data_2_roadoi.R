@@ -1,4 +1,11 @@
-########################### Load source ###########################
+#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# Unpaywall api via roadoi ----
+# jan.taubitz@charite.de - 2021
+#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# Load sources and libraries ----
+#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 source("data_1.R", encoding = 'UTF-8')
 source("datenvergleich.Rmd", encoding = 'UTF-8')
@@ -8,67 +15,79 @@ library(roadoi)
 data_doi <- data %>%
   filter(!str_detect(doi, "keine doi"))
 
-sample_data <- data_doi %>%
-  sample_n(size = 100)
+#sample_data <- data_doi %>%
+#  sample_n(size = 100)
 
-
-########################### Load data from unpaywall ###########################
+#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# Load data from unpaywall ----
+#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 # https://cran.r-project.org/web/packages/roadoi/vignettes/intro.html
 
-data_doi_2020 <- data_doi %>%
-  filter(jahr == 2020) %>%
-  select(doi)
-
-data_doi_2019 <- data_doi %>%
-  filter(jahr == 2019) %>%
-  select(doi)
-
-data_doi_2018 <- data_doi %>%
-  filter(jahr == 2018) %>%
-  select(doi)
-
-data_unpaywall_2018 <- roadoi::oadoi_fetch(dois = data_doi_2018$doi,
-            email = "jan.taubitz@charite.de",
-            .progress = "text")
-
-warnings_2020 <- warnings()
-save(data_unpaywall_2020, file = "data/data_unpaywall_2020.Rda")
-save(warnings_2020, file = "data/warnings_2020.Rda")
-# load("data_unpaywall_2020.Rda")
-
-warnings_2019 <- warnings()
-save(data_unpaywall_2019, file = "data/data_unpaywall_2019.Rda")
-save(warnings_2019, file = "data/warnings_2019.Rda")
-# load("data_unpaywall_2019.Rda")
-
-warnings_2018 <- warnings()
-save(data_unpaywall_2018, file = "data/data_unpaywall_2018.Rda")
-save(warnings_2018, file = "data/warnings_2018.Rda")
-# load("data/data_unpaywall_2019.Rda")
-
-data_unpaywall <- rbind(data_unpaywall_2018, data_unpaywall_2019, data_unpaywall_2020)
-save(data_unpaywall, file = "data/data_unpaywall.Rda")
+# data_doi_2020 <- data_doi %>%
+#   filter(jahr == 2020) %>%
+#   select(doi)
+#
+# data_doi_2019 <- data_doi %>%
+#   filter(jahr == 2019) %>%
+#   select(doi)
+#
+# data_doi_2018 <- data_doi %>%
+#   filter(jahr == 2018) %>%
+#   select(doi)
+#
+# data_unpaywall_2018 <- roadoi::oadoi_fetch(dois = data_doi_2018$doi,
+#             email = "jan.taubitz@charite.de",
+#             .progress = "text")
+#
+# warnings_2020 <- warnings()
+# save(data_unpaywall_2020, file = "data/data_unpaywall_2020.Rda")
+# save(warnings_2020, file = "data/warnings_2020.Rda")
+# # load("data_unpaywall_2020.Rda")
+#
+# warnings_2019 <- warnings()
+# save(data_unpaywall_2019, file = "data/data_unpaywall_2019.Rda")
+# save(warnings_2019, file = "data/warnings_2019.Rda")
+# # load("data_unpaywall_2019.Rda")
+#
+# warnings_2018 <- warnings()
+# save(data_unpaywall_2018, file = "data/data_unpaywall_2018.Rda")
+# save(warnings_2018, file = "data/warnings_2018.Rda")
+# # load("data/data_unpaywall_2019.Rda")
+#
+# data_unpaywall <- rbind(data_unpaywall_2018, data_unpaywall_2019, data_unpaywall_2020)
+# save(data_unpaywall, file = "data/data_unpaywall.Rda")
 load("data/data_unpaywall.Rda")
 
+##+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+## Exploratory data analysis ----
+##+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-sort(table(data_unpaywall$publisher), decreasing = TRUE)
-sort(table(data_unpaywall$journal_is_in_doaj), decreasing = TRUE)
-sapply(data_unpaywall, function(x) length(unique(x)))
+# sort(table(data_unpaywall$publisher), decreasing = TRUE)
+# sort(table(data_unpaywall$journal_is_in_doaj), decreasing = TRUE)
+# sapply(data_unpaywall, function(x) length(unique(x)))
 
-########################### Proxy settings ###########################
+##+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+## Proxy settings ----
+##+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
 # https://support.rstudio.com/hc/en-us/articles/200488488-Configuring-R-to-Use-an-HTTP-or-HTTPS-Proxy
 # file.edit('~/.Renviron')
 # http_proxy=http://proxy.charite.de:8080/
 # https_proxy=http://proxy.charite.de:8080/
 # 2x http://...
 
-########################### Literature documentations ###########################
+##+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+## Literature documentations ----
+##+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
 # https://cran.r-project.org/web/packages/roadoi/vignettes/intro.html
 # https://subugoe.github.io/scholcomm_analytics/posts/unpaywall_evidence/
 
 
-########################### Analysis ###########################
+#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# Analysis ----
+#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 # Percent of article that were oa
 
@@ -89,9 +108,9 @@ is_corresponding <- sort(table(data$corresponding_author_cha), decreasing = TRUE
 is_corresponding
 is_corresponding <- round(6292/sum(is_corresponding)*100, 1)
 
-
-########################### Analyse Licences  ###########################
-
+#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# Analyse Licences ----
+#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 data_license_unnest <- data_unpaywall %>%
   # 1. Unnest the list structure
@@ -116,7 +135,9 @@ data_license_unnest_2 <- data_license_unnest %>%
   filter(best == TRUE) %>%
   select(doi, license)
 
-########################### Combine lists  ###########################
+#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# Combine lists ----
+#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 data_license_unnest_distinct <- data_license_unnest %>%
   distinct(doi, .keep_all = TRUE)
@@ -130,17 +151,13 @@ data_license_final_count <- data_license_final %>%
   group_by(license) %>%
   summarise(count = n())
 
-# test
-
-test <- data_license_unnest_2 %>%
-  left_join(data_license_final, by = "doi") %>%
-  mutate(test = if_else(license.x == license.y, TRUE, FALSE))
-
 # https://stackoverflow.com/questions/6986657/find-duplicated-rows-based-on-2-columns-in-data-frame-in-r
 
 # 740 Artikel haben mindestens zwei unterschiedliche Lizenzen
 
-########################### Add oa_status to data  ###########################
+#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# Add oa_status to data ----
+#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 data_doi <- data %>%
   filter(!str_detect(doi, "keine doi"))
@@ -164,8 +181,9 @@ data_license_oa_status_final_count_2 <- data_license_oa_status_final_count %>%
 
 save(data_license_oa_status_final_count_2, file = "data/data_license_oa_status_final_count_2.Rda")
 
-
-########################### Visualize licenses  ###########################
+#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# Visualize licenses ----
+#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 chart_lizenzen <- data_license_oa_status_final_count_2 %>%
   hchart("column",
@@ -190,10 +208,8 @@ chart_lizenzen_oa <- data_license_oa_status_final_count_2 %>%
 
 save(chart_lizenzen_oa, file = "charts/chart_lizenzen_oa.Rda")
 
-
 oa_status_colors <- c("gold", "hybrid", "green", "bronze", "closed", "kein ergebnis")
 color <- c("#F4C244", "#A0CBDA", "#4FAC5B", "#D85DBF", "#2C405E", "#5F7036")
-
 
 color_treemap <- c("#2C405E", "#F4C244", "#D85DBF", "#A0CBDA", "#4FAC5B", "#5F7036")
 
@@ -226,3 +242,8 @@ hchart(
 ) %>%
   hc_title(text = "Lizenzen - Treemap Chart") %>%
   hc_subtitle(text = "Daten zu Lizenzen von Unpaywall")
+
+#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# End ----
+#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+

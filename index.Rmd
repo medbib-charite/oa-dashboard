@@ -14,7 +14,7 @@ output:
 library(flexdashboard)
 
 source("data_1.R", encoding = 'UTF-8')
-source("rcrossref.R", encoding = 'UTF-8')
+source("data_3_rcrossref.R", encoding = 'UTF-8')
 ```
 
 <style>

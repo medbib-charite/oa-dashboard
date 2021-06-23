@@ -1,4 +1,11 @@
-########################### Load sources ###########################
+#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# Crossref data ----
+# jan.taubitz@charite.de - 2021
+#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# Load sources and libraries ----
+#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 source("data_1.R", encoding = 'UTF-8')
 #source("datenvergleich.Rmd", encoding = 'UTF-8')
@@ -8,17 +15,17 @@ library(rcrossref)
 data_doi <- data %>%
   filter(!str_detect(doi, "keine doi"))
 
-sample_data <- data_doi %>%
-  sample_n(size = 10)
+# sample_data <- data_doi %>%
+#   sample_n(size = 10)
 
-data_doi_2018 <- data_doi %>%
-  filter(jahr == 2018)
+ data_doi_2018 <- data_doi %>%
+   filter(jahr == 2018)
 
-########################### Load data from crossref ###########################
+#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# Load data from crossref ----
+#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 # Documentation: https://docs.ropensci.org/rcrossref/articles/rcrossref.html
-
-########################### Load citation data from crossref ###########################
 
 #data_citation <- cr_citation_count(doi = data_doi_2018$doi)
 #save(data_citation, file = "data/data_citation_2018.Rda")
@@ -26,11 +33,17 @@ load("data/data_citation_2018.Rda")
 
 #sample_data <- cr_citation_count(doi = sample_data$doi)
 
-########################### Combine data with medbib data ###########################
+#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# Combine data with medbib data ----
+#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 data_citation_join <- data_doi_2018 %>%
   select(doi, oa_status) %>%
   left_join(data_citation, by = "doi")
+
+#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# Visualization ----
+#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 median_citation <-
   data_citation_join %>%
@@ -63,8 +76,11 @@ mean_citation <-
 #ggplot(data_citation_join, aes(oa_status, fill=count)) +
 #  geom_bar()
 
+#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# Load license data from crossref ----
+#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-########################### Load license data from crossref ###########################
+# Unpaywall data is better
 # https://github.com/subugoe/metacheck/blob/main/R/metrics_cc.R
 
 
@@ -74,6 +90,4 @@ mean_citation <-
 
 #cr_citation_count(doi = sample_data$doi)
 
-#'
-#' # Then, check article-level compliance
-#  out <- cr_compliance_overview(req)
+# out <- cr_compliance_overview(req)
