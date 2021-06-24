@@ -229,7 +229,7 @@ data_publisher_join_sum <- data_publisher_join %>%
   summarise(value = n(), .groups = "drop_last") %>%
   mutate(value_pub = sum(value)) %>%
   ungroup() %>%
-  filter(value_pub >= 5) %>%
+ # filter(value_pub >= 5) %>%
   mutate(publisher = forcats::fct_reorder(publisher, -value_pub))
 
 data_publisher_join_sum_2 <- data_publisher_join_sum %>%
@@ -238,7 +238,13 @@ data_publisher_join_sum_2 <- data_publisher_join_sum %>%
   gather(oa_status, value, 3:8) %>%
   mutate(oa_status = factor(oa_status, levels = oa_status_colors)) %>%
   mutate(percent = round(value / sum(value) * 100, 1)) %>%
+  filter(value_pub >= 3) %>%
   drop_na()
+
+data_publisher_table <- data_publisher_join_sum_2 %>%
+  select(-value_pub, -percent) %>%
+  pivot_wider(names_from = oa_status, values_from = value) %>%
+  select(-`kein ergebnis`)
 
 publisher_absolute <- data_publisher_join_sum_2 %>%
   hchart("bar", hcaes(x = publisher, y = value, group = oa_status)) %>%

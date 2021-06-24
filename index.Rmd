@@ -5,6 +5,9 @@ output:
     orientation: rows
     vertical_layout: scroll
     source_code: embed
+    navbar:
+      - { title: "Dashboard", href: "https://medbib-charite.github.io/oa-dashboard/", align: left }
+      - { title: "Datentabellen", href: "https://medbib-charite.github.io/oa-dashboard/tables", align: left }
     
 # author: Jan Taubitz
 # email: jan.taubitz@charite.de
