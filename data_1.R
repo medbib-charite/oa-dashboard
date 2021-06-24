@@ -36,7 +36,6 @@ raw_data <- read_excel(endfassung,
 oa_status_colors <- c("gold", "hybrid", "green", "bronze", "closed", "kein ergebnis")
 color <- c("#F4C244", "#A0CBDA", "#4FAC5B", "#D85DBF", "#2C405E", "#5F7036")
 
-
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # Clean data, create some new variables ----
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -233,7 +232,6 @@ data_publisher_join_sum <- data_publisher_join %>%
   filter(value_pub >= 5) %>%
   mutate(publisher = forcats::fct_reorder(publisher, -value_pub))
 
-
 data_publisher_join_sum_2 <- data_publisher_join_sum %>%
   group_by(publisher) %>%
   spread(oa_status, value, fill = 0) %>%
@@ -284,7 +282,6 @@ data_publisher <- data %>%
                                str_detect(publisher, regex("oxford", ignore_case=TRUE)) ~ "oxford up",
                                TRUE ~ publisher
                                ))
-
 
 data_publisher_sum <- data_publisher %>%
   #filter(oa_status == "closed") %>%

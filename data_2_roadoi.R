@@ -57,6 +57,7 @@ data_doi <- data %>%
 #
 # data_unpaywall <- rbind(data_unpaywall_2018, data_unpaywall_2019, data_unpaywall_2020)
 # save(data_unpaywall, file = "data/data_unpaywall.Rda")
+
 load("data/data_unpaywall.Rda")
 
 ##+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -119,7 +120,6 @@ data_license_unnest <- data_unpaywall %>%
   mutate(license = case_when(grepl("specific|cc0|implied|pd", license, ignore.case = TRUE) ~ "sonstige Lizenz",
                              TRUE ~ license)) %>%
   select(doi, license)
-
 
 data_license_unnest_2 <- data_license_unnest %>%
   drop_na() %>%
