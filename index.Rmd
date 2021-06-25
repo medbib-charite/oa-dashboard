@@ -105,7 +105,7 @@ gauge(rate, min = 0, max = 100, symbol = ' %', label= "Daten von Unpaywall", gau
 ))
 ```
 
-Row {data-height=120}
+Row {data-height=auto}
 -----------------------------------------------------------------------
 
 ### Analyse 1
@@ -130,7 +130,7 @@ status_corresponding_percent
 ```
 
 
-Row {data-height=120}
+Row {data-height=auto}
 -----------------------------------------------------------------------
 
 ### Analyse 2
@@ -164,7 +164,7 @@ journal_absolute
 
 ###
 
-Row {data-height=120}
+Row {data-height=auto}
 -----------------------------------------------------------------------
 
 ### Analyse 3
@@ -187,7 +187,7 @@ mean_citation
 ```
 
 
-Row {data-height=120}
+Row {data-height=auto}
 -----------------------------------------------------------------------
 
 ### Analyse 4
