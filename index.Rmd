@@ -117,17 +117,35 @@ Row {data-height=500}
 -----------------------------------------------------------------------
 
 
-### Artikel mit Charité-Beteiligung
+### Artikel mit Charité-Beteiligung (in %)
 
 ```{r}
 status_percent
 ```
 
-### Artikel mit Charité-Corresponding Author
+### Artikel mit Charité-Corresponding Author (in %)
 
 ```{r}
 status_corresponding_percent
 ```
+
+Row {data-height=500}
+-----------------------------------------------------------------------
+
+
+### Artikel mit Charité-Beteiligung (absolute Zahlen)
+
+```{r}
+status_absolute_spline
+```
+
+### Artikel mit Charité-Corresponding Author (absolute Zahlen)
+
+```{r}
+status_corresponding_absolute_spline
+```
+
+
 
 
 Row {data-height=auto}

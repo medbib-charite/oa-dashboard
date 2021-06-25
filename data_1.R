@@ -79,6 +79,13 @@ status_absolute <-
   hc_colors(color) %>%
   hc_yAxis(reversedStacks = FALSE)
 
+status_absolute_spline <-
+hchart(data_sum,
+       "spline",
+       hcaes(x = factor(jahr), y = value, group = oa_status)) %>%
+  hc_colors(color) %>%
+  hc_tooltip(shared = TRUE)
+
 # saveWidget(status_absolute, file = "status_absolute.html") # , selfcontained = TRUE
 # %>% hc_title(text = "Open access status in absolute numbers", align = "left", style = list(fontSize = "12px"))
 # %>% hc_subtitle(text = text, align = "left", style = list(fontSize = "12px"))
@@ -94,6 +101,7 @@ status_percent <-
   hc_tooltip(pointFormat = "<b>{point.oa_status}</b><br>{point.value} Artikel ({point.percent} %)")
 
 # reversed bar stacks https://www.highcharts.com/forum/viewtopic.php?t=10916
+
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # Visualizations of year and oa_status corresponding authors ----
@@ -114,6 +122,13 @@ status_corresponding_absolute <-
   hc_plotOptions(series = list(stacking = "normal")) %>%
   hc_colors(color) %>%
   hc_yAxis(reversedStacks = FALSE)
+
+status_corresponding_absolute_spline <-
+  hchart(data_corresponding_sum,
+         "spline",
+         hcaes(x = factor(jahr), y = value, group = oa_status)) %>%
+  hc_colors(color) %>%
+  hc_tooltip(shared = TRUE)
 
 status_corresponding_percent <-
   hchart(
