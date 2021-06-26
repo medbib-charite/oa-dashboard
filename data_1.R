@@ -128,7 +128,12 @@ status_corresponding_absolute_spline <-
          "spline",
          hcaes(x = factor(jahr), y = value, group = oa_status)) %>%
   hc_colors(color) %>%
-  hc_tooltip(shared = TRUE)
+  hc_tooltip(shared = TRUE) %>%
+  hc_exporting(
+    enabled = TRUE, # always enabled
+    filename = "status_corresponding_absolute_spline",
+    buttons = list(contextButton = list(menuItems = c('downloadPNG', 'downloadJPEG', 'separator', 'downloadCSV')))
+  )
 
 status_corresponding_percent <-
   hchart(
