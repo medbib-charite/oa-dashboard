@@ -81,7 +81,7 @@ status_absolute <-
   hc_exporting(
     enabled = TRUE, # always enabled
     filename = "status_absolute",
-    buttons = list(contextButton = list(menuItems = c('downloadPNG', 'downloadJPEG', 'separator', 'downloadCSV')))
+    buttons = list(contextButton = list(menuItems = c('downloadJPEG', 'separator', 'downloadCSV')))
   )
 
 status_absolute_spline <-
@@ -93,7 +93,7 @@ hchart(data_sum,
   hc_exporting(
     enabled = TRUE, # always enabled
     filename = "status_absolute_spline",
-    buttons = list(contextButton = list(menuItems = c('downloadPNG', 'downloadJPEG', 'separator', 'downloadCSV')))
+    buttons = list(contextButton = list(menuItems = c('downloadJPEG', 'separator', 'downloadCSV')))
   )
 
 # saveWidget(status_absolute, file = "status_absolute.html") # , selfcontained = TRUE
@@ -112,7 +112,7 @@ status_percent <-
   hc_exporting(
     enabled = TRUE, # always enabled
     filename = "status_percent",
-    buttons = list(contextButton = list(menuItems = c('downloadPNG', 'downloadJPEG', 'separator', 'downloadCSV')))
+    buttons = list(contextButton = list(menuItems = c('downloadJPEG', 'separator', 'downloadCSV')))
   )
 
 # reversed bar stacks https://www.highcharts.com/forum/viewtopic.php?t=10916
@@ -140,7 +140,7 @@ status_corresponding_absolute <-
   hc_exporting(
     enabled = TRUE, # always enabled
     filename = "status_corresponding_absolute",
-    buttons = list(contextButton = list(menuItems = c('downloadPNG', 'downloadJPEG', 'separator', 'downloadCSV')))
+    buttons = list(contextButton = list(menuItems = c('downloadJPEG', 'separator', 'downloadCSV')))
   )
 
 status_corresponding_absolute_spline <-
@@ -152,12 +152,12 @@ status_corresponding_absolute_spline <-
   hc_exporting(
     enabled = TRUE, # always enabled
     filename = "status_corresponding_absolute_spline",
-    buttons = list(contextButton = list(menuItems = c('downloadPNG', 'downloadJPEG', 'separator', 'downloadCSV')))
+    buttons = list(contextButton = list(menuItems = c('downloadJPEG', 'separator', 'downloadCSV')))
   ) %>%
   hc_exporting(
     enabled = TRUE, # always enabled
     filename = "status_corresponding_absolute_spline",
-    buttons = list(contextButton = list(menuItems = c('downloadPNG', 'downloadJPEG', 'separator', 'downloadCSV')))
+    buttons = list(contextButton = list(menuItems = c('downloadJPEG', 'separator', 'downloadCSV')))
   )
 
 status_corresponding_percent <-
@@ -174,7 +174,7 @@ status_corresponding_percent <-
   hc_exporting(
     enabled = TRUE, # always enabled
     filename = "status_corresponding_percent",
-    buttons = list(contextButton = list(menuItems = c('downloadPNG', 'downloadJPEG', 'separator', 'downloadCSV')))
+    buttons = list(contextButton = list(menuItems = c('downloadJPEG', 'separator', 'downloadCSV')))
   )
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -250,7 +250,7 @@ journal_absolute <- journal_data_2 %>%
   hc_exporting(
     enabled = TRUE, # always enabled
     filename = "journal_absolute",
-    buttons = list(contextButton = list(menuItems = c('downloadPNG', 'downloadJPEG', 'separator', 'downloadCSV')))
+    buttons = list(contextButton = list(menuItems = c('downloadJPEG', 'separator', 'downloadCSV')))
   )
 
 journal_percent <- journal_data_2 %>%
@@ -267,7 +267,7 @@ journal_percent <- journal_data_2 %>%
   hc_exporting(
     enabled = TRUE, # always enabled
     filename = "journal_percent",
-    buttons = list(contextButton = list(menuItems = c('downloadPNG', 'downloadJPEG', 'separator', 'downloadCSV')))
+    buttons = list(contextButton = list(menuItems = c('downloadJPEG', 'separator', 'downloadCSV')))
   )
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -319,7 +319,7 @@ publisher_absolute <- data_publisher_join_sum_2 %>%
   hc_exporting(
     enabled = TRUE, # always enabled
     filename = "publisher_absolute",
-    buttons = list(contextButton = list(menuItems = c('downloadPNG', 'downloadJPEG', 'separator', 'downloadCSV')))
+    buttons = list(contextButton = list(menuItems = c('downloadJPEG', 'separator', 'downloadCSV')))
   )
 
 publisher_donut <- data_publisher_join %>%
@@ -338,7 +338,7 @@ publisher_donut <- data_publisher_join %>%
   hc_exporting(
     enabled = TRUE, # always enabled
     filename = "publisher_donut",
-    buttons = list(contextButton = list(menuItems = c('downloadPNG', 'downloadJPEG', 'separator', 'downloadCSV')))
+    buttons = list(contextButton = list(menuItems = c('downloadJPEG', 'separator', 'downloadCSV')))
   )
 
 ##++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

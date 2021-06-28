@@ -57,7 +57,7 @@ median_citation <-
    hc_exporting(
      enabled = TRUE, # always enabled
      filename = "median_citation",
-     buttons = list(contextButton = list(menuItems = c('downloadPNG', 'downloadJPEG', 'separator', 'downloadCSV')))
+     buttons = list(contextButton = list(menuItems = c('downloadJPEG', 'separator', 'downloadCSV')))
    )
 
 mean_citation <-
@@ -72,7 +72,7 @@ mean_citation <-
   hc_exporting(
     enabled = TRUE, # always enabled
     filename = "mean_citation",
-    buttons = list(contextButton = list(menuItems = c('downloadPNG', 'downloadJPEG', 'separator', 'downloadCSV')))
+    buttons = list(contextButton = list(menuItems = c('downloadJPEG', 'separator', 'downloadCSV')))
   )
 
 
