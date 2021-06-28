@@ -53,7 +53,12 @@ median_citation <-
   hchart("column",
          hcaes(x = oa_status, y = median, color = color)) %>%
   hc_title(text = "Median") %>%
-  hc_tooltip(pointFormat = "Der Median liegt bei {point.median} Zitierungen")
+  hc_tooltip(pointFormat = "Der Median liegt bei {point.median} Zitierungen") %>%
+   hc_exporting(
+     enabled = TRUE, # always enabled
+     filename = "median_citation",
+     buttons = list(contextButton = list(menuItems = c('downloadPNG', 'downloadJPEG', 'separator', 'downloadCSV')))
+   )
 
 mean_citation <-
   data_citation_join %>%
@@ -63,7 +68,12 @@ mean_citation <-
   hchart("column",
          hcaes(x = oa_status, y = mean, color = color)) %>%
   hc_title(text = "Mittelwert") %>%
-  hc_tooltip(pointFormat = "Der Mittelwert liegt bei {point.mean:.1f} Zitierungen")
+  hc_tooltip(pointFormat = "Der Mittelwert liegt bei {point.mean:.1f} Zitierungen") %>%
+  hc_exporting(
+    enabled = TRUE, # always enabled
+    filename = "mean_citation",
+    buttons = list(contextButton = list(menuItems = c('downloadPNG', 'downloadJPEG', 'separator', 'downloadCSV')))
+  )
 
 
 #ggplot(data_citation_join, aes(oa_status, count)) +

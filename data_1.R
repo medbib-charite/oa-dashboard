@@ -77,14 +77,24 @@ status_absolute <-
          hcaes(x = jahr, y = value, group = oa_status)) %>%
   hc_plotOptions(series = list(stacking = "normal")) %>%
   hc_colors(color) %>%
-  hc_yAxis(reversedStacks = FALSE)
+  hc_yAxis(reversedStacks = FALSE) %>%
+  hc_exporting(
+    enabled = TRUE, # always enabled
+    filename = "status_absolute",
+    buttons = list(contextButton = list(menuItems = c('downloadPNG', 'downloadJPEG', 'separator', 'downloadCSV')))
+  )
 
 status_absolute_spline <-
 hchart(data_sum,
        "spline",
        hcaes(x = factor(jahr), y = value, group = oa_status)) %>%
   hc_colors(color) %>%
-  hc_tooltip(shared = TRUE)
+  hc_tooltip(shared = TRUE) %>%
+  hc_exporting(
+    enabled = TRUE, # always enabled
+    filename = "status_absolute_spline",
+    buttons = list(contextButton = list(menuItems = c('downloadPNG', 'downloadJPEG', 'separator', 'downloadCSV')))
+  )
 
 # saveWidget(status_absolute, file = "status_absolute.html") # , selfcontained = TRUE
 # %>% hc_title(text = "Open access status in absolute numbers", align = "left", style = list(fontSize = "12px"))
@@ -98,7 +108,12 @@ status_percent <-
   hc_colors(color) %>%
   hc_yAxis(labels = list(format = '{value} %'),
            max = 100, reversedStacks = FALSE) %>%
-  hc_tooltip(pointFormat = "<b>{point.oa_status}</b><br>{point.value} Artikel ({point.percent} %)")
+  hc_tooltip(pointFormat = "<b>{point.oa_status}</b><br>{point.value} Artikel ({point.percent} %)") %>%
+  hc_exporting(
+    enabled = TRUE, # always enabled
+    filename = "status_percent",
+    buttons = list(contextButton = list(menuItems = c('downloadPNG', 'downloadJPEG', 'separator', 'downloadCSV')))
+  )
 
 # reversed bar stacks https://www.highcharts.com/forum/viewtopic.php?t=10916
 
@@ -121,7 +136,12 @@ status_corresponding_absolute <-
   ) %>%
   hc_plotOptions(series = list(stacking = "normal")) %>%
   hc_colors(color) %>%
-  hc_yAxis(reversedStacks = FALSE)
+  hc_yAxis(reversedStacks = FALSE) %>%
+  hc_exporting(
+    enabled = TRUE, # always enabled
+    filename = "status_corresponding_absolute",
+    buttons = list(contextButton = list(menuItems = c('downloadPNG', 'downloadJPEG', 'separator', 'downloadCSV')))
+  )
 
 status_corresponding_absolute_spline <-
   hchart(data_corresponding_sum,
@@ -129,6 +149,11 @@ status_corresponding_absolute_spline <-
          hcaes(x = factor(jahr), y = value, group = oa_status)) %>%
   hc_colors(color) %>%
   hc_tooltip(shared = TRUE) %>%
+  hc_exporting(
+    enabled = TRUE, # always enabled
+    filename = "status_corresponding_absolute_spline",
+    buttons = list(contextButton = list(menuItems = c('downloadPNG', 'downloadJPEG', 'separator', 'downloadCSV')))
+  ) %>%
   hc_exporting(
     enabled = TRUE, # always enabled
     filename = "status_corresponding_absolute_spline",
@@ -145,7 +170,12 @@ status_corresponding_percent <-
   hc_colors(color) %>%
   hc_yAxis(labels = list(format = '{value} %'),
            max = 100, reversedStacks = FALSE) %>%
-  hc_tooltip(pointFormat = "<b>{point.oa_status}</b><br>{point.value} Artikel ({point.percent} %)")
+  hc_tooltip(pointFormat = "<b>{point.oa_status}</b><br>{point.value} Artikel ({point.percent} %)") %>%
+  hc_exporting(
+    enabled = TRUE, # always enabled
+    filename = "status_corresponding_percent",
+    buttons = list(contextButton = list(menuItems = c('downloadPNG', 'downloadJPEG', 'separator', 'downloadCSV')))
+  )
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # Visualizations of year and oa_status item chart ----
@@ -216,7 +246,12 @@ journal_absolute <- journal_data_2 %>%
            scrollbar = list(enabled = TRUE)) %>%
   hc_size(height = 500) %>%
   hc_yAxis(reversedStacks = FALSE) %>%
-  hc_tooltip(pointFormat = "<b>{point.oa_status}</b><br>{point.value} Artikel ({point.percent} %)<br>{point.value_zs} Artikel insgesamt")
+  hc_tooltip(pointFormat = "<b>{point.oa_status}</b><br>{point.value} Artikel ({point.percent} %)<br>{point.value_zs} Artikel insgesamt") %>%
+  hc_exporting(
+    enabled = TRUE, # always enabled
+    filename = "journal_absolute",
+    buttons = list(contextButton = list(menuItems = c('downloadPNG', 'downloadJPEG', 'separator', 'downloadCSV')))
+  )
 
 journal_percent <- journal_data_2 %>%
   hchart("bar", hcaes(x = zeitschrift, y = percent, group = oa_status)) %>%
@@ -228,7 +263,12 @@ journal_percent <- journal_data_2 %>%
   hc_yAxis(labels = list(format = '{value} %'),
                          max = 100, reversedStacks = FALSE) %>%
   hc_size(height = 500) %>%
-  hc_tooltip(pointFormat = "<b>{point.oa_status}</b><br>{point.value} Artikel ({point.percent} %)<br>{point.value_zs} Artikel insgesamt")
+  hc_tooltip(pointFormat = "<b>{point.oa_status}</b><br>{point.value} Artikel ({point.percent} %)<br>{point.value_zs} Artikel insgesamt") %>%
+  hc_exporting(
+    enabled = TRUE, # always enabled
+    filename = "journal_percent",
+    buttons = list(contextButton = list(menuItems = c('downloadPNG', 'downloadJPEG', 'separator', 'downloadCSV')))
+  )
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # Visualizations of publishers and oa_status ----
@@ -275,7 +315,12 @@ publisher_absolute <- data_publisher_join_sum_2 %>%
            scrollbar = list(enabled = TRUE)) %>%
   hc_size(height = 500) %>%
   hc_yAxis(reversedStacks = FALSE) %>%
-  hc_tooltip(pointFormat = "<b>{point.oa_status}</b><br>{point.value} Artikel ({point.percent} %)<br>{point.value_pub} Artikel insgesamt")
+  hc_tooltip(pointFormat = "<b>{point.oa_status}</b><br>{point.value} Artikel ({point.percent} %)<br>{point.value_pub} Artikel insgesamt") %>%
+  hc_exporting(
+    enabled = TRUE, # always enabled
+    filename = "publisher_absolute",
+    buttons = list(contextButton = list(menuItems = c('downloadPNG', 'downloadJPEG', 'separator', 'downloadCSV')))
+  )
 
 publisher_donut <- data_publisher_join %>%
   group_by(publisher) %>%
@@ -289,7 +334,12 @@ publisher_donut <- data_publisher_join %>%
          hcaes(x = publisher_2, y = value),
          size = "65%",
          innerSize = "50%") %>%
-  hc_tooltip(pointFormat = "{point.value} Artikel ({point.perc} %)")
+  hc_tooltip(pointFormat = "{point.value} Artikel ({point.perc} %)") %>%
+  hc_exporting(
+    enabled = TRUE, # always enabled
+    filename = "publisher_donut",
+    buttons = list(contextButton = list(menuItems = c('downloadPNG', 'downloadJPEG', 'separator', 'downloadCSV')))
+  )
 
 ##++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ## Clean publisher column from medbib dataset ----
