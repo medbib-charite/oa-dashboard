@@ -3,8 +3,36 @@ body {
   margin: 0 auto 0 auto;
 }
 
+.chart-title {  /* chart_title  */
+   font-size: 16px;
+}
 
 .navbar-inverse {
-    background-color: #536878;
-    border-color: #536878;
+    background-color: #e97202;
+    border-color: #e97202;
 }
+
+.navbar-inverse .navbar-nav > li > a:hover,
+.navbar-inverse .navbar-nav > li > a:focus {
+    background-color: #536878;
+    color: white;
+}
+
+.navbar-inverse .navbar-nav > .active > a,
+.navbar-inverse .navbar-nav > .active > a:hover,
+.navbar-inverse .navbar-nav > .active > a:focus {
+  color: white;
+  background-color: #536878;
+}
+.navbar-inverse .navbar-toggle:hover,
+.navbar-inverse .navbar-toggle:focus {
+  background-color: #536878;
+}
+.navbar-inverse .navbar-collapse,
+.navbar-inverse .navbar-form {
+  border-color: #536878;
+}
+.nav-tabs-custom > .nav-tabs > li.active {border-top-color: #536878}
+}
+
+

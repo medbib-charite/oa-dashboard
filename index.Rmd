@@ -49,57 +49,49 @@ is_corresponding <- round(6292/sum(is_corresponding)*100, 1)
 ```
 
 
-### Open Access-Artikel 2018
+### Open Access-Artikel mit Charité-Beteiligung 2018
 
 ```{r}
 rate <- is_oa %>% filter(jahr == 2018 & is_oa == TRUE) %>% pull(perc)
 
 
-gauge(rate, min = 0, max = 100, symbol = ' %', label= "Daten von Medbib", gaugeSectors(
-  success = c(50, 100), warning = c(30, 49), danger = c(0, 29)
-))
+gauge(rate, min = 0, max = 100, symbol = ' %', gaugeSectors(colors = "#e97202"))
 ```
 
-### Open Access-Artikel 2019
+### Open Access-Artikel mit Charité-Beteiligung 2019
 
 ```{r}
 rate <- is_oa %>% filter(jahr == 2019 & is_oa == TRUE) %>% pull(perc)
 
-gauge(rate, min = 0, max = 100, symbol = ' %', label= "Daten von Medbib", gaugeSectors(
-  success = c(50, 100), warning = c(30, 49), danger = c(0, 29)
-))
+gauge(rate, min = 0, max = 100, symbol = ' %', gaugeSectors(colors = "#e97202"))
 ```
 
-### Open Access-Artikel 2020
+### Open Access-Artikel mit Charité-Beteiligung 2020
 
 ```{r}
 rate <- is_oa %>% filter(jahr == 2020 & is_oa == TRUE) %>% pull(perc)
 
-gauge(rate, min = 0, max = 100, symbol = ' %', label= "Daten von Medbib", gaugeSectors(
-  success = c(50, 100), warning = c(30, 49), danger = c(0, 29)
-))
+gauge(rate, min = 0, max = 100, symbol = ' %', gaugeSectors(colors = "#e97202"))
 ```
 
 
 Row 
 -----------------------------------------------------------------------
 
-### Autor ist Corresponding 2018-2020
+### Artikel mit Charité-Corresponding Author 2018-2020
 
 ```{r}
 rate <- is_corresponding
-gauge(rate, min = 0, max = 100, symbol = ' %', label= "Daten von Medbib", gaugeSectors(
+gauge(rate, min = 0, max = 100, symbol = ' %', gaugeSectors(
   success = c(40, 100), warning = c(30, 39), danger = c(0, 29)
 ))
 ```
 
-### Journal ist DOAJ 2018-2020
+### Journal ist im [DOAJ](https://doaj.org/) verzeichnet 2018-2020
 
 ```{r}
 rate <- is_doaj
-gauge(rate, min = 0, max = 100, symbol = ' %', label= "Daten von Unpaywall", gaugeSectors(
-  success = c(50, 100), warning = c(20, 49), danger = c(0, 19)
-))
+gauge(rate, min = 0, max = 100, symbol = ' %', label= "Quelle: Unpaywall", gaugeSectors(colors = "#e97202"))
 ```
 
 Row {data-height=auto}
@@ -107,7 +99,7 @@ Row {data-height=auto}
 
 ### Analyse 1
 
-<font size="6"> Open Access-Status von Artikeln mit Charité-Beteiligung insgesamt und von Artikeln mit Charité-Corresponding Author 2018-2020</font>
+<font size="5"> Open Access-Status von Artikeln mit Charité-Beteiligung insgesamt und von Artikeln mit Charité-Corresponding Author 2018-2020</font>
 
 
 Row {data-height=500}
@@ -150,19 +142,19 @@ Row {data-height=auto}
 
 ### Analyse 2
 
-<font size="6"> Open Access-Status von Artikeln mit Charité-Beteiligung auf Verlags- und Journal-Ebene im Jahr 2020 </font>
+<font size="5"> Open Access-Status von Artikeln mit Charité-Beteiligung nach Verlagen und Journalen im Jahr 2020</font>
 
 
 Row {data-height=500}
 -----------------------------------------------------------------------
 
-### Verlage in absoluten Zahlen
+### Artikel nach Verlagen in absoluten Zahlen
 
 ```{r}
 publisher_absolute
 ```
 
-### Verlage in absoluten Zahlen
+### Artikel nach Verlagen in absoluten Zahlen
 
 ```{r}
 publisher_donut
@@ -171,7 +163,7 @@ publisher_donut
 Row {data-height=500}
 -----------------------------------------------------------------------
 
-### Zeitschriften in absoluten Zahlen
+### Artikel nach Zeitschriften in absoluten Zahlen
 
 ```{r}
 journal_absolute
@@ -179,49 +171,28 @@ journal_absolute
 
 ###
 
+
 Row {data-height=auto}
 -----------------------------------------------------------------------
 
 ### Analyse 3
 
-<font size="6"> Median und Mittelwert der Zitierungen von den 2018 publizierten Artikeln mit Charité-Beteiligung (Daten von Crossref)</font>
+<font size="5"> Lizenzen der mit Charité-Beteiligung publizierten Artikel 2018-2020</font>
 
 Row 
 -----------------------------------------------------------------------
 
-###
-
-```{r}
-median_citation
-```
-
-###
-
-```{r}
-mean_citation
-```
-
-
-Row {data-height=auto}
------------------------------------------------------------------------
-
-### Analyse 4
-
-<font size="6"> Lizenzen der mit Charité-Beteiligung publizierten Artikel</font>
-
-Row 
------------------------------------------------------------------------
-
-###
+### Lizenzen für alle Artikel (Quelle: Unpaywall)
 
 ```{r}
 load("charts/chart_lizenzen.Rda")
 chart_lizenzen
 ```
 
-###
+### Lizenzen für Artikel mit OA-Status gold, hybrid oder green (Quelle: Unpaywall)
 
 ```{r}
 load("charts/chart_lizenzen_oa.Rda")
 chart_lizenzen_oa
 ```
+

@@ -11,6 +11,27 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 
+Row {data-height=auto}
+-----------------------------------------------------------------------
+
+### Analyse 3
+
+<font size="5"> Median und Mittelwert der Zitierungen von den 2018 publizierten Artikeln mit Charité-Beteiligung (Daten von Crossref)</font>
+
+Row 
+-----------------------------------------------------------------------
+
+###
+
+```{r}
+median_citation
+```
+
+###
+
+```{r}
+mean_citation
+```
 
 
 Row {data-height=100}

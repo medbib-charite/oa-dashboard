@@ -77,7 +77,7 @@ status_absolute <-
          hcaes(x = jahr, y = value, group = oa_status)) %>%
   hc_plotOptions(series = list(stacking = "normal")) %>%
   hc_colors(color) %>%
-  hc_yAxis(reversedStacks = FALSE) %>%
+  hc_yAxis(reversedStacks = FALSE, labels = list(format = '{value:.0f}')) %>%
   hc_exporting(
     enabled = TRUE, # always enabled
     filename = "status_absolute",
@@ -89,7 +89,6 @@ hchart(data_sum,
        "spline",
        hcaes(x = factor(jahr), y = value, group = oa_status)) %>%
   hc_colors(color) %>%
-  hc_tooltip(shared = TRUE) %>%
   hc_exporting(
     enabled = TRUE, # always enabled
     filename = "status_absolute_spline",
@@ -148,7 +147,6 @@ status_corresponding_absolute_spline <-
          "spline",
          hcaes(x = factor(jahr), y = value, group = oa_status)) %>%
   hc_colors(color) %>%
-  hc_tooltip(shared = TRUE) %>%
   hc_exporting(
     enabled = TRUE, # always enabled
     filename = "status_corresponding_absolute_spline",
@@ -322,6 +320,9 @@ publisher_absolute <- data_publisher_join_sum_2 %>%
     buttons = list(contextButton = list(menuItems = c('downloadJPEG', 'separator', 'downloadCSV')))
   )
 
+library(gameofthrones)
+pal <- got(4, direction = 1, option = "Jon_Snow")
+
 publisher_donut <- data_publisher_join %>%
   group_by(publisher) %>%
   summarise(value = n()) %>%
@@ -329,11 +330,12 @@ publisher_donut <- data_publisher_join %>%
   group_by(publisher_2) %>%
   summarise(value = sum(value)) %>%
   mutate(perc = round(value / sum(value) * 100, 1)) %>%
-  arrange(-value) %>%
+  arrange(value) %>%
   hchart("pie",
          hcaes(x = publisher_2, y = value),
          size = "65%",
          innerSize = "50%") %>%
+  hc_colors(pal) %>%
   hc_tooltip(pointFormat = "{point.value} Artikel ({point.perc} %)") %>%
   hc_exporting(
     enabled = TRUE, # always enabled
