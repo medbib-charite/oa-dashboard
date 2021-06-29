@@ -13,6 +13,7 @@ gc()
 ##+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ## Load libraries ----
 ##+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+library(gameofthrones)
 library(highcharter)
 library(htmlwidgets)
 library(janitor)
@@ -320,7 +321,6 @@ publisher_absolute <- data_publisher_join_sum_2 %>%
     buttons = list(contextButton = list(menuItems = c('downloadJPEG', 'separator', 'downloadCSV')))
   )
 
-library(gameofthrones)
 pal <- got(4, direction = 1, option = "Jon_Snow")
 
 publisher_donut <- data_publisher_join %>%
@@ -389,6 +389,38 @@ sapply(data, function(x) length(unique(x)))
 sort(table(publications_cha_dashboard$OA_color), decreasing = TRUE)
 
 n_occur <- data.frame(table(data$titel))
+
+
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# Load data of OA costs ----
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+oa_costs <- "raw_data/oa_costs.xlsx"
+
+data_costs <- read_excel(oa_costs,
+                         sheet = "Sheet1")
+
+data_costs_long <- data_costs %>%
+  select(-total) %>%
+  pivot_longer(cols = c("2018", "2019", "2020"), names_to = "year")
+
+pal <- got(3, direction = 1, option = "Jon_Snow")
+pal <- c("#8797AE", "#B2C1DD", "#2C74B4")
+
+publisher_costs <-
+  data_costs_long %>%
+  hchart("column",
+         hcaes(x = publisher, y = value, group = year)) %>%
+  hc_plotOptions(series = list(stacking = "normal")) %>%
+  hc_xAxis(title = FALSE) %>%
+  hc_yAxis(title = FALSE,
+           labels = list(format = '{value:,0f} €'), reversedStacks = FALSE) %>%
+  hc_colors(pal) %>%
+  hc_exporting(
+    enabled = TRUE, # always enabled
+    filename = "publisher_costs",
+    buttons = list(contextButton = list(menuItems = c('downloadJPEG', 'separator', 'downloadCSV')))
+  )
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # End ----

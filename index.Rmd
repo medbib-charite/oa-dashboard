@@ -145,7 +145,7 @@ Row {data-height=auto}
 <font size="5"> Open Access-Status von Artikeln mit Charité-Beteiligung nach Verlagen und Journalen im Jahr 2020</font>
 
 
-Row {data-height=500}
+Row {data-height=auto}
 -----------------------------------------------------------------------
 
 ### Artikel nach Verlagen in absoluten Zahlen
@@ -154,22 +154,22 @@ Row {data-height=500}
 publisher_absolute
 ```
 
-### Artikel nach Verlagen in absoluten Zahlen
-
-```{r}
-publisher_donut
-```
-
-Row {data-height=500}
------------------------------------------------------------------------
-
 ### Artikel nach Zeitschriften in absoluten Zahlen
 
 ```{r}
 journal_absolute
 ```
 
-###
+Row {data-height=auto}
+-----------------------------------------------------------------------
+
+### Zentrale Förderung von Artikeln mit Charité-Corresponding Author 2018-2020 nach Verlagen (Top 10)
+
+
+```{r}
+publisher_costs
+```
+
 
 
 Row {data-height=auto}
