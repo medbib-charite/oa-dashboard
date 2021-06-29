@@ -422,6 +422,31 @@ publisher_costs <-
     buttons = list(contextButton = list(menuItems = c('downloadJPEG', 'separator', 'downloadCSV')))
   )
 
+#pal <- got(10, direction = 1, option = "Daenerys")
+#pal <- topo.colors(n=10)
+#library("viridis")
+# pal <- viridis(n=10, direction = 1, option = "D")
+
+pal <- colorRampPalette(c("#8797AE", "#B2C1DD", "#2C74B4"))
+pal <- pal(10)
+
+publisher_costs_year <-
+  data_costs_long %>%
+  hchart("bar",
+         hcaes(x = year, y = value, group = publisher)) %>%
+  hc_plotOptions(series = list(stacking = "normal")) %>%
+  hc_xAxis(title = FALSE) %>%
+  hc_yAxis(title = FALSE,
+           labels = list(format = '{value:,0f} €'), reversedStacks = FALSE) %>%
+  hc_colors(pal) %>%
+  hc_exporting(
+    enabled = TRUE, # always enabled
+    filename = "publisher_costs",
+    buttons = list(contextButton = list(menuItems = c('downloadJPEG', 'separator', 'downloadCSV')))
+  )
+
+rainbow(n=7)
+
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # End ----
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

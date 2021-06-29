@@ -102,7 +102,7 @@ Row {data-height=auto}
 <font size="5"> Open Access-Status von Artikeln mit Charité-Beteiligung insgesamt und von Artikeln mit Charité-Corresponding Author 2018-2020</font>
 
 
-Row {data-height=500}
+Row {data-height=auto}
 -----------------------------------------------------------------------
 
 
@@ -118,7 +118,7 @@ status_percent
 status_corresponding_percent
 ```
 
-Row {data-height=500}
+Row {data-height=auto}
 -----------------------------------------------------------------------
 
 
@@ -170,6 +170,16 @@ Row {data-height=auto}
 publisher_costs
 ```
 
+
+Row {data-height=auto}
+-----------------------------------------------------------------------
+
+### Zentrale Förderung von Artikeln mit Charité-Corresponding Author 2018-2020 nach Verlagen (Top 10)
+
+
+```{r}
+publisher_costs_year
+```
 
 
 Row {data-height=auto}
