@@ -160,7 +160,7 @@ publisher_absolute
 journal_absolute
 ```
 
-Row {data-height=auto}
+Row {.tabset}
 -----------------------------------------------------------------------
 
 ### Zentrale Förderung von Artikeln mit Charité-Corresponding Author 2018-2020 nach Verlagen (Top 10)
@@ -171,10 +171,7 @@ publisher_costs
 ```
 
 
-Row {data-height=auto}
------------------------------------------------------------------------
-
-### Zentrale Förderung von Artikeln mit Charité-Corresponding Author 2018-2020 nach Verlagen (Top 10)
+### ... und nach Jahren
 
 
 ```{r}
