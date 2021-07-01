@@ -18,7 +18,9 @@ load("data/data_unpaywall.Rda")
 library(kableExtra)
 ```
 
-## Charité-Beteiligung: Jahr und OA-Status
+[zurück](https://medbib-charite.github.io/oa-dashboard/)
+
+## Artikel mit Charité-Beteiligung: Jahr und OA-Status
 ```{r}
 data_sum %>%
   kbl(align = "llll") %>%
@@ -28,7 +30,7 @@ data_sum %>%
 )
 ```
 
-## Charité Corresponding Author: Jahr und OA-Status
+## Artikel Charité Corresponding Author: Jahr und OA-Status
 ```{r}
 data_corresponding_sum %>%
   kbl(align = "llll") %>%
@@ -38,7 +40,7 @@ data_corresponding_sum %>%
 )
 ```
 
-## Charité-Beteiligung 2018-2020: Lizenzen und OA-Status
+## Artikel mit Charité-Beteiligung 2018-2020: Lizenzen und OA-Status
 ```{r}
 load("data/data_license_oa_status_final_count_2.Rda")
 
@@ -50,8 +52,9 @@ data_license_oa_status_final_count_2 %>%
 )
 ```
 
+
+```{r eval=FALSE, include=FALSE}
 ## Charité-Beteiligung 2020: Verlage und OA-Status
-```{r}
 data_publisher_table %>%
   kbl(align = "lll") %>%
   kable_styling() %>%
