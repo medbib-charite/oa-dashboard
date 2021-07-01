@@ -189,9 +189,16 @@ chart_lizenzen <- data_license_oa_status_final_count_2 %>%
   hchart("column",
          hcaes(x = license, y = count, group = oa_status)) %>%
   hc_plotOptions(series = list(stacking = "normal")) %>%
-  hc_yAxis(labels = list(format = '{value:.0f}')) %>%
+  hc_xAxis(title = list(text = "Lizenz")) %>%
+  hc_yAxis(title = list(text = "Anzahl"),
+           labels = list(format = '{value:.0f}')) %>%
   hc_colors(color) %>%
-  hc_tooltip(pointFormat = "{point.count} Artikel")
+  hc_tooltip(pointFormat = "{point.count} Artikel")  %>%
+  hc_exporting(
+    enabled = TRUE, # always enabled
+    filename = "chart_lizenzen",
+    buttons = list(contextButton = list(menuItems = c('downloadJPEG', 'separator', 'downloadCSV')))
+  )
 
 save(chart_lizenzen, file = "charts/chart_lizenzen.Rda")
 
@@ -200,9 +207,16 @@ chart_lizenzen_oa <- data_license_oa_status_final_count_2 %>%
   hchart("column",
          hcaes(x = license, y = count, group = oa_status)) %>%
   hc_plotOptions(series = list(stacking = "normal")) %>%
-  hc_yAxis(labels = list(format = '{value:.0f}')) %>%
+  hc_xAxis(title = list(text = "Lizenz")) %>%
+  hc_yAxis(title = list(text = "Anzahl"),
+           labels = list(format = '{value:.0f}')) %>%
   hc_colors(color) %>%
-  hc_tooltip(pointFormat = "{point.count} Artikel")
+  hc_tooltip(pointFormat = "{point.count} Artikel") %>%
+  hc_exporting(
+    enabled = TRUE, # always enabled
+    filename = "chart_lizenzen_oa",
+    buttons = list(contextButton = list(menuItems = c('downloadJPEG', 'separator', 'downloadCSV')))
+  )
 
 save(chart_lizenzen_oa, file = "charts/chart_lizenzen_oa.Rda")
 

@@ -28,18 +28,20 @@ Row
 -----------------------------------------------------------------------
 
 ```{r}
-########################### Analysis ###########################
-
-# Percent of article that were oa
-# Percent of article with Corresponding author
-# Percent of articles that were published in a doaj-journal
+##+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+## Analysis for gauges
+##+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 load("data/data_unpaywall.Rda")
 
 is_oa <- data %>%
+  group_by(jahr, oa_status, is_oa) %>%
+  summarise(count = n()) %>%
+  group_by(jahr) %>%
+  mutate(perc = round(count / sum(count) * 100, 1)) %>% 
+  # eliminate rounding differences created by different groupings
   group_by(jahr, is_oa) %>%
-  summarise(value = n()) %>%
-  mutate(perc = round(value / sum(value) * 100, 1))
+  summarise(count = sum(count), perc = sum(perc))
 
 is_doaj <- sort(table(data_unpaywall$journal_is_in_doaj), decreasing = TRUE)
 is_doaj <- round(4152/sum(is_doaj)*100, 1)
@@ -53,8 +55,6 @@ is_corresponding <- round(6292/sum(is_corresponding)*100, 1)
 
 ```{r}
 rate <- is_oa %>% filter(jahr == 2018 & is_oa == TRUE) %>% pull(perc)
-
-
 gauge(rate, min = 0, max = 100, symbol = ' %', gaugeSectors(colors = "#e97202"))
 ```
 
@@ -62,7 +62,6 @@ gauge(rate, min = 0, max = 100, symbol = ' %', gaugeSectors(colors = "#e97202"))
 
 ```{r}
 rate <- is_oa %>% filter(jahr == 2019 & is_oa == TRUE) %>% pull(perc)
-
 gauge(rate, min = 0, max = 100, symbol = ' %', gaugeSectors(colors = "#e97202"))
 ```
 
@@ -70,7 +69,6 @@ gauge(rate, min = 0, max = 100, symbol = ' %', gaugeSectors(colors = "#e97202"))
 
 ```{r}
 rate <- is_oa %>% filter(jahr == 2020 & is_oa == TRUE) %>% pull(perc)
-
 gauge(rate, min = 0, max = 100, symbol = ' %', gaugeSectors(colors = "#e97202"))
 ```
 
@@ -87,7 +85,7 @@ gauge(rate, min = 0, max = 100, symbol = ' %', gaugeSectors(
 ))
 ```
 
-### Journal ist im [DOAJ](https://doaj.org/) verzeichnet 2018-2020
+### Artikel erscheint in einer reinen Open Access-Zeitschrift (vgl. [DOAJ](https://doaj.org/)) 2018-2020
 
 ```{r}
 rate <- is_doaj
@@ -101,10 +99,8 @@ Row {data-height=auto}
 
 <font size="5"> Open Access-Status von Artikeln mit Charité-Beteiligung insgesamt und von Artikeln mit Charité-Corresponding Author 2018-2020</font>
 
-
 Row {data-height=auto}
 -----------------------------------------------------------------------
-
 
 ### Artikel mit Charité-Beteiligung (in %)
 
@@ -121,7 +117,6 @@ status_corresponding_percent
 Row {data-height=auto}
 -----------------------------------------------------------------------
 
-
 ### Artikel mit Charité-Beteiligung (absolute Zahlen)
 
 ```{r}
@@ -134,16 +129,12 @@ status_absolute_spline
 status_corresponding_absolute_spline
 ```
 
-
-
-
 Row {data-height=auto}
 -----------------------------------------------------------------------
 
 ### Analyse 2
 
-<font size="5"> Open Access-Status von Artikeln mit Charité-Beteiligung nach Verlagen und Journalen im Jahr 2020</font>
-
+<font size="5"> Open Access-Status von Artikeln mit Charité-Beteiligung nach Verlagen und Zeitschriften im Jahr 2020</font>
 
 Row {data-height=auto}
 -----------------------------------------------------------------------
@@ -165,19 +156,15 @@ Row {.tabset}
 
 ### Zentrale Förderung von Artikeln mit Charité-Corresponding Author 2018-2020 nach Verlagen (Top 10)
 
-
 ```{r}
 publisher_costs
 ```
 
-
 ### ... und nach Jahren
-
 
 ```{r}
 publisher_costs_year
 ```
-
 
 Row {data-height=auto}
 -----------------------------------------------------------------------
@@ -202,4 +189,3 @@ chart_lizenzen
 load("charts/chart_lizenzen_oa.Rda")
 chart_lizenzen_oa
 ```
-
