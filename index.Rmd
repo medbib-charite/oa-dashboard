@@ -8,6 +8,7 @@ output:
     source_code: embed
     navbar:
       - { title: "Datentabellen", href: "https://medbib-charite.github.io/oa-dashboard/tables", align: right }
+      - { title: "About", href: "https://medbib-charite.github.io/oa-dashboard/about", align: right }
     
 # author: Jan Taubitz
 # email: jan.taubitz@charite.de
@@ -89,7 +90,7 @@ gauge(rate, min = 0, max = 100, symbol = ' %', gaugeSectors(
 
 ```{r}
 rate <- is_doaj
-gauge(rate, min = 0, max = 100, symbol = ' %', label= "Quelle: Unpaywall", gaugeSectors(colors = "#e97202"))
+gauge(rate, min = 0, max = 100, symbol = ' %', gaugeSectors(colors = "#e97202"))
 ```
 
 Row {data-height=auto}
@@ -176,14 +177,14 @@ Row {data-height=auto}
 Row 
 -----------------------------------------------------------------------
 
-### Lizenzen für alle Artikel (Quelle: Unpaywall)
+### Lizenzen für alle Artikel
 
 ```{r}
 load("charts/chart_lizenzen.Rda")
 chart_lizenzen
 ```
 
-### Lizenzen für Artikel mit OA-Status gold, hybrid oder green (Quelle: Unpaywall)
+### Lizenzen für Artikel mit OA-Status gold, hybrid oder green
 
 ```{r}
 load("charts/chart_lizenzen_oa.Rda")
