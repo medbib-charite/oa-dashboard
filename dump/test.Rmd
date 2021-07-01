@@ -3,6 +3,11 @@ title: "test"
 author: "Jan Taubitz"
 date: "9 6 2021"
 output: html_document
+
+
+    navbar:
+      - { title: "Datentabellen", href: "https://medbib-charite.github.io/oa-dashboard/tables", align: right }
+      - { title: "About", href: "https://medbib-charite.github.io/oa-dashboard/about", align: right }
 ---
 
 ```{r setup, include=FALSE}

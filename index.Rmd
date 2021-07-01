@@ -6,9 +6,6 @@ output:
     orientation: rows
     vertical_layout: scroll
     source_code: embed
-    navbar:
-      - { title: "Datentabellen", href: "https://medbib-charite.github.io/oa-dashboard/tables", align: right }
-      - { title: "About", href: "https://medbib-charite.github.io/oa-dashboard/about", align: right }
     
 # author: Jan Taubitz
 # email: jan.taubitz@charite.de
@@ -190,3 +187,63 @@ chart_lizenzen
 load("charts/chart_lizenzen_oa.Rda")
 chart_lizenzen_oa
 ```
+
+Datentabellen
+=====================================
+
+Row 
+-----------------------------------------------------------------------
+
+### Artikel mit Charité-Beteiligung: Jahr und OA-Status
+```{r}
+library(kableExtra)
+
+load("data/data_unpaywall.Rda")
+
+data_sum %>%
+  kbl(align = "llll") %>%
+  kable_styling() %>%
+  scroll_box(width = "100%", height = "250px",
+  box_css = "border: 1px solid #ddd; padding: 5px; "
+)
+```
+
+Row 
+-----------------------------------------------------------------------
+
+### Artikel Charité Corresponding Author: Jahr und OA-Status
+```{r}
+data_corresponding_sum %>%
+  kbl(align = "llll") %>%
+  kable_styling() %>%
+  scroll_box(width = "100%", height = "250px",
+  box_css = "border: 1px solid #ddd; padding: 5px; "
+)
+```
+
+Row 
+-----------------------------------------------------------------------
+
+### Artikel mit Charité-Beteiligung 2018-2020: Lizenzen und OA-Status
+```{r}
+load("data/data_license_oa_status_final_count_2.Rda")
+
+data_license_oa_status_final_count_2 %>%
+  kbl(align = "lll") %>%
+  kable_styling() %>%
+  scroll_box(width = "100", height = "250px",
+  box_css = "border: 1px solid #ddd; padding: 5px; "
+)
+```
+
+
+About
+=====================================
+
+```{r}
+library(htmltools)
+  includeMarkdown('about.md')
+```
+
+
+
