@@ -1,12 +1,16 @@
 ---
-title: "Open Access Dashboard "
+title: "Open Access Dashboard"
 output: 
   flexdashboard::flex_dashboard:
-    css: styles.css
+    theme:
+      version: 4
+      navbar-bg: "#e97202"
+      base_font: "'Source Sans Pro', Calibri, Candara, Arial, sans-serif" #"'Neue Helvetica Thai', Helvetica, Arial, sans-serif"
     orientation: rows
     vertical_layout: scroll
     source_code: embed
-    
+    css: styles.css
+
 # author: Jan Taubitz
 # email: jan.taubitz@charite.de
 # source_code: https://github.com/medbib-charite/oa-dashboard
@@ -14,7 +18,9 @@ output:
 
 ```{r setup, include=FALSE}
 library(flexdashboard)
+```
 
+```{r}
 source("data_1.R", encoding = 'UTF-8')
 source("data_3_rcrossref.R", encoding = 'UTF-8')
 ```
@@ -83,7 +89,7 @@ gauge(rate, min = 0, max = 100, symbol = ' %', gaugeSectors(
 ))
 ```
 
-### Artikel erscheint in einer reinen Open Access-Zeitschrift (vgl. [DOAJ](https://doaj.org/)) 2018-2020
+### Artikel erscheint in einer reinen OA-Zeitschrift (vgl. [DOAJ](https://doaj.org/)) 2018-2020
 
 ```{r}
 rate <- is_doaj
