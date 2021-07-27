@@ -1,5 +1,5 @@
 ---
-title: "Open Access Dashboard"
+title: "Charité Open Access Dashboard"
 output: 
   flexdashboard::flex_dashboard:
     theme:
