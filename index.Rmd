@@ -5,10 +5,11 @@ output:
     theme:
       version: 4
       navbar-bg: "#e97202"
-      base_font: "'Source Sans Pro', Calibri, Candara, Arial, sans-serif" #"'Neue Helvetica Thai', Helvetica, Arial, sans-serif"
+      base_font: "'Source Sans Pro', Calibri, Candara, Arial, sans-serif"
     orientation: rows
+    navbar:
+      - { title: "Medizinische Bibliothek der Charité", href: "https://bibliothek.charite.de", align: right }
     vertical_layout: scroll
-    source_code: embed
     css: styles.css
 
 # author: Jan Taubitz
