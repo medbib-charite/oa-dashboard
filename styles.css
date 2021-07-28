@@ -7,6 +7,12 @@ body {
    font-size: 16px;
 }
 
+
+.navbar-nav li a{
+  color: white !important;
+  }
+
+
 .navbar-inverse {
     background-color: #e97202;
     border-color: #e97202;
