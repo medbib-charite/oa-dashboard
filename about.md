@@ -1,6 +1,6 @@
 
 
-## **Das Open Access Dashboard befindet sich in der Entwicklung**
+## **Das Charité Open Access Dashboard befindet sich in der Entwicklung**
 
 ## Beitragende
 - Jenny Delasalle (Konzept)
