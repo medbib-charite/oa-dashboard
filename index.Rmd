@@ -52,7 +52,9 @@ data_unpaywall_is_doaj <- data_unpaywall %>%
 is_doaj <- sort(table(data_unpaywall_is_doaj$journal_is_in_doaj), decreasing = TRUE)
 is_doaj <- round(4152/sum(is_doaj)*100, 1)
 
-is_corresponding <- sort(table(data$corresponding_author_cha), decreasing = TRUE)
+data_is_corresponding <- data %>%
+  filter(jahr %in% c(2018, 2019, 2020))
+is_corresponding <- sort(table(data_is_corresponding$corresponding_author_cha), decreasing = TRUE)
 is_corresponding <- round(6292/sum(is_corresponding)*100, 1)
 ```
 
