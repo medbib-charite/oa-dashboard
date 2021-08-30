@@ -23,7 +23,6 @@ library(flexdashboard)
 
 ```{r}
 source("data_1.R", encoding = 'UTF-8')
-source("data_3_rcrossref.R", encoding = 'UTF-8')
 ```
 
 Dashboard {data-icon="fa-globe"}
@@ -48,7 +47,9 @@ is_oa <- data %>%
   group_by(jahr, is_oa) %>%
   summarise(count = sum(count), perc = sum(perc))
 
-is_doaj <- sort(table(data_unpaywall$journal_is_in_doaj), decreasing = TRUE)
+data_unpaywall_is_doaj <- data_unpaywall %>%
+  filter(year %in% c(2018, 2019, 2020))
+is_doaj <- sort(table(data_unpaywall_is_doaj$journal_is_in_doaj), decreasing = TRUE)
 is_doaj <- round(4152/sum(is_doaj)*100, 1)
 
 is_corresponding <- sort(table(data$corresponding_author_cha), decreasing = TRUE)
@@ -85,16 +86,14 @@ Row
 
 ```{r}
 rate <- is_corresponding
-gauge(rate, min = 0, max = 100, symbol = ' %', gaugeSectors(
-  success = c(40, 100), warning = c(30, 39), danger = c(0, 29)
-))
+gauge(rate, min = 0, max = 100, symbol = ' %', gaugeSectors(colors = "#e97202"))
 ```
 
 ### Artikel erscheint in einer reinen OA-Zeitschrift (vgl. [DOAJ](https://doaj.org/)) 2018-2020
 
 ```{r}
 rate <- is_doaj
-gauge(rate, min = 0, max = 100, symbol = ' %', gaugeSectors(colors = "#e97202"))
+gauge(rate, min = 0, max = 100, symbol = ' %', gaugeSectors(colors = "#F4C244"))
 ```
 
 Row {data-height=auto}
@@ -102,7 +101,7 @@ Row {data-height=auto}
 
 ### Analyse 1
 
-<font size="5"> Open Access-Status von Artikeln mit Charité-Beteiligung insgesamt und von Artikeln mit Charité-Corresponding Author 2018-2020</font>
+<font size="5"> Open Access-Status von Artikeln mit Charité-Beteiligung insgesamt und von Artikeln mit Charité-Corresponding Author 2016-2020</font>
 
 Row {data-height=auto}
 -----------------------------------------------------------------------

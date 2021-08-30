@@ -30,6 +30,7 @@ endfassung <- "raw_data/Endfassung.xlsx"
 raw_data <- read_excel(endfassung,
                        sheet = "Worksheet")
 
+
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # Define color and oa-status variables ----
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -41,7 +42,7 @@ color <- c("#F4C244", "#A0CBDA", "#4FAC5B", "#D85DBF", "#2C405E", "#5F7036")
 # Clean data, create some new variables ----
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-data <- raw_data %>%
+data_clean <- raw_data %>%
   clean_names() %>%
   mutate(doi = tolower(doi),
          oa_status = tolower(oa_status)) %>% # Convert dois and oa_status to lower case
@@ -49,7 +50,95 @@ data <- raw_data %>%
   mutate(oa_status = replace_na(oa_status, "kein ergebnis")) %>%
   mutate(oa_status = factor(oa_status, levels = oa_status_colors)) %>%
   mutate(is_oa = if_else(oa_status %in% c("gold", "hybrid", "green"), TRUE, FALSE), .after = "oa_status") %>%
-  mutate(corresponding_author_cha = if_else(row_number() %in% c(1:6292), TRUE, FALSE), .after = "is_oa")
+  mutate(corresponding_author_cha = if_else(row_number() %in% c(1:6292), TRUE, FALSE), .after = "is_oa") %>%
+  select(!c(datenbank, autor_en))
+
+
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# Load data for 2016 and 2017 ----
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+data_2016_2017 <- "raw_data/2016-2018_merge charite_publikationen_article_review_wos_embase_corr_bih.xlsx"
+
+total_2016 <- read_excel(data_2016_2017,
+                         sheet = "merge_wos_embase_2016")
+
+corr_2016 <- read_excel(data_2016_2017,
+                        sheet = "merge_wos_embase_2016_corresp.")
+
+total_2017 <- read_excel(data_2016_2017,
+                         sheet = "merge_wos_embase_2017")
+
+corr_2017 <- read_excel(data_2016_2017,
+                        sheet = "merge_wos_embase_2017_corresp.")
+
+total_2016_2017 <- rbind(total_2016, total_2017)
+
+corr_2016_2017 <- rbind(corr_2016, corr_2017)
+
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# Clean 2016 and 2017 data, create some new variables ----
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+total_2016_2017_clean <- total_2016_2017 %>%
+  clean_names() %>%
+  mutate(doi = tolower(doi)) %>% # Convert dois to lower case
+  distinct(doi, .keep_all = TRUE) %>%
+  mutate(corresponding_author_cha = FALSE)
+
+corr_2016_2017_clean <- corr_2016_2017 %>%
+  clean_names() %>%
+  mutate(doi = tolower(doi)) %>% # Convert dois to lower case
+  distinct(doi, .keep_all = TRUE) %>%
+  mutate(corresponding_author_cha = TRUE)
+
+# combine data for corresponding and contributing authors
+data_2016_2017_clean <- rbind(corr_2016_2017_clean, total_2016_2017_clean)
+
+# deduplicate dois (corresponding authors before contributing authors)
+data_2016_2017 <- data_2016_2017_clean %>%
+  group_by(doi) %>%
+  slice(1) %>%
+  filter(doi != 0) %>%
+  rename(jahr = publ_year, zeitschrift = source) %>%
+  ungroup()
+
+
+# add oa status to data
+load("data/data_unpaywall.Rda")
+
+data_unpaywall_2016_2017 <- data_unpaywall %>%
+  distinct(doi, .keep_all = TRUE) %>%
+  select(doi, oa_status)
+
+data_2016_2017_oa <- left_join(data_2016_2017, data_unpaywall_2016_2017, by = "doi") %>%
+  mutate(oa_status = replace_na(oa_status, "kein ergebnis")) %>%
+  mutate(oa_status = factor(oa_status, levels = oa_status_colors)) %>%
+  mutate(is_oa = if_else(oa_status %in% c("gold", "hybrid", "green"), TRUE, FALSE), .after = "oa_status") %>%
+  select(doi,
+         titel,
+         zeitschrift,
+         corresponding_author = corresp_author,
+         issn,
+         e_issn,
+         jahr,
+         pub_med_id = pmid,
+         verlag = publisher,
+         author_address = aut_affil,
+         document_type = doc_type,
+         e_mail_address = email_corr_author,
+         open_access_indicator = oa,
+         reprint_address_gelb_sind_korrespondenzautoren_der_charite = corresp_author,
+         oa_status,
+         is_oa,
+         corresponding_author_cha)
+
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# Combine dataframes of 2016-2017 and 2018-2020 data with rbind ----
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+data <- rbind(data_2016_2017_oa, data_clean)
+
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # Exploratory data analysis ----
@@ -184,45 +273,6 @@ status_corresponding_percent <-
     buttons = list(contextButton = list(menuItems = c('downloadJPEG', 'separator', 'downloadCSV')))
   )
 
-#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# Visualizations of year and oa_status item chart ----
-#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-item_2018 <- data_corresponding_sum %>%
-  filter(jahr == 2018) %>%
-  hchart(
-    "item",
-    hcaes(name = oa_status, y = value),
-  #  name = "Anzahl",
-    tooltip = list(pointFormat = "{point.value} Artikel ({point.percent} %)"),
-    marker = list(symbol = "round"),
-    showInLegend = FALSE
-  ) %>%
-  hc_colors(color)
-
-item_2019 <- data_corresponding_sum %>%
-  filter(jahr == 2019) %>%
-  hchart(
-    "item",
-    hcaes(name = oa_status, y = value),
-  #  name = "Anzahl",
-    tooltip = list(pointFormat = "{point.value} Artikel ({point.percent} %)"),
-    marker = list(symbol = "round"),
-    showInLegend = FALSE
-  ) %>%
-  hc_colors(color)
-
-item_2020 <- data_corresponding_sum %>%
-  filter(jahr == 2020) %>%
-  hchart(
-  "item",
-  hcaes(name = oa_status, y = value),
-#  name = "Anzahl",
-  tooltip = list(pointFormat = "{point.value} Artikel ({point.percent} %)"),
-  marker = list(symbol = "round"),
-  showInLegend = TRUE
-) %>%
-  hc_colors(color)
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # Visualizations of journals and oa_status ----
@@ -354,37 +404,6 @@ publisher_donut <- data_publisher_join %>%
     filename = "publisher_donut",
     buttons = list(contextButton = list(menuItems = c('downloadJPEG', 'separator', 'downloadCSV')))
   )
-
-##++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-## Clean publisher column from medbib dataset ----
-##++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-data_publisher <- data %>%
-  mutate(publisher = tolower(verlag)) %>%
-  mutate(publisher = case_when(str_detect(publisher, regex("wiley", ignore_case=TRUE)) ~ "wiley",
-                               str_detect(publisher, regex("springer", ignore_case=TRUE)) ~ "springer",
-                               str_detect(publisher, regex("elsevier", ignore_case=TRUE)) ~ "elsevier",
-                               str_detect(publisher, regex("nature", ignore_case=TRUE)) ~ "nature",
-                               str_detect(publisher, regex("thieme", ignore_case=TRUE)) ~ "thieme",
-                               str_detect(publisher, regex("lippincott", ignore_case=TRUE)) ~ "lww",
-                               str_detect(publisher, regex("^bmj", ignore_case=TRUE)) ~ "bmj",
-                               str_detect(publisher, regex("frontiers", ignore_case=TRUE)) ~ "frontiers",
-                               str_detect(publisher, regex("oxford", ignore_case=TRUE)) ~ "oxford up",
-                               TRUE ~ publisher
-                               ))
-
-data_publisher_sum <- data_publisher %>%
-  #filter(oa_status == "closed") %>%
-  group_by(jahr, publisher) %>%
-  summarise(value = n(), .groups = "drop_last") %>%
-  mutate(percent = round(value / sum(value) * 100, 1)) %>%
-  filter(value >= 100) %>%
-  arrange(-jahr, -value) %>%
-  ungroup() %>%
-  mutate(publisher = forcats::fct_reorder(publisher, value)) %>%
-  arrange(-value, .by_group = TRUE)
-
-# ordering bar plots https://github.com/jbkunst/highcharter/issues/363
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # Exploratory data analysis of bih dataset ----

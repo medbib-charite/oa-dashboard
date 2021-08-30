@@ -43,22 +43,51 @@ data_doi <- data %>%
 # warnings_2020 <- warnings()
 # save(data_unpaywall_2020, file = "data/data_unpaywall_2020.Rda")
 # save(warnings_2020, file = "data/warnings_2020.Rda")
-# # load("data_unpaywall_2020.Rda")
+# # load("data/data_unpaywall_2020.Rda")
 #
 # warnings_2019 <- warnings()
 # save(data_unpaywall_2019, file = "data/data_unpaywall_2019.Rda")
 # save(warnings_2019, file = "data/warnings_2019.Rda")
-# # load("data_unpaywall_2019.Rda")
+# # load("data/data_unpaywall_2019.Rda")
 #
 # warnings_2018 <- warnings()
 # save(data_unpaywall_2018, file = "data/data_unpaywall_2018.Rda")
 # save(warnings_2018, file = "data/warnings_2018.Rda")
-# # load("data/data_unpaywall_2019.Rda")
+# # load("data/data_unpaywall_2018.Rda")
 #
-# data_unpaywall <- rbind(data_unpaywall_2018, data_unpaywall_2019, data_unpaywall_2020)
+#
+# data_doi_2017 <- data_2016_2017 %>%
+#   filter(jahr == 2017) %>%
+#   select(doi)
+#
+# data_unpaywall_2017 <- roadoi::oadoi_fetch(dois = data_doi_2017$doi,
+#             email = "jan.taubitz@charite.de",
+#             .progress = "text")
+#
+# warnings_2017 <- warnings()
+# save(data_unpaywall_2017, file = "data/data_unpaywall_2017.Rda")
+# save(warnings_2017, file = "data/warnings_2017.Rda")
+# load("data/data_unpaywall_2017.Rda")
+#
+# data_doi_2016 <- data_2016_2017 %>%
+#   filter(jahr == 2016) %>%
+#   select(doi)
+#
+# data_unpaywall_2016 <- roadoi::oadoi_fetch(dois = data_doi_2016$doi,
+#                                            email = "jan.taubitz@charite.de",
+#                                            .progress = "text")
+#
+# warnings_2016 <- warnings()
+# save(data_unpaywall_2016, file = "data/data_unpaywall_2016.Rda")
+# save(warnings_2016, file = "data/warnings_2016.Rda")
+# load("data/data_unpaywall_2016.Rda")
+#
+# data_unpaywall <- rbind(data_unpaywall_2016, data_unpaywall_2017, data_unpaywall_2018, data_unpaywall_2019, data_unpaywall_2020)
 # save(data_unpaywall, file = "data/data_unpaywall.Rda")
 
 load("data/data_unpaywall.Rda")
+
+
 
 ##+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ## Exploratory data analysis ----
@@ -160,7 +189,9 @@ data_license_final_count <- data_license_final %>%
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 data_doi <- data %>%
-  filter(!str_detect(doi, "keine doi"))
+  filter(!str_detect(doi, "keine doi")) %>%
+  filter(jahr %in% c(2018, 2019, 2020))
+
 
 data_medbib_license <- data_doi %>%
   select(doi, oa_status)
@@ -219,41 +250,6 @@ chart_lizenzen_oa <- data_license_oa_status_final_count_2 %>%
   )
 
 save(chart_lizenzen_oa, file = "charts/chart_lizenzen_oa.Rda")
-
-oa_status_colors <- c("gold", "hybrid", "green", "bronze", "closed", "kein ergebnis")
-color <- c("#F4C244", "#A0CBDA", "#4FAC5B", "#D85DBF", "#2C405E", "#5F7036")
-
-color_treemap <- c("#2C405E", "#F4C244", "#D85DBF", "#A0CBDA", "#4FAC5B", "#5F7036")
-
-hchart(
-  data_to_hierarchical(
-    data = data_license_oa_status_final_count_2,
-    group_vars = c(oa_status, license),
-    size_var = count,
-    colors = color_treemap),
-  type = "treemap",
-  levelIsConstant = FALSE,
-  animation = list(defer = 1000, duration = 0),
-  allowDrillToNode = TRUE,
-  #  allowTraversingTree = TRUE,
-  layoutAlgorithm = "squarified",
-  levels = list(
-    list(
-      level = 1,
-      dataLabels = list(enabled = TRUE),
-      borderWidth = 4,
-      colorVariation = list(key = 'brightness', to = 0.2)
-    ),
-    list(
-      level = 2,
-      dataLabels = list(enabled = FALSE),
-      borderWidth = 1,
-      colorVariation = list(key = 'brightness', to = 0.2)
-    )
-  )
-) %>%
-  hc_title(text = "Lizenzen - Treemap Chart") %>%
-  hc_subtitle(text = "Daten zu Lizenzen von Unpaywall")
 
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # End ----
