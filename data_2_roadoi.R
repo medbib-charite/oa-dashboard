@@ -8,7 +8,6 @@
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 source("data_1.R", encoding = 'UTF-8')
-source("datenvergleich.Rmd", encoding = 'UTF-8')
 
 library(roadoi)
 
@@ -23,6 +22,7 @@ data_doi <- data %>%
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 # https://cran.r-project.org/web/packages/roadoi/vignettes/intro.html
+# split the data for performance reasons
 
 # data_doi_2020 <- data_doi %>%
 #   filter(jahr == 2020) %>%
@@ -114,30 +114,6 @@ load("data/data_unpaywall.Rda")
 # https://cran.r-project.org/web/packages/roadoi/vignettes/intro.html
 # https://subugoe.github.io/scholcomm_analytics/posts/unpaywall_evidence/
 
-
-#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# Analysis ----
-#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-# Percent of article that were oa
-
-# Percent of articles that were published in a doaj-journal
-
-# Percent of article with Corresponding author
-
-is_oa <- data %>%
-  group_by(jahr, is_oa) %>%
-  summarise(value = n()) %>%
-  mutate(perc = round(value / sum(value) * 100, 1))
-
-is_doaj <- sort(table(data_unpaywall$journal_is_in_doaj), decreasing = TRUE)
-is_doaj
-is_doaj <- round(4152/sum(is_doaj)*100, 1)
-
-is_corresponding <- sort(table(data$corresponding_author_cha), decreasing = TRUE)
-is_corresponding
-is_corresponding <- round(6292/sum(is_corresponding)*100, 1)
-
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # Analyse Licences ----
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -191,7 +167,6 @@ data_license_final_count <- data_license_final %>%
 data_doi <- data %>%
   filter(!str_detect(doi, "keine doi")) %>%
   filter(jahr %in% c(2018, 2019, 2020))
-
 
 data_medbib_license <- data_doi %>%
   select(doi, oa_status)
