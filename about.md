@@ -1,5 +1,4 @@
 
-
 ## **Das Charité Open Access Dashboard befindet sich in der Entwicklung**
 
 ## Beitragende
@@ -18,5 +17,3 @@
 
 ### Stand der Datenerhebung
 07.04.2021
-
-
