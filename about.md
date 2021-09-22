@@ -1,6 +1,3 @@
-
-## **Das Charité Open Access Dashboard befindet sich in der Entwicklung**
-
 ## Contributors
 - Jenny Delasalle (Concept)
 - Ursula Flitner (Concept, Data collection)
@@ -52,5 +49,3 @@ This is included as a status for the sake of completeness but does not fit the d
 
 Similarly, as shown in Analysis 3, most green open access publishing also happens without a clearly identifiable license but at least free access is granted for the long term. 
 
-### Stand der Datenerhebung
-07.04.2021
