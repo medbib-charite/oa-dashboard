@@ -104,8 +104,10 @@ data_2016_2017 <- data_2016_2017_clean %>%
   rename(jahr = publ_year, zeitschrift = source) %>%
   ungroup()
 
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# Add oa status from unpaywall to data and clean column names ----
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-# add oa status to data
 load("data/data_unpaywall.Rda")
 
 data_unpaywall_2016_2017 <- data_unpaywall %>%
@@ -135,7 +137,7 @@ data_2016_2017_oa <- left_join(data_2016_2017, data_unpaywall_2016_2017, by = "d
          corresponding_author_cha)
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# Combine dataframes of 2016-2017 and 2018-2020 data with rbind ----
+# Combine dataframes of 2016-2017 data and 2018-2020 data with rbind ----
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 data <- rbind(data_2016_2017_oa, data_clean)
@@ -151,7 +153,7 @@ write_xlsx(data, "data/publications_charite_2016-2020.xlsx")
 #n_occur <- data.frame(table(data$titel))
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# Visualizations of year and oa_status ----
+# Visualizations of year and oa_status of contributing authors ----
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 data %>%
@@ -216,7 +218,6 @@ status_percent <-
 
 # reversed bar stacks https://www.highcharts.com/forum/viewtopic.php?t=10916
 
-
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # Visualizations of year and oa_status corresponding authors ----
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -274,7 +275,6 @@ status_corresponding_percent <-
     filename = "status_corresponding_percent",
     buttons = list(contextButton = list(menuItems = c('downloadJPEG', 'separator', 'downloadCSV')))
   )
-
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # Visualizations of journals and oa_status ----
@@ -407,22 +407,6 @@ publisher_donut <- data_publisher_join %>%
     buttons = list(contextButton = list(menuItems = c('downloadJPEG', 'separator', 'downloadCSV')))
   )
 
-#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# Exploratory data analysis of bih dataset ----
-#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-raw_data_publications_cha_dashboard <- "raw_data/publications_cha_dashboard.csv"
-publications_cha_dashboard <- read_csv(raw_data_publications_cha_dashboard)
-
-
-bih_data <- publications_cha_dashboard %>%
-  filter(year >= 2018 & year <= 2020)
-
-sapply(data, function(x) length(unique(x)))
-sort(table(publications_cha_dashboard$OA_color), decreasing = TRUE)
-
-n_occur <- data.frame(table(data$titel))
-
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # Load data of OA costs ----
@@ -437,8 +421,12 @@ data_costs_long <- data_costs %>%
   select(-total) %>%
   pivot_longer(cols = c("2018", "2019", "2020"), names_to = "year")
 
+<<<<<<< HEAD
 pal <- got(3, direction = 1, option = "Jon_Snow")
 pal <- c("#858688", "#B2C1DD", "#004ecc")
+=======
+pal <- c("#8797AE", "#B2C1DD", "#2C74B4")
+>>>>>>> 8e6cfd73ddfa997bc81766f0fd48ca519ac872e3
 
 publisher_costs <-
   data_costs_long %>%
@@ -459,6 +447,7 @@ publisher_costs <-
 #pal <- topo.colors(n=10)
 #library("viridis")
 # pal <- viridis(n=10, direction = 1, option = "D")
+#rainbow(n=7)
 
 # pal <- colorRampPalette(c("#8797AE", "#B2C1DD", "#2C74B4"))
 pal <- colorRampPalette(c("#858688", "#B2C1DD", "#004ecc"))
@@ -479,7 +468,20 @@ publisher_costs_year <-
     buttons = list(contextButton = list(menuItems = c('downloadJPEG', 'separator', 'downloadCSV')))
   )
 
-rainbow(n=7)
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# Exploratory data analysis of bih dataset ----
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+raw_data_publications_cha_dashboard <- "raw_data/publications_cha_dashboard.csv"
+publications_cha_dashboard <- read_csv(raw_data_publications_cha_dashboard)
+
+bih_data <- publications_cha_dashboard %>%
+  filter(year >= 2018 & year <= 2020)
+
+sapply(data, function(x) length(unique(x)))
+sort(table(publications_cha_dashboard$OA_color), decreasing = TRUE)
+
+n_occur <- data.frame(table(data$titel))
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # End ----

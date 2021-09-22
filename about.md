@@ -1,5 +1,4 @@
 
-
 ## **Das Charité Open Access Dashboard befindet sich in der Entwicklung**
 
 ## Contributors
@@ -18,6 +17,7 @@
 - [Unpaywall](https://unpaywall.org)
 - [Web of Science](https://www.webofscience.com/wos/woscc/basic-search)
 
+<<<<<<< HEAD
 Chosen sources include information about corresponding authors and their affiliations. Corresponding authors are of special interest here because they are responsible for paying fees associated with gold and hybrid Open Access (OA) publishing. Such data is used in cost estimates for the Charité. However, any author can self-archive a paper (green open access) and thus the total number of papers with a Charité authorship is significant when measuring the percentage of open access reached by the institution as a whole. While the percentage of OA publishing is a key indicator for the visibility and discoverability of research findings, the quality and costs of open access must also be monitored, hence the selection of analyses presented in this dashboard.
 
 ## Updates to the dashboard:
@@ -52,3 +52,7 @@ This is included as a status for the sake of completeness but does not fit the d
 - long term free access is not supported, since publishers can withdraw free access at any time and without a license, repository copies cannot be archived.
 
 Similarly, as shown in Analysis 3, most green open access publishing also happens without a clearly identifiable license but at least free access is granted for the long term. 
+=======
+### Stand der Datenerhebung
+07.04.2021
+>>>>>>> 8e6cfd73ddfa997bc81766f0fd48ca519ac872e3
