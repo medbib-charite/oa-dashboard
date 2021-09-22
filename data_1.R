@@ -142,7 +142,7 @@ data_2016_2017_oa <- left_join(data_2016_2017, data_unpaywall_2016_2017, by = "d
 
 data <- rbind(data_2016_2017_oa, data_clean)
 
-write_xlsx(data, "data/publications_charite_2016-2020.xlsx")
+# write_xlsx(data, "data/publications_charite_2016-2020.xlsx")
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # Exploratory data analysis ----
@@ -421,12 +421,9 @@ data_costs_long <- data_costs %>%
   select(-total) %>%
   pivot_longer(cols = c("2018", "2019", "2020"), names_to = "year")
 
-<<<<<<< HEAD
-pal <- got(3, direction = 1, option = "Jon_Snow")
-pal <- c("#858688", "#B2C1DD", "#004ecc")
-=======
+# pal <- got(3, direction = 1, option = "Jon_Snow")
+# pal <- c("#858688", "#B2C1DD", "#004ecc")
 pal <- c("#8797AE", "#B2C1DD", "#2C74B4")
->>>>>>> 8e6cfd73ddfa997bc81766f0fd48ca519ac872e3
 
 publisher_costs <-
   data_costs_long %>%
