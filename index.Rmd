@@ -209,7 +209,11 @@ library(kableExtra)
 load("data/data_unpaywall.Rda")
 
 data_sum %>%
-  kbl(align = "llll") %>%
+  kbl(align = "llll",
+      col.names = c("year",
+                    "oa_status",
+                    "count",
+                    "percent")) %>%
   kable_styling() %>%
   scroll_box(width = "100%", height = "250px",
   box_css = "border: 1px solid #ddd; padding: 5px; "
@@ -222,7 +226,11 @@ Row
 ### Articles with a Charité corresponding author, by OA status and year
 ```{r}
 data_corresponding_sum %>%
-  kbl(align = "llll") %>%
+  kbl(align = "llll",
+      col.names = c("year",
+                    "oa_status",
+                    "count",
+                    "percent")) %>%
   kable_styling() %>%
   scroll_box(width = "100%", height = "250px",
   box_css = "border: 1px solid #ddd; padding: 5px; "
@@ -237,7 +245,7 @@ Row
 load("data/data_license_oa_status_final_count_2.Rda")
 
 data_license_oa_status_final_count_2 %>%
-  kbl(align = "lll") %>%
+  kbl(align = "lll")%>%
   kable_styling() %>%
   scroll_box(width = "100", height = "250px",
   box_css = "border: 1px solid #ddd; padding: 5px; "
