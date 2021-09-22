@@ -122,7 +122,7 @@ data_license_unnest <- data_unpaywall %>%
   # 1. Unnest the list structure
   unnest(oa_locations, keep_empty = TRUE) %>%
   # 2. Clean the license strings and create "others" category
-  mutate(license = case_when(grepl("specific|cc0|implied|pd", license, ignore.case = TRUE) ~ "sonstige Lizenz",
+  mutate(license = case_when(grepl("specific|cc0|implied|pd", license, ignore.case = TRUE) ~ "other license",
                              TRUE ~ license)) %>%
   select(doi, license)
 
@@ -149,8 +149,8 @@ data_license_unnest_distinct <- data_license_unnest %>%
 
 data_license_final <- rbind(data_license_unnest_2, data_license_unnest_distinct) %>%
   distinct(doi, .keep_all = TRUE) %>%
-  mutate(license = replace_na(license, "kein Ergebnis")) %>%
-  mutate(license = factor(license, levels = c("cc-by", "cc-by-nc", "cc-by-sa", "cc-by-nc-sa", "cc-by-nd", "cc-by-nc-nd", "sonstige Lizenz", "kein Ergebnis")))
+  mutate(license = replace_na(license, "no license found")) %>%
+  mutate(license = factor(license, levels = c("cc-by", "cc-by-nc", "cc-by-sa", "cc-by-nc-sa", "cc-by-nd", "cc-by-nc-nd", "other license", "no license found")))
 
 data_license_final_count <- data_license_final %>%
   group_by(license) %>%
@@ -166,11 +166,7 @@ data_license_final_count <- data_license_final %>%
 
 data_doi <- data %>%
   filter(!str_detect(doi, "keine doi")) %>%
-<<<<<<< HEAD
   filter(jahr %in% c(2016, 2017, 2018, 2019, 2020))
-=======
-  filter(jahr %in% c(2018, 2019, 2020))
->>>>>>> 8e6cfd73ddfa997bc81766f0fd48ca519ac872e3
 
 data_medbib_license <- data_doi %>%
   select(doi, oa_status)

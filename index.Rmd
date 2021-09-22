@@ -102,7 +102,7 @@ Row {data-height=auto}
 
 ### Analysis 1
 
-<font size="5"> Open access status among articles involving Charité authors and among articles with a Charité corresponding author.</font>
+<font size="5"> Open access status among articles involving Charité authors and among articles with a Charité corresponding author</font>
 
 Row {data-height=auto}
 -----------------------------------------------------------------------
