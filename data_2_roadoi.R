@@ -190,8 +190,7 @@ data_license_final_count <- data_license_final %>%
 
 data_doi <- data %>%
   filter(!str_detect(doi, "keine doi")) %>%
-  filter(jahr %in% c(2018, 2019, 2020))
-
+  filter(jahr %in% c(2016, 2017, 2018, 2019, 2020))
 
 data_medbib_license <- data_doi %>%
   select(doi, oa_status)
@@ -220,11 +219,11 @@ chart_lizenzen <- data_license_oa_status_final_count_2 %>%
   hchart("column",
          hcaes(x = license, y = count, group = oa_status)) %>%
   hc_plotOptions(series = list(stacking = "normal")) %>%
-  hc_xAxis(title = list(text = "Lizenz")) %>%
-  hc_yAxis(title = list(text = "Anzahl"),
+  hc_xAxis(title = list(text = "License")) %>%
+  hc_yAxis(title = list(text = "Number"),
            labels = list(format = '{value:.0f}')) %>%
   hc_colors(color) %>%
-  hc_tooltip(pointFormat = "{point.count} Artikel")  %>%
+  hc_tooltip(pointFormat = "{point.count} articles")  %>%
   hc_exporting(
     enabled = TRUE, # always enabled
     filename = "chart_lizenzen",
@@ -233,16 +232,64 @@ chart_lizenzen <- data_license_oa_status_final_count_2 %>%
 
 save(chart_lizenzen, file = "charts/chart_lizenzen.Rda")
 
+#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# Visualize licenses only for 2020 ----
+#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+data_doi_2020 <- data %>%
+  filter(!str_detect(doi, "keine doi")) %>%
+  filter(jahr %in% c(2020))
+
+data_medbib_license_2020 <- data_doi_2020 %>%
+  select(doi, oa_status)
+
+data_license_oa_status_final_2020 <- data_medbib_license_2020 %>%
+  inner_join(data_license_final, by = "doi")
+
+data_license_oa_status_final_count_2020 <- data_license_oa_status_final_2020 %>%
+  group_by(license, oa_status) %>%
+  summarise(count = n())
+
+data_license_oa_status_final_count_2_2020 <- data_license_oa_status_final_count_2020 %>%
+  group_by(license) %>%
+  spread(oa_status, count, fill = 0) %>% # to solve order problem
+  gather(oa_status, count, 2:7) %>%
+  mutate(oa_status = factor(oa_status, levels = oa_status_colors)) %>%
+  arrange(license)
+
+save(data_license_oa_status_final_count_2_2020, file = "data/data_license_oa_status_final_count_2_2020.Rda")
+
+chart_lizenzen_year_2020 <- data_license_oa_status_final_count_2_2020 %>%
+  hchart("column",
+         hcaes(x = license, y = count, group = oa_status)) %>%
+  hc_plotOptions(series = list(stacking = "normal")) %>%
+  hc_xAxis(title = list(text = "License")) %>%
+  hc_yAxis(title = list(text = "Number"),
+           labels = list(format = '{value:.0f}')) %>%
+  hc_colors(color) %>%
+  hc_tooltip(pointFormat = "{point.count} articles") %>%
+  hc_exporting(
+    enabled = TRUE, # always enabled
+    filename = "chart_lizenzen_oa",
+    buttons = list(contextButton = list(menuItems = c('downloadJPEG', 'separator', 'downloadCSV')))
+  )
+
+save(chart_lizenzen_year_2020, file = "charts/chart_lizenzen_year_2020.Rda")
+
+#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# Visualize licenses only for OA status gold, green, hybrid ----
+#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
 chart_lizenzen_oa <- data_license_oa_status_final_count_2 %>%
   filter(oa_status %in% c("gold", "hybrid", "green")) %>%
   hchart("column",
          hcaes(x = license, y = count, group = oa_status)) %>%
   hc_plotOptions(series = list(stacking = "normal")) %>%
-  hc_xAxis(title = list(text = "Lizenz")) %>%
-  hc_yAxis(title = list(text = "Anzahl"),
+  hc_xAxis(title = list(text = "License")) %>%
+  hc_yAxis(title = list(text = "Number"),
            labels = list(format = '{value:.0f}')) %>%
   hc_colors(color) %>%
-  hc_tooltip(pointFormat = "{point.count} Artikel") %>%
+  hc_tooltip(pointFormat = "{point.count} articles") %>%
   hc_exporting(
     enabled = TRUE, # always enabled
     filename = "chart_lizenzen_oa",

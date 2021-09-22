@@ -35,7 +35,7 @@ raw_data <- read_excel(endfassung,
 # Define color and oa-status variables ----
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-oa_status_colors <- c("gold", "hybrid", "green", "bronze", "closed", "kein ergebnis")
+oa_status_colors <- c("gold", "hybrid", "green", "bronze", "closed", "no result")
 color <- c("#F4C244", "#A0CBDA", "#4FAC5B", "#D85DBF", "#2C405E", "#5F7036")
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -47,7 +47,8 @@ data_clean <- raw_data %>%
   mutate(doi = tolower(doi),
          oa_status = tolower(oa_status)) %>% # Convert dois and oa_status to lower case
   distinct(doi, .keep_all = TRUE) %>%
-  mutate(oa_status = replace_na(oa_status, "kein ergebnis")) %>%
+  mutate(oa_status = str_replace(oa_status, "kein ergebnis", "no result")) %>%
+  mutate(oa_status = replace_na(oa_status, "no result")) %>%
   mutate(oa_status = factor(oa_status, levels = oa_status_colors)) %>%
   mutate(is_oa = if_else(oa_status %in% c("gold", "hybrid", "green"), TRUE, FALSE), .after = "oa_status") %>%
   mutate(corresponding_author_cha = if_else(row_number() %in% c(1:6292), TRUE, FALSE), .after = "is_oa") %>%
@@ -112,7 +113,7 @@ data_unpaywall_2016_2017 <- data_unpaywall %>%
   select(doi, oa_status)
 
 data_2016_2017_oa <- left_join(data_2016_2017, data_unpaywall_2016_2017, by = "doi") %>%
-  mutate(oa_status = replace_na(oa_status, "kein ergebnis")) %>%
+  mutate(oa_status = replace_na(oa_status, "no result")) %>%
   mutate(oa_status = factor(oa_status, levels = oa_status_colors)) %>%
   mutate(is_oa = if_else(oa_status %in% c("gold", "hybrid", "green"), TRUE, FALSE), .after = "oa_status") %>%
   select(doi,
@@ -139,6 +140,7 @@ data_2016_2017_oa <- left_join(data_2016_2017, data_unpaywall_2016_2017, by = "d
 
 data <- rbind(data_2016_2017_oa, data_clean)
 
+write_xlsx(data, "data/publications_charite_2016-2020.xlsx")
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # Exploratory data analysis ----
@@ -180,8 +182,8 @@ status_absolute_spline <-
   hchart("spline",
          hcaes(x = jahr, y = value, group = oa_status)) %>%
   hc_colors(color) %>%
-  hc_xAxis(title = list(text = "Jahr")) %>%
-  hc_yAxis(title = list(text = "Anzahl")) %>%
+  hc_xAxis(title = list(text = "Year")) %>%
+  hc_yAxis(title = list(text = "Number")) %>%
   hc_exporting(
     enabled = TRUE,
     # always enabled
@@ -201,11 +203,11 @@ status_percent <-
          hcaes(x = jahr, y = percent, group = oa_status)) %>%
   hc_plotOptions(series = list(stacking = "normal")) %>%
   hc_colors(color) %>%
-  hc_xAxis(title = list(text = "Jahr")) %>%
-  hc_yAxis(title = list(text = "Open Access-Status"),
+  hc_xAxis(title = list(text = "Year")) %>%
+  hc_yAxis(title = list(text = "Open access status"),
            labels = list(format = '{value} %'),
            max = 100, reversedStacks = FALSE) %>%
-  hc_tooltip(pointFormat = "<b>{point.oa_status}</b><br>{point.value} Artikel ({point.percent} %)") %>%
+  hc_tooltip(pointFormat = "<b>{point.oa_status}</b><br>{point.value} articles ({point.percent} %)") %>%
   hc_exporting(
     enabled = TRUE, # always enabled
     filename = "status_percent",
@@ -246,8 +248,8 @@ status_corresponding_absolute_spline <-
   hchart("spline",
          hcaes(x = jahr, y = value, group = oa_status)) %>%
   hc_colors(color) %>%
-  hc_xAxis(title = list(text = "Jahr")) %>%
-  hc_yAxis(title = list(text = "Anzahl")) %>%
+  hc_xAxis(title = list(text = "Year")) %>%
+  hc_yAxis(title = list(text = "Number")) %>%
   hc_exporting(
     enabled = TRUE, # always enabled
     filename = "status_corresponding_absolute_spline",
@@ -262,11 +264,11 @@ status_corresponding_percent <-
   ) %>%
   hc_plotOptions(series = list(stacking = "normal")) %>%
   hc_colors(color) %>%
-  hc_xAxis(title = list(text = "Jahr")) %>%
-  hc_yAxis(title = list(text = "Open Access-Status"),
+  hc_xAxis(title = list(text = "Year")) %>%
+  hc_yAxis(title = list(text = "Open access status"),
            labels = list(format = '{value} %'),
            max = 100, reversedStacks = FALSE) %>%
-  hc_tooltip(pointFormat = "<b>{point.oa_status}</b><br>{point.value} Artikel ({point.percent} %)") %>%
+  hc_tooltip(pointFormat = "<b>{point.oa_status}</b><br>{point.value} articles ({point.percent} %)") %>%
   hc_exporting(
     enabled = TRUE, # always enabled
     filename = "status_corresponding_percent",
@@ -302,10 +304,10 @@ journal_absolute <- journal_data_2 %>%
            max = 15,
            scrollbar = list(enabled = TRUE)) %>%
   hc_size(height = 500) %>%
-  hc_xAxis(title = list(text = "Zeitschrift")) %>%
-  hc_yAxis(title = list(text = "Anzahl"),
+  hc_xAxis(title = list(text = "Journal")) %>%
+  hc_yAxis(title = list(text = "Number"),
            reversedStacks = FALSE) %>%
-  hc_tooltip(pointFormat = "<b>{point.oa_status}</b><br>{point.value} Artikel ({point.percent} %)<br>{point.value_zs} Artikel insgesamt") %>%
+  hc_tooltip(pointFormat = "<b>{point.oa_status}</b><br>{point.value} articles ({point.percent} %)<br>{point.value_zs} total articles") %>%
   hc_exporting(
     enabled = TRUE, # always enabled
     filename = "journal_absolute",
@@ -322,7 +324,7 @@ journal_percent <- journal_data_2 %>%
   hc_yAxis(labels = list(format = '{value} %'),
                          max = 100, reversedStacks = FALSE) %>%
   hc_size(height = 500) %>%
-  hc_tooltip(pointFormat = "<b>{point.oa_status}</b><br>{point.value} Artikel ({point.percent} %)<br>{point.value_zs} Artikel insgesamt") %>%
+  hc_tooltip(pointFormat = "<b>{point.oa_status}</b><br>{point.value} articles ({point.percent} %)<br>{point.value_zs} total articles") %>%
   hc_exporting(
     enabled = TRUE, # always enabled
     filename = "journal_percent",
@@ -363,7 +365,7 @@ data_publisher_join_sum_2 <- data_publisher_join_sum %>%
 data_publisher_table <- data_publisher_join_sum_2 %>%
   select(-value_pub, -percent) %>%
   pivot_wider(names_from = oa_status, values_from = value) %>%
-  select(-`kein ergebnis`)
+  select(-`no result`)
 
 publisher_absolute <- data_publisher_join_sum_2 %>%
   hchart("bar", hcaes(x = publisher, y = value, group = oa_status)) %>%
@@ -373,10 +375,10 @@ publisher_absolute <- data_publisher_join_sum_2 %>%
            max = 15,
            scrollbar = list(enabled = TRUE)) %>%
   hc_size(height = 500) %>%
-  hc_xAxis(title = list(text = "Verlag")) %>%
-  hc_yAxis(title = list(text = "Anzahl"),
+  hc_xAxis(title = list(text = "Publisher")) %>%
+  hc_yAxis(title = list(text = "Number"),
            reversedStacks = FALSE) %>%
-  hc_tooltip(pointFormat = "<b>{point.oa_status}</b><br>{point.value} Artikel ({point.percent} %)<br>{point.value_pub} Artikel insgesamt") %>%
+  hc_tooltip(pointFormat = "<b>{point.oa_status}</b><br>{point.value} articles ({point.percent} %)<br>{point.value_pub} total articles") %>%
   hc_exporting(
     enabled = TRUE, # always enabled
     filename = "publisher_absolute",
@@ -388,7 +390,7 @@ pal <- got(4, direction = 1, option = "Jon_Snow")
 publisher_donut <- data_publisher_join %>%
   group_by(publisher) %>%
   summarise(value = n()) %>%
-  mutate(publisher_2 = if_else(value <= 500, "andere Verlage", publisher)) %>%
+  mutate(publisher_2 = if_else(value <= 500, "other Publishers", publisher)) %>%
   group_by(publisher_2) %>%
   summarise(value = sum(value)) %>%
   mutate(perc = round(value / sum(value) * 100, 1)) %>%
@@ -436,15 +438,15 @@ data_costs_long <- data_costs %>%
   pivot_longer(cols = c("2018", "2019", "2020"), names_to = "year")
 
 pal <- got(3, direction = 1, option = "Jon_Snow")
-pal <- c("#8797AE", "#B2C1DD", "#2C74B4")
+pal <- c("#858688", "#B2C1DD", "#004ecc")
 
 publisher_costs <-
   data_costs_long %>%
   hchart("column",
          hcaes(x = publisher, y = value, group = year)) %>%
   hc_plotOptions(series = list(stacking = "normal")) %>%
-  hc_xAxis(title = list(text = "Verlag")) %>%
-  hc_yAxis(title = list(text = "Förderbetrag"),
+  hc_xAxis(title = list(text = "Publisher")) %>%
+  hc_yAxis(title = list(text = "Funding amount"),
            labels = list(format = '{value:,0f} €'), reversedStacks = FALSE) %>%
   hc_colors(pal) %>%
   hc_exporting(
@@ -458,7 +460,8 @@ publisher_costs <-
 #library("viridis")
 # pal <- viridis(n=10, direction = 1, option = "D")
 
-pal <- colorRampPalette(c("#8797AE", "#B2C1DD", "#2C74B4"))
+# pal <- colorRampPalette(c("#8797AE", "#B2C1DD", "#2C74B4"))
+pal <- colorRampPalette(c("#858688", "#B2C1DD", "#004ecc"))
 pal <- pal(10)
 
 publisher_costs_year <-
@@ -466,8 +469,8 @@ publisher_costs_year <-
   hchart("bar",
          hcaes(x = year, y = value, group = publisher)) %>%
   hc_plotOptions(series = list(stacking = "normal")) %>%
-  hc_xAxis(title = list(text = "Jahr")) %>%
-  hc_yAxis(title = list(text = "Förderbetrag"),
+  hc_xAxis(title = list(text = "Year")) %>%
+  hc_yAxis(title = list(text = "Founding amount"),
            labels = list(format = '{value:,0f} €'), reversedStacks = FALSE) %>%
   hc_colors(pal) %>%
   hc_exporting(

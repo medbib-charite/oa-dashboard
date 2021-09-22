@@ -8,7 +8,7 @@ output:
       base_font: "'Source Sans Pro', Calibri, Candara, Arial, sans-serif"
     orientation: rows
     navbar:
-      - { title: "Medizinische Bibliothek der Charité", href: "https://bibliothek.charite.de", align: right }
+      - { title: "Charité Medical Library", href: "https://bibliothek.charite.de", align: right }
     vertical_layout: scroll
     css: styles.css
 
@@ -48,32 +48,32 @@ is_oa <- data %>%
   summarise(count = sum(count), perc = sum(perc))
 
 data_unpaywall_is_doaj <- data_unpaywall %>%
-  filter(year %in% c(2018, 2019, 2020))
+  filter(year %in% c(2020))
 is_doaj <- sort(table(data_unpaywall_is_doaj$journal_is_in_doaj), decreasing = TRUE)
-is_doaj <- round(4152/sum(is_doaj)*100, 1)
+is_doaj <- round(is_doaj[[2]]/sum(is_doaj)*100, 1)
 
 data_is_corresponding <- data %>%
-  filter(jahr %in% c(2018, 2019, 2020))
+  filter(jahr %in% c(2020))
 is_corresponding <- sort(table(data_is_corresponding$corresponding_author_cha), decreasing = TRUE)
-is_corresponding <- round(6292/sum(is_corresponding)*100, 1)
+is_corresponding <- round(is_corresponding[[2]]/sum(is_corresponding)*100, 1)
 ```
 
 
-### Open Access-Artikel mit Charité-Beteiligung 2018
+### 2018: Percentage of open access among all articles involving Charité authors 
 
 ```{r}
 rate <- is_oa %>% filter(jahr == 2018 & is_oa == TRUE) %>% pull(perc)
 gauge(rate, min = 0, max = 100, symbol = ' %', gaugeSectors(colors = "#e97202"))
 ```
 
-### Open Access-Artikel mit Charité-Beteiligung 2019
+### 2019: Percentage of open access among all articles involving Charité authors 
 
 ```{r}
 rate <- is_oa %>% filter(jahr == 2019 & is_oa == TRUE) %>% pull(perc)
 gauge(rate, min = 0, max = 100, symbol = ' %', gaugeSectors(colors = "#e97202"))
 ```
 
-### Open Access-Artikel mit Charité-Beteiligung 2020
+### 2020: Percentage of open access among all articles involving Charité authors 
 
 ```{r}
 rate <- is_oa %>% filter(jahr == 2020 & is_oa == TRUE) %>% pull(perc)
@@ -84,14 +84,13 @@ gauge(rate, min = 0, max = 100, symbol = ' %', gaugeSectors(colors = "#e97202"))
 Row 
 -----------------------------------------------------------------------
 
-### Artikel mit Charité-Corresponding Author 2018-2020
+### 2020: Percentage of open access among articles with a Charité corresponding author
 
 ```{r}
 rate <- is_corresponding
 gauge(rate, min = 0, max = 100, symbol = ' %', gaugeSectors(colors = "#e97202"))
 ```
-
-### Artikel erscheint in einer reinen OA-Zeitschrift (vgl. [DOAJ](https://doaj.org/)) 2018-2020
+### 2020: Percentage of articles involving Charité authors appearing in a DOAJ-listed journal 
 
 ```{r}
 rate <- is_doaj
@@ -101,20 +100,20 @@ gauge(rate, min = 0, max = 100, symbol = ' %', gaugeSectors(colors = "#F4C244"))
 Row {data-height=auto}
 -----------------------------------------------------------------------
 
-### Analyse 1
+### Analysis 1
 
-<font size="5"> Open Access-Status von Artikeln mit Charité-Beteiligung insgesamt und von Artikeln mit Charité-Corresponding Author 2016-2020</font>
+<font size="5"> Open access status among articles involving Charité authors and among articles with a Charité corresponding author.</font>
 
 Row {data-height=auto}
 -----------------------------------------------------------------------
 
-### Artikel mit Charité-Beteiligung (in %)
+### 2016 - 2020: Articles involving Charité authors by OA status (in %)
 
 ```{r}
 status_percent
 ```
 
-### Artikel mit Charité-Corresponding Author (in %)
+### 2016 - 2020: Articles with a Charité corresponding author by OA status (in %)
 
 ```{r}
 status_corresponding_percent
@@ -123,13 +122,13 @@ status_corresponding_percent
 Row {data-height=auto}
 -----------------------------------------------------------------------
 
-### Artikel mit Charité-Beteiligung (absolute Zahlen)
+### 2016 - 2020: Articles involving Charité authors by OA status (absolute numbers)
 
 ```{r}
 status_absolute_spline
 ```
 
-### Artikel mit Charité-Corresponding Author (absolute Zahlen)
+### 2016 - 2020: Articles with a Charité corresponding author by OA status (absolute numbers)
 
 ```{r}
 status_corresponding_absolute_spline
@@ -138,20 +137,20 @@ status_corresponding_absolute_spline
 Row {data-height=auto}
 -----------------------------------------------------------------------
 
-### Analyse 2
+### Analysis 2
 
-<font size="5"> Open Access-Status von Artikeln mit Charité-Beteiligung nach Verlagen und Zeitschriften im Jahr 2020</font>
+<font size="5"> Publishers and journals among articles involving Charité authors, by open access status</font>
 
 Row {data-height=auto}
 -----------------------------------------------------------------------
 
-### Artikel nach Verlagen in absoluten Zahlen
+### 2020: Articles by publisher in absolute numbers 
 
 ```{r}
 publisher_absolute
 ```
 
-### Artikel nach Zeitschriften in absoluten Zahlen
+### 2020: Articles by journal in absolute numbers
 
 ```{r}
 journal_absolute
@@ -160,13 +159,13 @@ journal_absolute
 Row {.tabset}
 -----------------------------------------------------------------------
 
-### Zentrale Förderung von Artikeln mit Charité-Corresponding Author 2018-2020 nach Verlagen (Top 10)
+### 2018 - 2020: Centrally funded articles with a Charité corresponding author; costs at top 10 publishers
 
 ```{r}
 publisher_costs
 ```
 
-### ... und nach Jahren
+### ... and by year
 
 ```{r}
 publisher_costs_year
@@ -175,34 +174,34 @@ publisher_costs_year
 Row {data-height=auto}
 -----------------------------------------------------------------------
 
-### Analyse 3
+### Analysis 3
 
-<font size="5"> Lizenzen der mit Charité-Beteiligung publizierten Artikel 2018-2020</font>
+<font size="5"> Open licenses under which articles involving Charité authors were published</font>
 
 Row 
 -----------------------------------------------------------------------
 
-### Lizenzen für alle Artikel
+### 2016 - 2020: Licenses for all articles involving Charité authors
 
 ```{r}
 load("charts/chart_lizenzen.Rda")
 chart_lizenzen
 ```
 
-### Lizenzen für Artikel mit OA-Status gold, hybrid oder green
+### only 2020: Licenses for all articles involving Charité authors
 
 ```{r}
-load("charts/chart_lizenzen_oa.Rda")
-chart_lizenzen_oa
+load("charts/chart_lizenzen_year_2020.Rda")
+chart_lizenzen_year_2020
 ```
 
-Datentabellen
+Data tables
 =====================================
 
 Row 
 -----------------------------------------------------------------------
 
-### Artikel mit Charité-Beteiligung: Jahr und OA-Status
+### Articles involving Charité authors, by OA status and year
 ```{r}
 library(kableExtra)
 
@@ -219,7 +218,7 @@ data_sum %>%
 Row 
 -----------------------------------------------------------------------
 
-### Artikel Charité Corresponding Author: Jahr und OA-Status
+### Articles with a Charité corresponding author, by OA status and year
 ```{r}
 data_corresponding_sum %>%
   kbl(align = "llll") %>%
@@ -232,7 +231,7 @@ data_corresponding_sum %>%
 Row 
 -----------------------------------------------------------------------
 
-### Artikel mit Charité-Beteiligung 2018-2020: Lizenzen und OA-Status
+### Articles involving Charité authors, by OA status and license
 ```{r}
 load("data/data_license_oa_status_final_count_2.Rda")
 
