@@ -422,8 +422,9 @@ data_costs_long <- data_costs %>%
   pivot_longer(cols = c("2018", "2019", "2020"), names_to = "year")
 
 # pal <- got(3, direction = 1, option = "Jon_Snow")
-# pal <- c("#858688", "#B2C1DD", "#004ecc")
-pal <- c("#8797AE", "#B2C1DD", "#2C74B4")
+ pal <- c("#858688", "#B2C1DD", "#004ecc")
+# pal <- c("#8797AE", "#B2C1DD", "#2C74B4")
+
 
 publisher_costs <-
   data_costs_long %>%
