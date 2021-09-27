@@ -28,6 +28,12 @@ source("data_1.R", encoding = 'UTF-8')
 Dashboard {data-icon="fa-globe"}
 ===================================== 
 
+Row {.no-title}
+-----------------------------------------------------------------------
+
+###
+<font size="5"> The Charité Medical Library presents data about open access publishing in journal articles at the Charité in interactive, clickable diagrams.</font>
+
 Row 
 -----------------------------------------------------------------------
 
@@ -84,7 +90,7 @@ gauge(rate, min = 0, max = 100, symbol = ' %', gaugeSectors(colors = "#e97202"))
 Row 
 -----------------------------------------------------------------------
 
-### 2020: Percentage of open access among articles with a Charité corresponding author
+### 2020: Percentage of Charité corresponding author articles among all Charité articles
 
 ```{r}
 rate <- is_corresponding

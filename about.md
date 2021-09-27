@@ -49,3 +49,7 @@ This is included as a status for the sake of completeness but does not fit the d
 
 Similarly, as shown in Analysis 3, most green open access publishing also happens without a clearly identifiable license but at least free access is granted for the long term. 
 
+## Open Licenses:
+These are determined using data from [Unpaywall](https://unpaywall.org/). Articles may be available under more than one license but a [hierarchy of licenses](https://creativecommons.org/about/cclicenses/) is used, so that only the least restrictive, and most open licenses are counted in the analysis in this dashboard. 
+
+
