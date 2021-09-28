@@ -90,7 +90,7 @@ gauge(rate, min = 0, max = 100, symbol = ' %', gaugeSectors(colors = "#e97202"))
 Row 
 -----------------------------------------------------------------------
 
-### 2020: Percentage of Charité corresponding author articles among all Charité articles
+### 2020: Charité corresponding author articles among articles involving Charité authors
 
 ```{r}
 rate <- is_corresponding
