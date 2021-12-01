@@ -142,6 +142,45 @@ data_2016_2017_oa <- left_join(data_2016_2017, data_unpaywall_2016_2017, by = "d
 
 data <- rbind(data_2016_2017_oa, data_clean)
 
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# New manipulation 2021-12-01; change oa_status to green for bronze articles
+# with repository copy, delete 71 false datasets ----
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+data_unpaywall_oa_status <- data_unpaywall %>%
+  distinct(doi, .keep_all = TRUE) %>%
+  select(doi, oa_status, has_repository_copy) %>%
+  mutate(oa_status_new = case_when(oa_status == "bronze" & has_repository_copy == TRUE ~ "green",
+                                   TRUE ~ oa_status)) %>%
+  select(doi, oa_status_new)
+
+# Control test
+# test <- data_unpaywall_oa_status %>%
+#   filter(oa_status != oa_status_new)
+
+data <- data %>% left_join(data_unpaywall_oa_status, by = "doi") %>%
+  select(!oa_status) %>%
+  rename(oa_status = oa_status_new) %>%
+  mutate(oa_status = replace_na(oa_status, "no result")) %>%
+  mutate(oa_status = factor(oa_status, levels = oa_status_colors)) %>%
+  mutate(is_oa = case_when(oa_status == "green" ~ TRUE,
+                           TRUE ~ is_oa))
+
+# Control test
+# test <- data %>%
+#   filter(is_oa == FALSE & oa_status == "green")
+
+wrong_dois_input <- "raw_data/falsche_dois_wos_2016_2020.xls"
+
+wrong_dois <- read_excel(wrong_dois_input) %>%
+  clean_names() %>%
+  select(doi) %>%
+  mutate(doi = str_to_lower(doi)) %>%
+  pull(doi)
+
+data <- data %>%
+  filter(!doi %in% wrong_dois)
+
 # write_xlsx(data, "data/publications_charite_2016-2020.xlsx")
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -457,7 +496,7 @@ publisher_costs_year <-
          hcaes(x = year, y = value, group = publisher)) %>%
   hc_plotOptions(series = list(stacking = "normal")) %>%
   hc_xAxis(title = list(text = "Year")) %>%
-  hc_yAxis(title = list(text = "Founding amount"),
+  hc_yAxis(title = list(text = "Funding amount"),
            labels = list(format = '{value:,0f} €'), reversedStacks = FALSE) %>%
   hc_colors(pal) %>%
   hc_exporting(

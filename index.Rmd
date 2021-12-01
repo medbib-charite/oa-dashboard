@@ -32,7 +32,9 @@ Row {.no-title}
 -----------------------------------------------------------------------
 
 ###
-<font size="5"> The Charité Medical Library presents data about open access publishing in journal articles at the Charité in interactive, clickable diagrams.</font>
+<font size="5">The Charité Medical Library presents data about open access publishing in journal articles at the Charité in interactive, clickable diagrams. This dashboard is complementary to the [Charité Metrics Dashboard](https://s-quest.bihealth.org/charite-dashboard/) from the BIH QUEST Center at Charité.</font>
+
+
 
 Row 
 -----------------------------------------------------------------------

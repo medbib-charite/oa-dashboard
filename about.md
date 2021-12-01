@@ -6,7 +6,7 @@
 - Anja Siebert (Data collection)
 - Jan Taubitz (Concept, Technical implementation)
 
-### Latest Update: Sep. 27,  2021
+### Latest Update: Dec. 1,  2021
 
 ## Sources
 - [Embase (via Ovid)](http://ovidsp.ovid.com/autologin.html)
@@ -43,7 +43,7 @@ The [Unpaywall](https://unpaywall.org/) interface is used to ascertain the open 
 - **Green:** Published version remains closed, but a free to read copy is available in an OA repository.
 - **Bronze:** Published version is free to read, but without an open license (more details below).
 - **Closed:** All other articles, including those in hybrid or closed journals.
-- **Kein Ergebnis/No result:** status not determined
+- **No result:** status not determined
 
 ## Bronze is not true open access:
 
