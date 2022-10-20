@@ -19,6 +19,7 @@ library(htmlwidgets)
 library(janitor)
 library(readxl)
 library(tidyverse)
+library(dplyr)
 library(writexl)
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
