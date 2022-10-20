@@ -52,7 +52,7 @@ data_clean <- raw_data %>%
   mutate(oa_status = replace_na(oa_status, "no result")) %>%
   mutate(oa_status = factor(oa_status, levels = oa_status_colors)) %>%
   mutate(is_oa = if_else(oa_status %in% c("gold", "hybrid", "green"), TRUE, FALSE), .after = "oa_status") %>%
-  mutate(corresponding_author_cha = if_else(row_number() %in% c(1:6292), TRUE, FALSE), .after = "is_oa") %>%   # FIXME (row numbers)
+  mutate(corresponding_author_cha = if_else(row_number() %in% c(1:6292), TRUE, FALSE), .after = "is_oa") %>%   # FIXME: row numbers
   select(!c(datenbank, autor_en))
 
 
@@ -145,17 +145,17 @@ data <- rbind(data_2016_2017_oa, data_clean)
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # New manipulation 2021-12-01; change oa_status to green for bronze articles
-# with repository copy, delete 71 false datasets ----
+# with repository copy, delete 71 false datasets ----                           # FIXME: update or remove number of false datasets (71 before the 2021 articles)
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 data_unpaywall_oa_status <- data_unpaywall %>%
   distinct(doi, .keep_all = TRUE) %>%
-  select(doi, oa_status, has_repository_copy) %>%
+  select(doi, oa_status, has_repository_copy) %>%                               # TODO: could line be removed as unnecessary? will be selected later anyway
   mutate(oa_status_new = case_when(oa_status == "bronze" & has_repository_copy == TRUE ~ "green",
                                    TRUE ~ oa_status)) %>%
   select(doi, oa_status_new)
 
-# Control test
+# Control test (column oa_status in data_unpaywall_oa_status needed)
 # test <- data_unpaywall_oa_status %>%
 #   filter(oa_status != oa_status_new)
 
