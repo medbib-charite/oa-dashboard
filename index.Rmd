@@ -46,7 +46,7 @@ Row
 
 load("data/data_unpaywall.Rda")
 
-is_oa <- data %>%
+is_oa <- data %>% # FIXME data umbenennen
   group_by(jahr, oa_status, is_oa) %>%
   summarise(count = n()) %>%
   group_by(jahr) %>%
@@ -55,12 +55,12 @@ is_oa <- data %>%
   group_by(jahr, is_oa) %>%
   summarise(count = sum(count), perc = sum(perc))
 
-data_unpaywall_is_doaj <- data_unpaywall %>%
+data_unpaywall_is_doaj <- data_unpaywall %>% # FIXME: Prozentwert is_doaj weniger umständlich berechnen (Anzahl TRUE / Anzahl gesamt)
   filter(year %in% c(2020))
 is_doaj <- sort(table(data_unpaywall_is_doaj$journal_is_in_doaj), decreasing = TRUE)
 is_doaj <- round(is_doaj[[2]]/sum(is_doaj)*100, 1)
 
-data_is_corresponding <- data %>%
+data_is_corresponding <- data %>% # FIXME: Prozentwert is_doaj weniger umständlich berechnen (Anzahl TRUE / Anzahl gesamt)
   filter(jahr %in% c(2020))
 is_corresponding <- sort(table(data_is_corresponding$corresponding_author_cha), decreasing = TRUE)
 is_corresponding <- round(is_corresponding[[2]]/sum(is_corresponding)*100, 1)
