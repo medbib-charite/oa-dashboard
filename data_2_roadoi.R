@@ -158,7 +158,7 @@ data_license_final_count <- data_license_final %>%
 
 # https://stackoverflow.com/questions/6986657/find-duplicated-rows-based-on-2-columns-in-data-frame-in-r
 
-# 740 Artikel haben mindestens zwei unterschiedliche Lizenzen
+# 740 Artikel haben mindestens zwei unterschiedliche Lizenzen    # FIXME: Anzahl entfernen oder aktualisieren
 
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # Add oa_status to data ----
@@ -181,7 +181,7 @@ data_license_oa_status_final_count <- data_license_oa_status_final %>%
 data_license_oa_status_final_count_2 <- data_license_oa_status_final_count %>%
   group_by(license) %>%
   spread(oa_status, count, fill = 0) %>% # to solve order problem
-  gather(oa_status, count, 2:7) %>%
+  gather(oa_status, count, -license) %>%
   mutate(oa_status = factor(oa_status, levels = oa_status_colors)) %>%
   arrange(license)
 
@@ -214,7 +214,7 @@ save(chart_lizenzen, file = "charts/chart_lizenzen.Rda")
 
 data_doi_2020 <- data %>%
   filter(!str_detect(doi, "keine doi")) %>%
-  filter(jahr %in% c(2020))
+  filter(jahr == 2020)
 
 data_medbib_license_2020 <- data_doi_2020 %>%
   select(doi, oa_status)
@@ -229,7 +229,7 @@ data_license_oa_status_final_count_2020 <- data_license_oa_status_final_2020 %>%
 data_license_oa_status_final_count_2_2020 <- data_license_oa_status_final_count_2020 %>%
   group_by(license) %>%
   spread(oa_status, count, fill = 0) %>% # to solve order problem
-  gather(oa_status, count, 2:7) %>%
+  gather(oa_status, count, -license) %>%
   mutate(oa_status = factor(oa_status, levels = oa_status_colors)) %>%
   arrange(license)
 
