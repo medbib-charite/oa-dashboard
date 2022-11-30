@@ -23,7 +23,7 @@ library(dplyr)
 library(writexl)
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# Load data ----
+# Load data for 2018–2020 ----
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 endfassung <- "raw_data/Endfassung.xlsx"
@@ -52,7 +52,7 @@ data_clean <- raw_data %>%
   mutate(oa_status = replace_na(oa_status, "no result")) %>%
   mutate(oa_status = factor(oa_status, levels = oa_status_colors)) %>%
   mutate(is_oa = if_else(oa_status %in% c("gold", "hybrid", "green"), TRUE, FALSE), .after = "oa_status") %>%
-  mutate(corresponding_author_cha = if_else(row_number() %in% c(1:6292), TRUE, FALSE), .after = "is_oa") %>%   # FIXME: row numbers
+  mutate(corresponding_author_cha = if_else(row_number() %in% c(1:6292), TRUE, FALSE), .after = "is_oa") %>%   # FIXME: remove usage of row numbers, i.e. replace with filter using corr. author column in the relevant analyses (column not yet/originally not existent in 2018-2020 data but in 2021 data!)
   select(!c(datenbank, autor_en))
 
 
@@ -99,7 +99,7 @@ data_2016_2017_clean <- rbind(corr_2016_2017_clean, total_2016_2017_clean)
 
 # deduplicate dois (corresponding authors before contributing authors)
 data_2016_2017 <- data_2016_2017_clean %>%
-  group_by(doi) %>%
+  group_by(doi) %>%    # FIXME: couldn't this be done without grouping and slicing but with distinct() as this will preserve the *first* row anyway? The order of the datasets rbinded before is relevant in both cases
   slice(1) %>%
   filter(doi != 0) %>%
   rename(jahr = publ_year, zeitschrift = source) %>%
@@ -152,7 +152,7 @@ data_unpaywall_oa_status <- data_unpaywall %>%
   distinct(doi, .keep_all = TRUE) %>%
   select(doi, oa_status, has_repository_copy) %>%                               # TODO: could line be removed as unnecessary? will be selected later anyway
   mutate(oa_status_new = case_when(oa_status == "bronze" & has_repository_copy == TRUE ~ "green",
-                                   TRUE ~ oa_status)) %>%
+                                   TRUE ~ oa_status)) %>%     # TODO: warum case_when und nicht: if_else(oa_status == "bronze" & has_repository_copy == TRUE, "green", oa_status)
   select(doi, oa_status_new)
 
 # Control test (column oa_status in data_unpaywall_oa_status needed)
@@ -165,13 +165,13 @@ data <- data %>% left_join(data_unpaywall_oa_status, by = "doi") %>%
   mutate(oa_status = replace_na(oa_status, "no result")) %>%
   mutate(oa_status = factor(oa_status, levels = oa_status_colors)) %>%
   mutate(is_oa = case_when(oa_status == "green" ~ TRUE,
-                           TRUE ~ is_oa))
+                           TRUE ~ is_oa))     # TODO: warum nicht: if_else(oa_status == "green", TRUE, is_oa)
 
 # Control test
 # test <- data %>%
 #   filter(is_oa == FALSE & oa_status == "green")
 
-wrong_dois_input <- "raw_data/falsche_dois_wos_2016_2020.xls"
+wrong_dois_input <- "raw_data/falsche_dois_wos_2016_2020.xls" # articles without Charité affiliation (incorrect assignment in WoS data)
 
 wrong_dois <- read_excel(wrong_dois_input) %>%
   clean_names() %>%
