@@ -141,7 +141,7 @@ data_2016_2017_oa <- left_join(data_2016_2017, data_unpaywall_2016_2017, by = "d
 # Combine dataframes of 2016-2017 data and 2018-2020 data with rbind ----
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-data <- rbind(data_2016_2017_oa, data_clean)
+data_2016_2020 <- rbind(data_2016_2017_oa, data_clean)
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # New manipulation 2021-12-01; change oa_status to green for bronze articles
@@ -159,7 +159,7 @@ data_unpaywall_oa_status <- data_unpaywall %>%
 # test <- data_unpaywall_oa_status %>%
 #   filter(oa_status != oa_status_new)
 
-data <- data %>% left_join(data_unpaywall_oa_status, by = "doi") %>%
+data_2016_2020 <- data_2016_2020 %>% left_join(data_unpaywall_oa_status, by = "doi") %>%
   select(!oa_status) %>%
   rename(oa_status = oa_status_new) %>%
   mutate(oa_status = replace_na(oa_status, "no result")) %>%
@@ -179,10 +179,101 @@ wrong_dois <- read_excel(wrong_dois_input) %>%
   mutate(doi = str_to_lower(doi)) %>%
   pull(doi)
 
-data <- data %>%
+data_2016_2020 <- data_2016_2020 %>%
   filter(!doi %in% wrong_dois)
 
 # write_xlsx(data, "data/publications_charite_2016-2020.xlsx")
+
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# Load 2021 data (containing unpaywall data, retrieved September 2022 ----
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+raw_publications_charite_2016_2021_final <- "raw_data/publications_charite_2016-2021_final.xlsx"
+
+raw_2021_data <- read_excel(raw_publications_charite_2016_2021_final,
+                            sheet = "2021")
+
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# Clean and enrich 2021 data ----
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+data_2021 <- raw_2021_data %>%
+  clean_names() %>%
+  mutate(doi = tolower(doi),
+         oa_status = tolower(oa_status)) %>%
+  distinct(doi, .keep_all = TRUE) %>%       # FIXME: damit das ordnungsgemäß funktioniert, muss "keine doi" vorher differenziert worden sein, z.B. durch Ergänzen der PMID/WOS-Nummer/EMBASE-Nummer; temporär dafür Bearbeitung der doi-losen Artikel darunter eingefügt (data_2021_kein_doi)
+  mutate(oa_status = replace_na(oa_status, "no result")) %>%
+  mutate(oa_status = factor(oa_status, levels = oa_status_colors)) %>%
+  mutate(is_oa = if_else(oa_status %in% c("gold", "hybrid", "green"), TRUE, FALSE), .after = "oa_status") %>%
+  select(doi,
+         titel,
+         zeitschrift,
+         corresponding_author,
+         issn,
+         e_issn,
+         jahr,
+         pub_med_id,
+         verlag,
+         author_address,
+         document_type,
+         e_mail_address,
+         open_access_indicator,
+         reprint_address = reprint_address_gelb_sind_korrespondenzautoren_der_charite,
+         oa_status,
+         is_oa,
+         corresponding_author_cha)
+
+
+data_2021_kein_doi <- raw_2021_data %>%
+  clean_names() %>%
+  mutate(doi = tolower(doi),
+         oa_status = tolower(oa_status)) %>%
+  filter(doi == "keine doi") %>%
+  mutate(oa_status = replace_na(oa_status, "no result")) %>%
+  mutate(oa_status = factor(oa_status, levels = oa_status_colors)) %>%
+  mutate(is_oa = if_else(oa_status %in% c("gold", "hybrid", "green"), TRUE, FALSE), .after = "oa_status") %>%
+  select(doi,
+         titel,
+         zeitschrift,
+         corresponding_author,
+         issn,
+         e_issn,
+         jahr,
+         pub_med_id,
+         verlag,
+         author_address,
+         document_type,
+         e_mail_address,
+         open_access_indicator,
+         reprint_address = reprint_address_gelb_sind_korrespondenzautoren_der_charite,
+         oa_status,
+         is_oa,
+         corresponding_author_cha)
+
+data_2021 <- rbind(data_2021, data_2021_kein_doi) %>%
+  distinct() # damit der erste "keine doi"-Artikel von distinct(doi, .keep_all = TRUE) nicht doppelt erscheint
+
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# Add 2021 data to existing data with rbind ----
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+data_2016_2020 <- data_2016_2020 %>%
+  rename(reprint_address = reprint_address_gelb_sind_korrespondenzautoren_der_charite)
+data <- rbind(data_2016_2020, data_2021)
+
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# Deduplicate dois: data from previous years before 2021 data ----
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+# Test: finding duplicate dois
+test <- data %>%
+  group_by(doi) %>%
+  summarise(n = n()) %>%
+  filter(n>1) %>%
+  select(doi)
+
+data <- data %>%
+  distinct(doi, .keep_all = TRUE)   #FIXME: "keine doi" muss dafür erst noch spezifiziert werden, s.o.! Klären, ob Deduplizierung anhand der bereits in vorigen Jahren berücksichtigten DOIs erfolgen soll.
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # Exploratory data analysis ----
