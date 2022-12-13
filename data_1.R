@@ -266,11 +266,11 @@ data <- rbind(data_2016_2020, data_2021)
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 # Test: finding duplicate dois
-test <- data %>%
-  group_by(doi) %>%
-  summarise(n = n()) %>%
-  filter(n>1) %>%
-  select(doi)
+# test <- data %>%
+#   group_by(doi) %>%
+#   summarise(n = n()) %>%
+#   filter(n>1) %>%
+#   select(doi)
 
 data <- data %>%
   distinct(doi, .keep_all = TRUE)   #FIXME: "keine doi" muss dafür erst noch spezifiziert werden, s.o.! Klären, ob Deduplizierung anhand der bereits in vorigen Jahren berücksichtigten DOIs erfolgen soll.
