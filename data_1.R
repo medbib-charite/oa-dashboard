@@ -21,6 +21,7 @@ library(readxl)
 library(tidyverse)
 library(dplyr)
 library(writexl)
+library(uuid)
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # Load data for 2018–2020 ----
@@ -160,6 +161,7 @@ data_unpaywall_oa_status <- data_unpaywall %>%
 # test <- data_unpaywall_oa_status %>%
 #   filter(oa_status != oa_status_new)
 
+
 data_2016_2020 <- data_2016_2020 %>% left_join(data_unpaywall_oa_status, by = "doi") %>%
   select(!oa_status) %>%
   rename(oa_status = oa_status_new) %>%
@@ -202,7 +204,9 @@ data_2021 <- raw_2021_data %>%
   clean_names() %>%
   mutate(doi = tolower(doi),
          oa_status = tolower(oa_status)) %>%
-  distinct(doi, .keep_all = TRUE) %>%       # FIXME: damit das ordnungsgemäß funktioniert, muss "keine doi" vorher differenziert worden sein, z.B. durch Ergänzen der PMID/WOS-Nummer/EMBASE-Nummer; temporär dafür Bearbeitung der doi-losen Artikel darunter eingefügt (data_2021_kein_doi)
+  mutate(doi = if_else(doi == "keine doi",
+                       paste0(doi, "!", UUIDgenerate(n=1L, output = "string")), doi)) %>%
+  distinct(doi, .keep_all = TRUE) %>%
   mutate(oa_status = replace_na(oa_status, "no result")) %>%
   mutate(oa_status = factor(oa_status, levels = oa_status_colors)) %>%
   mutate(is_oa = if_else(oa_status %in% c("gold", "hybrid", "green"), TRUE, FALSE), .after = "oa_status") %>%
@@ -224,35 +228,6 @@ data_2021 <- raw_2021_data %>%
          is_oa,
          corresponding_author_cha)
 
-
-data_2021_kein_doi <- raw_2021_data %>%
-  clean_names() %>%
-  mutate(doi = tolower(doi),
-         oa_status = tolower(oa_status)) %>%
-  filter(doi == "keine doi") %>%
-  mutate(oa_status = replace_na(oa_status, "no result")) %>%
-  mutate(oa_status = factor(oa_status, levels = oa_status_colors)) %>%
-  mutate(is_oa = if_else(oa_status %in% c("gold", "hybrid", "green"), TRUE, FALSE), .after = "oa_status") %>%
-  select(doi,
-         titel,
-         zeitschrift,
-         corresponding_author,
-         issn,
-         e_issn,
-         jahr,
-         pub_med_id,
-         verlag,
-         author_address,
-         document_type,
-         e_mail_address,
-         open_access_indicator,
-         reprint_address = reprint_address_gelb_sind_korrespondenzautoren_der_charite,
-         oa_status,
-         is_oa,
-         corresponding_author_cha)
-
-data_2021 <- rbind(data_2021, data_2021_kein_doi) %>%
-  distinct() # damit der erste "keine doi"-Artikel von distinct(doi, .keep_all = TRUE) nicht doppelt erscheint
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # Add 2021 data to existing data with rbind ----
@@ -274,11 +249,7 @@ data <- rbind(data_2016_2020, data_2021)
 #   select(doi)
 
 data <- data %>%
-  distinct(doi, .keep_all = TRUE)   #FIXME: "keine doi" muss dafür erst noch spezifiziert werden, s.o.! Klären, ob Deduplizierung anhand der bereits in vorigen Jahren berücksichtigten DOIs erfolgen soll.
-
-
-# Only for temporary purposes: overwrite data for creating an updated html with only 2016-2020 data
-data <- data_2016_2020
+  distinct(doi, .keep_all = TRUE)   #TODO: Klären, ob Deduplizierung anhand der bereits in vorigen Jahren berücksichtigten DOIs erfolgen soll.
 
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
