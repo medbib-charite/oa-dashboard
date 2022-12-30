@@ -141,7 +141,8 @@ data_2016_2017_oa <- left_join(data_2016_2017, data_unpaywall_2016_2017, by = "d
 # Combine dataframes of 2016-2017 data and 2018-2020 data with rbind ----
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-data_2016_2020 <- rbind(data_2016_2017_oa, data_clean)
+data_2016_2020 <- rbind(data_2016_2017_oa, data_clean) %>%
+  distinct(doi, .keep_all = TRUE)
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # New manipulation 2021-12-01; change oa_status to green for bronze articles
@@ -274,6 +275,11 @@ data <- rbind(data_2016_2020, data_2021)
 
 data <- data %>%
   distinct(doi, .keep_all = TRUE)   #FIXME: "keine doi" muss dafür erst noch spezifiziert werden, s.o.! Klären, ob Deduplizierung anhand der bereits in vorigen Jahren berücksichtigten DOIs erfolgen soll.
+
+
+# Only for temporary purposes: overwrite data for creating an updated html with only 2016-2020 data
+data <- data_2016_2020
+
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # Exploratory data analysis ----
