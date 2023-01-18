@@ -63,48 +63,45 @@ data_clean <- raw_data %>%
 
 data_2016_2017 <- "raw_data/2016-2018_merge charite_publikationen_article_review_wos_embase_corr_bih.xlsx"
 
-total_2016 <- read_excel(data_2016_2017,
+total_2016_raw <- read_excel(data_2016_2017,
                          sheet = "merge_wos_embase_2016")
 
-corr_2016 <- read_excel(data_2016_2017,
+corr_2016_raw <- read_excel(data_2016_2017,
                         sheet = "merge_wos_embase_2016_corresp.")
 
-total_2017 <- read_excel(data_2016_2017,
+total_2017_raw <- read_excel(data_2016_2017,
                          sheet = "merge_wos_embase_2017")
 
-corr_2017 <- read_excel(data_2016_2017,
+corr_2017_raw <- read_excel(data_2016_2017,
                         sheet = "merge_wos_embase_2017_corresp.")
 
-total_2016_2017 <- rbind(total_2016, total_2017)
+total_2016_2017_raw <- rbind(total_2016, total_2017)
 
-corr_2016_2017 <- rbind(corr_2016, corr_2017)
+corr_2016_2017_raw <- rbind(corr_2016, corr_2017)
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # Clean 2016 and 2017 data, create some new variables ----
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-total_2016_2017_clean <- total_2016_2017 %>%
+total_2016_2017 <- total_2016_2017_raw %>%
   clean_names() %>%
-  mutate(doi = tolower(doi)) %>% # Convert dois to lower case
-  distinct(doi, .keep_all = TRUE) %>%
   mutate(corresponding_author_cha = FALSE)
 
-corr_2016_2017_clean <- corr_2016_2017 %>%
+corr_2016_2017 <- corr_2016_2017_raw %>%
   clean_names() %>%
-  mutate(doi = tolower(doi)) %>% # Convert dois to lower case
-  distinct(doi, .keep_all = TRUE) %>%
   mutate(corresponding_author_cha = TRUE)
 
-# combine data for corresponding and contributing authors
-data_2016_2017_clean <- rbind(corr_2016_2017_clean, total_2016_2017_clean)
+# combine data for corresponding and contributing authors (corresponding authors before contributing authors!)
+data_2016_2017_raw <- rbind(corr_2016_2017, total_2016_2017)
 
-# deduplicate dois (corresponding authors before contributing authors)
-data_2016_2017 <- data_2016_2017_clean %>%
-  group_by(doi) %>%    # FIXME: couldn't this be done without grouping and slicing but with distinct() as this will preserve the *first* row anyway? The order of the datasets rbinded before is relevant in both cases
-  slice(1) %>%
-  filter(doi != 0) %>%
-  rename(jahr = publ_year, zeitschrift = source) %>%
-  ungroup()
+# deduplicate dois (corresponding authors before contributing authors), also keep articles without doi
+data_2016_2017 <- data_2016_2017_raw %>%
+  mutate(doi = tolower(doi)) %>%
+  mutate(doi = if_else(doi == 0,
+                         paste0(doi, "!!", replicate(n(), UUIDgenerate(n=1L, output = "string"))), doi)) %>% # Assign ids to articles without DOI
+  distinct(doi, .keep_all = TRUE) %>% # Remove duplicate dois. Articles without DOI not deduplicated here.
+  # FIXME: deduplicate articles without dois, using the PMID etc.
+  rename(jahr = publ_year, zeitschrift = source)
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # Add oa status from unpaywall to data and clean column names ----
@@ -205,7 +202,7 @@ data_2021 <- raw_2021_data %>%
   mutate(doi = tolower(doi),
          oa_status = tolower(oa_status)) %>%
   mutate(doi = if_else(doi == "keine doi",
-                       paste0(doi, "!", UUIDgenerate(n=1L, output = "string")), doi)) %>%
+                       paste0(doi, "!!", replicate(n(), UUIDgenerate(n=1L, output = "string"))), doi)) #%>% # Assign ids to articles without DOI
   distinct(doi, .keep_all = TRUE) %>%
   mutate(oa_status = replace_na(oa_status, "no result")) %>%
   mutate(oa_status = factor(oa_status, levels = oa_status_colors)) %>%
@@ -238,7 +235,7 @@ data_2016_2020 <- data_2016_2020 %>%
 data <- rbind(data_2016_2020, data_2021)
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# Deduplicate dois: data from previous years before 2021 data ----
+# Deduplicate dois: prefer data from previous years over newer data ----
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 # Test: finding duplicate dois
@@ -249,7 +246,7 @@ data <- rbind(data_2016_2020, data_2021)
 #   select(doi)
 
 data <- data %>%
-  distinct(doi, .keep_all = TRUE)   #TODO: Klären, ob Deduplizierung anhand der bereits in vorigen Jahren berücksichtigten DOIs erfolgen soll.
+  distinct(doi, .keep_all = TRUE)
 
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
