@@ -81,8 +81,10 @@ corr_2016_2017_raw <- rbind(corr_2016_raw, corr_2017_raw)
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # Clean 2016 and 2017 data, create some new variables ----
+# Articles without doi will be deduplicated with PMID and WOS Number
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+# create Charité corresponding author column
 total_2016_2017 <- total_2016_2017_raw %>%
   clean_names() %>%
   mutate(corresponding_author_cha = FALSE)
@@ -95,16 +97,15 @@ corr_2016_2017 <- corr_2016_2017_raw %>%
 data_2016_2017_raw <- rbind(corr_2016_2017, total_2016_2017) %>%
   distinct(across(-corresponding_author_cha), .keep_all = TRUE)
 
-# deduplicate dois, also keep articles without doi
+# deduplicate dois, keep all articles without doi
 data_2016_2017 <- data_2016_2017_raw %>%
   mutate(doi = tolower(doi)) %>%
   mutate(doi_existent = (doi != 0)) %>% # new column stating existence of doi
   mutate(doi = if_else(!doi_existent,
                          paste0("noDOI!!", replicate(n(), UUIDgenerate(n=1L, output = "string"))), doi)) %>% # Assign ids to articles without DOI
-  distinct(doi, .keep_all = TRUE) %>% # Remove duplicate dois. Articles without DOI not deduplicated here.
-  rename(jahr = publ_year, zeitschrift = source)
+  distinct(doi, .keep_all = TRUE) # Remove duplicate dois. Articles without DOI not deduplicated here.
 
-# deduplicate articles without dois using the PMID
+# deduplicate articles without doi using the PMID (found within all articles with or without doi)
 data_2016_2017_noDOI_pmid_no_dup <- data_2016_2017 %>%
   filter(!doi_existent) %>%
   distinct(pmid, .keep_all = TRUE) %>%
@@ -115,13 +116,11 @@ data_2016_2017_no_pmid_dups <- data_2016_2017 %>%
   filter(doi_existent) %>%
   rbind(data_2016_2017_noDOI_pmid_no_dup)
 
-data_2016_2017_wos_no_dup <- data_2016_2017_no_pmid_dups %>%
-  filter(str_detect(identifier, "WOS:")) %>%
-  distinct(identifier, .keep_all = TRUE)
-
+# remove articles with duplicate WOS Accession Number
 data_2016_2017_no_dups <- data_2016_2017_no_pmid_dups %>%
-  filter(!str_detect(identifier, "WOS:")) %>%
-  rbind(data_2016_2017_wos_no_dup)
+  filter(str_detect(identifier, "WOS:")) %>%
+  distinct(identifier, .keep_all = TRUE) %>%
+  rbind(data_2016_2017_no_pmid_dups %>% filter(!str_detect(identifier, "WOS:")))
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # Add oa status from unpaywall to data and clean column names ----
@@ -139,11 +138,11 @@ data_2016_2017_oa <- left_join(data_2016_2017_no_dups, data_unpaywall_2016_2017,
   mutate(is_oa = if_else(oa_status %in% c("gold", "hybrid", "green"), TRUE, FALSE), .after = "oa_status") %>%
   select(doi,
          titel,
-         zeitschrift,
+         zeitschrift = source,
          corresponding_author = corresp_author,
          issn,
          e_issn,
-         jahr,
+         jahr = publ_year,
          pub_med_id = pmid,
          verlag = publisher,
          author_address = aut_affil,
