@@ -4,14 +4,14 @@
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 ##+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-## Clean the workspace ----
+# Clean the workspace ----
 ##+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 rm(list = ls())
 gc()
 
 ##+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-## Load libraries ----
+# Load libraries ----
 ##+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 library(gameofthrones)
 library(highcharter)
@@ -24,16 +24,6 @@ library(writexl)
 library(uuid)
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# Load data for 2018–2020 ----
-#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-endfassung <- "raw_data/Endfassung.xlsx"
-
-raw_data <- read_excel(endfassung,
-                       sheet = "Worksheet")
-
-
-#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # Define color and oa-status variables ----
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
@@ -41,7 +31,17 @@ oa_status_colors <- c("gold", "hybrid", "green", "bronze", "closed", "no result"
 color <- c("#F4C244", "#A0CBDA", "#4FAC5B", "#D85DBF", "#2C405E", "#5F7036")
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# Clean data, create some new variables ----
+# Data 2018–2020 ----
+## Load data for 2018–2020 ----
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+endfassung <- "raw_data/Endfassung.xlsx"
+
+raw_data <- read_excel(endfassung,
+                       sheet = "Worksheet")
+
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+## Clean data, create some new variables ----
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 data_clean <- raw_data %>%
@@ -58,7 +58,8 @@ data_clean <- raw_data %>%
 
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# Load data for 2016 and 2017 ----
+# Data 2016 and 2017 ----
+## Load data for 2016 and 2017 ----
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 data_2016_2017 <- "raw_data/2016-2018_merge charite_publikationen_article_review_wos_embase_corr_bih.xlsx"
@@ -80,7 +81,7 @@ total_2016_2017 <- rbind(total_2016, total_2017)
 corr_2016_2017 <- rbind(corr_2016, corr_2017)
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# Clean 2016 and 2017 data, create some new variables ----
+## Clean 2016 and 2017 data, create some new variables ----
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 total_2016_2017_clean <- total_2016_2017 %>%
@@ -107,7 +108,7 @@ data_2016_2017 <- data_2016_2017_clean %>%
   ungroup()
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# Add oa status from unpaywall to data and clean column names ----
+## Add oa status from unpaywall to data and clean column names ----
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 load("data/data_unpaywall.Rda")
@@ -188,7 +189,8 @@ data_2016_2020 <- data_2016_2020 %>%
 # write_xlsx(data, "data/publications_charite_2016-2020.xlsx")
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# Load 2021 data (containing unpaywall data, retrieved September 2022 ----
+# Data 2021
+## Load 2021 data (containing unpaywall data, retrieved September 2022 ----
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 raw_publications_charite_2016_2021_final <- "raw_data/publications_charite_2016-2021_final.xlsx"
@@ -197,7 +199,7 @@ raw_2021_data <- read_excel(raw_publications_charite_2016_2021_final,
                             sheet = "2021")
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# Clean and enrich 2021 data ----
+## Clean and enrich 2021 data ----
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 data_2021 <- raw_2021_data %>%
