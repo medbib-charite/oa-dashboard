@@ -75,7 +75,7 @@ data_2016_2017_raw <- rbind(corr_2016_2017, total_2016_2017) %>%
 # deduplicate dois, keep all articles without doi
 data_2016_2017 <- data_2016_2017_raw %>%
   mutate(doi = tolower(doi)) %>%
-  mutate(doi_existent = (doi != 0)) %>% # new column stating existence of doi
+  mutate(doi_existent = (doi != 0), .after = "doi") %>% # new column stating existence of doi
   mutate(doi = if_else(!doi_existent,
                        paste0("noDOI!!", replicate(n(), UUIDgenerate(n=1L, output = "string"))), doi)) %>% # Assign ids to articles without DOI
   distinct(doi, .keep_all = TRUE) # Remove duplicate dois. Articles without DOI not deduplicated here.
@@ -135,25 +135,27 @@ data_2016_2017_oa <- left_join(data_2016_2017_no_dups, data_unpaywall_2016_2017,
 ## Load data for 2018–2020 ----
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-endfassung <- "raw_data/Endfassung.xlsx"
+data_2018_2020_file <- "raw_data/2018-2020.xlsx"
 
-raw_data <- read_excel(endfassung,
+data_2018_2020_raw <- read_excel(data_2018_2020_file,
                        sheet = "Worksheet")
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ## Clean data, create some new variables ----
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-data_clean <- raw_data %>%
+data_2018_2020 <- data_2018_2020_raw %>%
   clean_names() %>%
   mutate(doi = tolower(doi),
          oa_status = tolower(oa_status)) %>% # Convert dois and oa_status to lower case
+  mutate(doi_existent = (doi != "keine doi"), .after = "doi") %>% # new column stating existence of doi
+  mutate(doi = if_else(!doi_existent,
+                       paste0("noDOI!!", replicate(n(), UUIDgenerate(n=1L, output = "string"))), doi)) %>% # Assign ids to articles without DOI
   distinct(doi, .keep_all = TRUE) %>%
   mutate(oa_status = str_replace(oa_status, "kein ergebnis", "no result")) %>%
   mutate(oa_status = replace_na(oa_status, "no result")) %>%
   mutate(oa_status = factor(oa_status, levels = oa_status_colors)) %>%
   mutate(is_oa = if_else(oa_status %in% c("gold", "hybrid", "green"), TRUE, FALSE), .after = "oa_status") %>%
-  mutate(corresponding_author_cha = if_else(row_number() %in% c(1:6292), TRUE, FALSE), .after = "is_oa") %>%   # FIXME: remove usage of row numbers, i.e. replace with filter using corr. author column in the relevant analyses (column not yet/originally not existent in 2018-2020 data but in 2021 data!)
   select(!c(datenbank, autor_en))
 
 
@@ -161,7 +163,7 @@ data_clean <- raw_data %>%
 # Combine dataframes of 2016-2017 data and 2018-2020 data with rbind ----
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-data_2016_2020 <- rbind(data_2016_2017_oa, data_clean) %>%
+data_2016_2020 <- rbind(data_2016_2017_oa, data_2018_2020) %>%
   distinct(doi, .keep_all = TRUE)
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
