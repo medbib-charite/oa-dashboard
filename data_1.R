@@ -222,7 +222,7 @@ data_2021 <- raw_2021_data %>%
   clean_names() %>%
   mutate(doi = tolower(doi),
          oa_status = tolower(oa_status)) %>%
-  mutate(doi_existent = (doi != 0)) %>% # new column stating existence of doi
+  mutate(doi_existent = (doi != "keine doi"), .after = "doi") %>% # new column stating existence of doi
   mutate(doi = if_else(!doi_existent,
                        paste0("noDOI!!", replicate(n(), UUIDgenerate(n=1L, output = "string"))), doi)) %>% # Assign ids to articles without DOI
   distinct(doi, .keep_all = TRUE) %>%
