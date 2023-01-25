@@ -107,14 +107,14 @@ data_2016_2017 <- data_2016_2017_raw %>%
   distinct(doi, .keep_all = TRUE) # Remove duplicate dois. Articles without DOI not deduplicated here.
 
 # deduplicate articles without doi using the PMID (found within all articles with or without doi)
-data_2016_2017_noDOI_pmid_no_dup <- data_2016_2017 %>%
-  filter(!doi_existent) %>%
+data_2016_2017_noDOI_pmid_no_dup <- data_2016_2017_doi_dedup %>%
+  filter(!doi_existent & pmid != 0) %>%
   distinct(pmid, .keep_all = TRUE) %>%
   filter(!pmid %in% (data_2016_2017 %>% filter(doi_existent) %>% pull(pmid)))
 
-# combine articles with dois with the deduplicated articles without doi
-data_2016_2017_no_pmid_dups <- data_2016_2017 %>%
-  filter(doi_existent) %>%
+# re-combine articles with dois with the deduplicated articles without doi
+data_2016_2017_no_pmid_dups <- data_2016_2017_doi_dedup %>%
+  filter(!(!doi_existent & pmid != 0)) %>% # inverted condition of data_2016_2017_noDOI_pmid_no_dup
   rbind(data_2016_2017_noDOI_pmid_no_dup)
 
 # remove articles with duplicate WOS Accession Number
