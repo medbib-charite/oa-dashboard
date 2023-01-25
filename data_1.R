@@ -143,23 +143,48 @@ data_2018_2020_raw <- read_excel(data_2018_2020_file,
                        sheet = "Worksheet")
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ## Clean data, create some new variables ----
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-data_2018_2020 <- data_2018_2020_raw %>%
+data_2018_2020_clean <- data_2018_2020_raw %>%
   clean_names() %>%
-  mutate(doi = tolower(doi),
-         oa_status = tolower(oa_status)) %>% # Convert dois and oa_status to lower case
-  mutate(doi_existent = (doi != "keine doi"), .after = "doi") %>% # new column stating existence of doi
-  mutate(doi = if_else(!doi_existent,
-                       paste0("noDOI!!", replicate(n(), UUIDgenerate(n=1L, output = "string"))), doi)) %>% # Assign ids to articles without DOI
-  distinct(doi, .keep_all = TRUE) %>%
+  mutate(oa_status = tolower(oa_status)) %>%
   mutate(oa_status = str_replace(oa_status, "kein ergebnis", "no result")) %>%
   mutate(oa_status = replace_na(oa_status, "no result")) %>%
   mutate(oa_status = factor(oa_status, levels = oa_status_colors)) %>%
   mutate(is_oa = if_else(oa_status %in% c("gold", "hybrid", "green"), TRUE, FALSE), .after = "oa_status") %>%
-  rename(reprint_address = reprint_address_gelb_sind_korrespondenzautoren_der_charite) %>%
-  select(!c(datenbank, autor_en))
+  rename(reprint_address = reprint_address_gelb_sind_korrespondenzautoren_der_charite,
+         pmid = pub_med_id,
+         accession_number_wos = accession_number_wo_s) %>%
+  select(!autor_en)
+
+# deduplicate dois (prefer WoS entries), keep all articles without doi
+data_2018_2020_doi_dedup <- data_2018_2020_clean %>%
+  mutate(doi = tolower(doi)) %>%
+  mutate(doi_existent = (doi != "keine doi"), .after = "doi") %>% # new column stating existence of doi
+  mutate(doi = if_else(!doi_existent,
+                       paste0("noDOI!!", replicate(n(), UUIDgenerate(n=1L, output = "string"))), doi)) %>% # Assign ids to articles without DOI
+  arrange(desc(doi_existent), desc(datenbank)) %>% # sort by database in descending order, so that WoS entries are first
+  distinct(doi, .keep_all = TRUE) # Remove duplicate dois. Articles without DOI not deduplicated here.
+
+# deduplicate articles without (!) doi using the PMID (found within all articles with or without doi)
+data_2018_2020_noDOI_pmid_no_dup <- data_2018_2020_doi_dedup %>%
+  filter(!doi_existent & !is.na(pmid)) %>%
+  distinct(pmid, .keep_all = TRUE) %>%
+  filter(!pmid %in% (data_2018_2020_doi_dedup %>% filter(doi_existent) %>% pull(pmid)))
+
+# combine articles with dois with the deduplicated articles without doi
+data_2018_2020_no_pmid_dups <- data_2018_2020_doi_dedup %>%
+  filter(!(!doi_existent & !is.na(pmid))) %>%  # inverted condition of data_2018_2020_noDOI_pmid_no_dup
+  rbind(data_2018_2020_noDOI_pmid_no_dup)
+
+# remove articles with duplicate WOS Accession Number
+data_2018_2020_no_dups <- data_2018_2020_no_pmid_dups %>%
+  arrange(desc(doi_existent)) %>% # sort by doi_existent to prefer article entries with doi
+  filter(!is.na(accession_number_wos)) %>%
+  distinct(accession_number_wos, .keep_all = TRUE) %>%
+  rbind(data_2018_2020_no_pmid_dups %>% filter(is.na(accession_number_wos)))
 
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
