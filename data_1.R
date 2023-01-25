@@ -36,18 +36,18 @@ color <- c("#F4C244", "#A0CBDA", "#4FAC5B", "#D85DBF", "#2C405E", "#5F7036")
 ## Load data for 2016 and 2017 ----
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-data_2016_2017 <- "raw_data/2016-2018_merge charite_publikationen_article_review_wos_embase_corr_bih.xlsx"
+data_2016_2017_file <- "raw_data/2016-2018_merge charite_publikationen_article_review_wos_embase_corr_bih.xlsx"
 
-total_2016_raw <- read_excel(data_2016_2017,
+total_2016_raw <- read_excel(data_2016_2017_file,
                              sheet = "merge_wos_embase_2016")
 
-corr_2016_raw <- read_excel(data_2016_2017,
+corr_2016_raw <- read_excel(data_2016_2017_file,
                             sheet = "merge_wos_embase_2016_corresp.")
 
-total_2017_raw <- read_excel(data_2016_2017,
+total_2017_raw <- read_excel(data_2016_2017_file,
                              sheet = "merge_wos_embase_2017")
 
-corr_2017_raw <- read_excel(data_2016_2017,
+corr_2017_raw <- read_excel(data_2016_2017_file,
                             sheet = "merge_wos_embase_2017_corresp.")
 
 total_2016_2017_raw <- rbind(total_2016_raw, total_2017_raw)
@@ -73,7 +73,7 @@ data_2016_2017_raw <- rbind(corr_2016_2017, total_2016_2017) %>%
   distinct(across(-corresponding_author_cha), .keep_all = TRUE)
 
 # deduplicate dois, keep all articles without doi
-data_2016_2017 <- data_2016_2017_raw %>%
+data_2016_2017_doi_dedup <- data_2016_2017_raw %>%
   mutate(doi = tolower(doi)) %>%
   mutate(doi_existent = (doi != 0), .after = "doi") %>% # new column stating existence of doi
   mutate(doi = if_else(!doi_existent,
@@ -81,13 +81,13 @@ data_2016_2017 <- data_2016_2017_raw %>%
   distinct(doi, .keep_all = TRUE) # Remove duplicate dois. Articles without DOI not deduplicated here.
 
 # deduplicate articles without doi using the PMID (found within all articles with or without doi)
-data_2016_2017_noDOI_pmid_no_dup <- data_2016_2017 %>%
+data_2016_2017_noDOI_pmid_no_dup <- data_2016_2017_doi_dedup %>%
   filter(!doi_existent) %>%
   distinct(pmid, .keep_all = TRUE) %>%
-  filter(!pmid %in% (data_2016_2017 %>% filter(doi_existent) %>% pull(pmid)))
+  filter(!pmid %in% (data_2016_2017_doi_dedup %>% filter(doi_existent) %>% pull(pmid)))
 
 # combine articles with dois with the deduplicated articles without doi
-data_2016_2017_no_pmid_dups <- data_2016_2017 %>%
+data_2016_2017_no_pmid_dups <- data_2016_2017_doi_dedup %>%
   filter(doi_existent) %>%
   rbind(data_2016_2017_noDOI_pmid_no_dup)
 
@@ -107,14 +107,16 @@ data_unpaywall_2016_2017 <- data_unpaywall %>%
   distinct(doi, .keep_all = TRUE) %>%
   select(doi, oa_status)
 
-data_2016_2017_oa <- left_join(data_2016_2017_no_dups, data_unpaywall_2016_2017, by = "doi") %>%
+data_2016_2017 <- left_join(data_2016_2017_no_dups, data_unpaywall_2016_2017, by = "doi") %>%
   mutate(oa_status = replace_na(oa_status, "no result")) %>%
   mutate(oa_status = factor(oa_status, levels = oa_status_colors)) %>%
   mutate(is_oa = if_else(oa_status %in% c("gold", "hybrid", "green"), TRUE, FALSE), .after = "oa_status") %>%
+  mutate(corresponding_author = NA) %>% # add column for rbind with other years
   select(doi,
+         doi_existent,
          titel,
          zeitschrift = source,
-         corresponding_author = corresp_author,
+         corresponding_author,
          issn,
          e_issn,
          jahr = publ_year,
@@ -124,10 +126,10 @@ data_2016_2017_oa <- left_join(data_2016_2017_no_dups, data_unpaywall_2016_2017,
          document_type = doc_type,
          e_mail_address = email_corr_author,
          open_access_indicator = oa,
-         reprint_address_gelb_sind_korrespondenzautoren_der_charite = corresp_author,
+         reprint_address = corresp_author,
+         corresponding_author_cha,
          oa_status,
-         is_oa,
-         corresponding_author_cha)
+         is_oa)
 
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -156,6 +158,7 @@ data_2018_2020 <- data_2018_2020_raw %>%
   mutate(oa_status = replace_na(oa_status, "no result")) %>%
   mutate(oa_status = factor(oa_status, levels = oa_status_colors)) %>%
   mutate(is_oa = if_else(oa_status %in% c("gold", "hybrid", "green"), TRUE, FALSE), .after = "oa_status") %>%
+  rename(reprint_address = reprint_address_gelb_sind_korrespondenzautoren_der_charite) %>%
   select(!c(datenbank, autor_en))
 
 
@@ -163,7 +166,7 @@ data_2018_2020 <- data_2018_2020_raw %>%
 # Combine dataframes of 2016-2017 data and 2018-2020 data with rbind ----
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-data_2016_2020 <- rbind(data_2016_2017_oa, data_2018_2020) %>%
+data_2016_2020 <- rbind(data_2016_2017, data_2018_2020) %>%
   distinct(doi, .keep_all = TRUE)
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -256,8 +259,6 @@ data_2021 <- raw_2021_data %>%
 # Add 2021 data to existing data with rbind ----
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-data_2016_2020 <- data_2016_2020 %>%
-  rename(reprint_address = reprint_address_gelb_sind_korrespondenzautoren_der_charite)
 data <- rbind(data_2016_2020, data_2021)
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
