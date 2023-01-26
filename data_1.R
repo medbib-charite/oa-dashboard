@@ -114,6 +114,7 @@ data_2016_2017 <- left_join(data_2016_2017_no_dups, data_unpaywall_2016_2017, by
   mutate(corresponding_author = NA,     # add columns for rbind with other years
          accession_number_embase = NA,
          accession_number_wos = NA) %>%
+  arrange(desc(doi_existent)) %>%
   select(doi,
          doi_existent,
          accession_number_embase,
@@ -148,7 +149,6 @@ data_2018_2020_raw <- read_excel(data_2018_2020_file,
                        guess_max = 20000) # extend to get correct column type also for accession number cols
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ## Clean data, create some new variables ----
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
@@ -179,7 +179,7 @@ data_2018_2020_noDOI_pmid_no_dup <- data_2018_2020_doi_dedup %>%
   distinct(pmid, .keep_all = TRUE) %>%
   filter(!pmid %in% (data_2018_2020_doi_dedup %>% filter(doi_existent) %>% pull(pmid)))
 
-# combine articles with dois with the deduplicated articles without doi
+# re-combine articles with dois with the deduplicated articles without doi
 data_2018_2020_no_pmid_dups <- data_2018_2020_doi_dedup %>%
   filter(!(!doi_existent & !is.na(pmid))) %>%  # inverted condition of data_2018_2020_noDOI_pmid_no_dup
   rbind(data_2018_2020_noDOI_pmid_no_dup)
@@ -277,44 +277,69 @@ data_2016_2020 <- data_2016_2020 %>%
 ## Load 2021 data (containing unpaywall data, retrieved September 2022 ----
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-raw_publications_charite_2016_2021_final <- "raw_data/publications_charite_2016-2021_final.xlsx"
+publications_charite_2016_2021_final <- "raw_data/publications_charite_2016-2021_final.xlsx"
 
-raw_2021_data <- read_excel(raw_publications_charite_2016_2021_final,
+data_2021_raw <- read_excel(publications_charite_2016_2021_final,
                             sheet = "2021")
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ## Clean and enrich 2021 data ----
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-data_2021 <- raw_2021_data %>%
+data_2021_clean <- data_2021_raw %>%
   clean_names() %>%
-  mutate(doi = tolower(doi),
-         oa_status = tolower(oa_status)) %>%
-  mutate(doi_existent = (doi != "keine doi"), .after = "doi") %>% # new column stating existence of doi
-  mutate(doi = if_else(!doi_existent,
-                       paste0("noDOI!!", replicate(n(), UUIDgenerate(n=1L, output = "string"))), doi)) %>% # Assign ids to articles without DOI
-  distinct(doi, .keep_all = TRUE) %>%
+  mutate(oa_status = tolower(oa_status)) %>%
   mutate(oa_status = replace_na(oa_status, "no result")) %>%
   mutate(oa_status = factor(oa_status, levels = oa_status_colors)) %>%
   mutate(is_oa = if_else(oa_status %in% c("gold", "hybrid", "green"), TRUE, FALSE), .after = "oa_status") %>%
+  rename(pmid = pub_med_id,
+         reprint_address = reprint_address_gelb_sind_korrespondenzautoren_der_charite) %>%
+  mutate(accession_number_embase = NA, # add columns for rbind with other years
+         accession_number_wos = NA)
+
+# deduplicate dois, keep all articles without doi
+data_2021_doi_dedup <- data_2021_clean %>%
+  mutate(doi = tolower(doi)) %>%
+  mutate(doi_existent = (doi != "keine doi")) %>% # new column stating existence of doi
+  mutate(doi = if_else(!doi_existent,
+                       paste0("noDOI!!", replicate(n(), UUIDgenerate(n=1L, output = "string"))), doi)) %>% # Assign ids to articles without DOI
+  distinct(doi, .keep_all = TRUE)
+
+# deduplicate articles without (!) doi using the PMID (found within all articles with or without doi)
+data_2021_noDOI_pmid_no_dup <- data_2021_doi_dedup %>%
+  filter(!doi_existent & !is.na(pmid)) %>%
+  distinct(pmid, .keep_all = TRUE) %>%
+  filter(!pmid %in% (data_2021_doi_dedup %>% filter(doi_existent) %>% pull(pmid)))
+
+# re-combine articles with dois with the deduplicated articles without doi
+data_2021_no_pmid_dups <- data_2021_doi_dedup %>%
+  filter(!(!doi_existent & !is.na(pmid))) %>%  # inverted condition of data_2018_2020_noDOI_pmid_no_dup
+  rbind(data_2021_noDOI_pmid_no_dup)
+
+data_2021 <- data_2021_no_pmid_dups %>%
+  arrange(desc(doi_existent)) %>%
   select(doi,
+         doi_existent,
+         accession_number_embase,
+         accession_number_wos,
          titel,
          zeitschrift,
          corresponding_author,
          issn,
          e_issn,
          jahr,
-         pub_med_id,
+         pmid,
          verlag,
          author_address,
          document_type,
          e_mail_address,
          open_access_indicator,
-         reprint_address = reprint_address_gelb_sind_korrespondenzautoren_der_charite,
+         reprint_address,
+         corresponding_author_cha,
          oa_status,
-         is_oa,
-         corresponding_author_cha)
+         is_oa)
 
+#TODO: deduplicate for wos and embase accession number; data currently not included in 2021 raw data
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # Add 2021 data to existing data with rbind ----
@@ -334,8 +359,9 @@ data <- rbind(data_2016_2020, data_2021)
 #   select(doi)
 
 data <- data %>%
+  filter(jahr != 0) %>%
   distinct(doi, .keep_all = TRUE)
-
+# FIXME: deduplicate also for other identifiers
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # Exploratory data analysis ----
