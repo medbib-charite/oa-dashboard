@@ -140,7 +140,8 @@ data_2016_2017 <- left_join(data_2016_2017_no_dups, data_unpaywall_2016_2017, by
 data_2018_2020_file <- "raw_data/2018-2020.xlsx"
 
 data_2018_2020_raw <- read_excel(data_2018_2020_file,
-                       sheet = "Worksheet")
+                       sheet = "Worksheet",
+                       guess_max = 20000) # extend to get correct column type also for accession number cols
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -185,6 +186,8 @@ data_2018_2020_no_dups <- data_2018_2020_no_pmid_dups %>%
   filter(!is.na(accession_number_wos)) %>%
   distinct(accession_number_wos, .keep_all = TRUE) %>%
   rbind(data_2018_2020_no_pmid_dups %>% filter(is.na(accession_number_wos)))
+
+#FIXME: add deduplication with Accession Number EMBASE
 
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
