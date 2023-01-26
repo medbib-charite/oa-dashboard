@@ -70,7 +70,10 @@ corr_2016_2017 <- corr_2016_2017_raw %>%
 
 # combine data for corresponding and contributing authors and remove duplicate entries (introduced by xlsx sheets)
 data_2016_2017_raw <- rbind(corr_2016_2017, total_2016_2017) %>%
-  distinct(across(-corresponding_author_cha), .keep_all = TRUE)
+  distinct(across(-corresponding_author_cha), .keep_all = TRUE) %>%
+  mutate(datenbank = case_when(str_detect(identifier, "WOS:") ~ "WOS",
+                               str_detect(identifier, "Embase") ~ "Embase")) %>%
+  filter(datenbank != 0) # only keep entries from those databases
 
 # deduplicate dois, keep all articles without doi
 data_2016_2017_doi_dedup <- data_2016_2017_raw %>%
@@ -93,9 +96,9 @@ data_2016_2017_no_pmid_dups <- data_2016_2017_doi_dedup %>%
 
 # remove articles with duplicate WOS Accession Number
 data_2016_2017_no_dups <- data_2016_2017_no_pmid_dups %>%
-  filter(str_detect(identifier, "WOS:")) %>%
+  filter(datenbank == "WOS") %>%
   distinct(identifier, .keep_all = TRUE) %>%
-  rbind(data_2016_2017_no_pmid_dups %>% filter(!str_detect(identifier, "WOS:")))
+  rbind(data_2016_2017_no_pmid_dups %>% filter(datenbank != "WOS"))
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ## Add oa status from unpaywall to data and clean column names ----
@@ -226,7 +229,6 @@ data_2018_2020 <- data_2018_2020_no_dups %>%
 # Combine dataframes of 2016-2017 data and 2018-2020 data with rbind ----
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-# FIXME: move this rbinding to the end of cleaning the data sets of all years
 data_2016_2020 <- rbind(data_2016_2017, data_2018_2020) %>%
   distinct(doi, .keep_all = TRUE)
 
