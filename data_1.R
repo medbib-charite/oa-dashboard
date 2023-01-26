@@ -111,16 +111,20 @@ data_2016_2017 <- left_join(data_2016_2017_no_dups, data_unpaywall_2016_2017, by
   mutate(oa_status = replace_na(oa_status, "no result")) %>%
   mutate(oa_status = factor(oa_status, levels = oa_status_colors)) %>%
   mutate(is_oa = if_else(oa_status %in% c("gold", "hybrid", "green"), TRUE, FALSE), .after = "oa_status") %>%
-  mutate(corresponding_author = NA) %>% # add column for rbind with other years
+  mutate(corresponding_author = NA,     # add columns for rbind with other years
+         accession_number_embase = NA,
+         accession_number_wos = NA) %>%
   select(doi,
          doi_existent,
+         accession_number_embase,
+         accession_number_wos,
          titel,
          zeitschrift = source,
          corresponding_author,
          issn,
          e_issn,
          jahr = publ_year,
-         pub_med_id = pmid,
+         pmid,
          verlag = publisher,
          author_address = aut_affil,
          document_type = doc_type,
@@ -181,19 +185,48 @@ data_2018_2020_no_pmid_dups <- data_2018_2020_doi_dedup %>%
   rbind(data_2018_2020_noDOI_pmid_no_dup)
 
 # remove articles with duplicate WOS Accession Number
-data_2018_2020_no_dups <- data_2018_2020_no_pmid_dups %>%
+data_2018_2020_no_wos_dups <- data_2018_2020_no_pmid_dups %>%
   arrange(desc(doi_existent)) %>% # sort by doi_existent to prefer article entries with doi
   filter(!is.na(accession_number_wos)) %>%
   distinct(accession_number_wos, .keep_all = TRUE) %>%
   rbind(data_2018_2020_no_pmid_dups %>% filter(is.na(accession_number_wos)))
 
-#FIXME: add deduplication with Accession Number EMBASE
+# remove articles with duplicate EMBASE Accession Number
+data_2018_2020_no_dups <- data_2018_2020_no_wos_dups %>%
+  arrange(desc(doi_existent)) %>% # sort by doi_existent to prefer article entries with doi
+  filter(!is.na(accession_number_embase)) %>%
+  distinct(accession_number_embase, .keep_all = TRUE) %>%
+  rbind(data_2018_2020_no_wos_dups %>% filter(is.na(accession_number_embase)))
+
+data_2018_2020 <- data_2018_2020_no_dups %>%
+  arrange(desc(doi_existent)) %>%
+  select(doi,
+         doi_existent,
+         accession_number_embase,
+         accession_number_wos,
+         titel,
+         zeitschrift,
+         corresponding_author,
+         issn,
+         e_issn,
+         jahr,
+         pmid,
+         verlag,
+         author_address,
+         document_type,
+         e_mail_address,
+         open_access_indicator,
+         reprint_address,
+         corresponding_author_cha,
+         oa_status,
+         is_oa)
 
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # Combine dataframes of 2016-2017 data and 2018-2020 data with rbind ----
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+# FIXME: move this rbinding to the end of cleaning the data sets of all years
 data_2016_2020 <- rbind(data_2016_2017, data_2018_2020) %>%
   distinct(doi, .keep_all = TRUE)
 
