@@ -46,7 +46,7 @@ Row
 
 load("data/data_unpaywall.Rda")
 
-is_oa <- data %>% # FIXME data umbenennen
+is_oa <- data %>%
   group_by(jahr, oa_status, is_oa) %>%
   summarise(count = n()) %>%
   group_by(jahr) %>%
@@ -115,13 +115,13 @@ Row {data-height=auto}
 Row {data-height=auto}
 -----------------------------------------------------------------------
 
-### 2016 - 2020: Articles involving Charité authors by OA status (in %)
+### 2016 - 2021: Articles involving Charité authors by OA status (in %)
 
 ```{r}
 status_percent
 ```
 
-### 2016 - 2020: Articles with a Charité corresponding author by OA status (in %)
+### 2016 - 2021: Articles with a Charité corresponding author by OA status (in %)
 
 ```{r}
 status_corresponding_percent
@@ -130,13 +130,13 @@ status_corresponding_percent
 Row {data-height=auto}
 -----------------------------------------------------------------------
 
-### 2016 - 2020: Articles involving Charité authors by OA status (absolute numbers)
+### 2016 - 2021: Articles involving Charité authors by OA status (absolute numbers)
 
 ```{r}
 status_absolute_spline
 ```
 
-### 2016 - 2020: Articles with a Charité corresponding author by OA status (absolute numbers)
+### 2016 - 2021: Articles with a Charité corresponding author by OA status (absolute numbers)
 
 ```{r}
 status_corresponding_absolute_spline
