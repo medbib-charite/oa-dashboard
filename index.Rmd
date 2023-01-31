@@ -163,7 +163,7 @@ Row {data-height=auto}
 ### 2020: Articles by publisher in absolute numbers 
 
 ```{r}
-publisher_absolute
+publisher_2020_absolute
 ```
 
 ### 2020: Articles by journal in absolute numbers

@@ -565,20 +565,16 @@ journal_percent <- journal_data_2 %>%
   )
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# Visualizations of publishers and oa_status ----
+# Visualizations of publishers (from Unpaywall) and oa_status ----
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-load("data/data_unpaywall.Rda") # get publisher names from unpaywall dataset    # FIXME: use data for 2016-2021 (instead of data 2016-2020)
-
-data_publisher <- data_unpaywall %>%
-  select(doi, publisher)
-
-data_publisher_join <- data %>%
+data_publisher_2020 <- data %>%
   filter(jahr == 2020) %>%
-  select(doi, oa_status) %>%
-  left_join(data_publisher, by = "doi")
+  select(doi,
+         oa_status,
+         publisher = unpw_publisher)
 
-data_publisher_join_sum <- data_publisher_join %>%
+summary_publisher_2020 <- data_publisher_2020 %>%
   group_by(publisher, oa_status) %>%
   summarise(value = n(), .groups = "drop_last") %>%
   mutate(value_pub = sum(value)) %>%
@@ -586,7 +582,7 @@ data_publisher_join_sum <- data_publisher_join %>%
  # filter(value_pub >= 5) %>%
   mutate(publisher = forcats::fct_reorder(publisher, -value_pub))
 
-data_publisher_join_sum_2 <- data_publisher_join_sum %>%
+summary_publisher_2020_2 <- summary_publisher_2020 %>%
   group_by(publisher) %>%
   spread(oa_status, value, fill = 0) %>%
   gather(oa_status, value, 3:8) %>%
@@ -595,12 +591,12 @@ data_publisher_join_sum_2 <- data_publisher_join_sum %>%
   filter(value_pub >= 3) %>%
   drop_na()
 
-data_publisher_table <- data_publisher_join_sum_2 %>%
+table_publishers_2020 <- summary_publisher_2020_2 %>%
   select(-value_pub, -percent) %>%
   pivot_wider(names_from = oa_status, values_from = value) %>%
   select(-`no result`)
 
-publisher_absolute <- data_publisher_join_sum_2 %>%
+publisher_2020_absolute <- summary_publisher_2020_2 %>%
   hchart("bar", hcaes(x = publisher, y = value, group = oa_status)) %>%
   hc_plotOptions(series = list(stacking = "normal")) %>%
   hc_colors(color) %>%
@@ -620,7 +616,7 @@ publisher_absolute <- data_publisher_join_sum_2 %>%
 
 pal <- got(4, direction = 1, option = "Jon_Snow")
 
-publisher_donut <- data_publisher_join %>%
+publisher_donut <- data_publisher_2020 %>%
   group_by(publisher) %>%
   summarise(value = n()) %>%
   mutate(publisher_2 = if_else(value <= 500, "other Publishers", publisher)) %>%
