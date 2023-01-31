@@ -30,6 +30,11 @@ library(uuid)
 oa_status_colors <- c("gold", "hybrid", "green", "bronze", "closed", "no result")
 color <- c("#F4C244", "#A0CBDA", "#4FAC5B", "#D85DBF", "#2C405E", "#5F7036")
 
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# Load sources ----
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+source("prep_unpaywall.R", encoding = 'UTF-8')
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # Data 2016 and 2017 ----
@@ -104,7 +109,7 @@ data_2016_2017_no_dups <- data_2016_2017_no_pmid_dups %>%
 ## Add oa status from unpaywall to data and clean column names ----
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-load("data/data_unpaywall.Rda")
+load("data/data_unpaywall.Rda") # Unpaywall data 2018-2020
 
 data_unpaywall_2016_2017 <- data_unpaywall %>%
   distinct(doi, .keep_all = TRUE) %>%
@@ -237,7 +242,7 @@ data_2016_2020 <- rbind(data_2016_2017, data_2018_2020) %>%
 # with repository copy, delete 71 false datasets ----                           # FIXME: update or remove number of false datasets (71 before the 2021 articles)
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-data_unpaywall_oa_status <- data_unpaywall %>%
+data_unpaywall_oa_status <- data_unpaywall %>%  # Unpaywall data 2018-2020
   distinct(doi, .keep_all = TRUE) %>%
   select(doi, oa_status, has_repository_copy) %>%                               # TODO: could line be removed as unnecessary? will be selected later anyway
   mutate(oa_status_new = case_when(oa_status == "bronze" & has_repository_copy == TRUE ~ "green",
@@ -556,7 +561,7 @@ journal_percent <- journal_data_2 %>%
 # Visualizations of publishers and oa_status ----
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-load("data/data_unpaywall.Rda") # get publisher names from unpaywall dataset
+load("data/data_unpaywall.Rda") # get publisher names from unpaywall dataset    # FIXME: use data for 2016-2021 (instead of data 2016-2020)
 
 data_publisher <- data_unpaywall %>%
   select(doi, publisher)
