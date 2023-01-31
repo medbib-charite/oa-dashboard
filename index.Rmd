@@ -46,7 +46,7 @@ Row
 
 load("data/data_unpaywall.Rda")
 
-is_oa <- data %>%
+summary_is_oa <- data %>%
   group_by(jahr, oa_status, is_oa) %>%
   summarise(count = n()) %>%
   group_by(jahr) %>%
@@ -70,21 +70,28 @@ is_corresponding <- round(is_corresponding[[2]]/sum(is_corresponding)*100, 1)
 ### 2018: Percentage of open access among all articles involving Charité authors 
 
 ```{r}
-rate <- is_oa %>% filter(jahr == 2018 & is_oa == TRUE) %>% pull(perc)
+rate <- summary_is_oa %>% filter(jahr == 2018 & is_oa == TRUE) %>% pull(perc)
 gauge(rate, min = 0, max = 100, symbol = ' %', gaugeSectors(colors = "#e97202"))
 ```
 
 ### 2019: Percentage of open access among all articles involving Charité authors 
 
 ```{r}
-rate <- is_oa %>% filter(jahr == 2019 & is_oa == TRUE) %>% pull(perc)
+rate <- summary_is_oa %>% filter(jahr == 2019 & is_oa == TRUE) %>% pull(perc)
 gauge(rate, min = 0, max = 100, symbol = ' %', gaugeSectors(colors = "#e97202"))
 ```
 
 ### 2020: Percentage of open access among all articles involving Charité authors 
 
 ```{r}
-rate <- is_oa %>% filter(jahr == 2020 & is_oa == TRUE) %>% pull(perc)
+rate <- summary_is_oa %>% filter(jahr == 2020 & is_oa == TRUE) %>% pull(perc)
+gauge(rate, min = 0, max = 100, symbol = ' %', gaugeSectors(colors = "#e97202"))
+```
+
+### 2021: Percentage of open access among all articles involving Charité authors 
+
+```{r}
+rate <- summary_is_oa %>% filter(jahr == 2021 & is_oa == TRUE) %>% pull(perc)
 gauge(rate, min = 0, max = 100, symbol = ' %', gaugeSectors(colors = "#e97202"))
 ```
 
