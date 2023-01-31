@@ -83,7 +83,7 @@ data_2016_2017_raw <- rbind(corr_2016_2017, total_2016_2017) %>%
 # deduplicate dois, keep all articles without doi
 data_2016_2017_doi_dedup <- data_2016_2017_raw %>%
   mutate(doi = tolower(doi)) %>%
-  mutate(doi_existent = (doi != 0), .after = "doi") %>% # new column stating existence of doi
+  mutate(doi_existent = (doi != 0), .after = "doi") %>% # add column stating existence of doi
   mutate(doi = if_else(!doi_existent,
                        paste0("noDOI!!", replicate(n(), UUIDgenerate(n=1L, output = "string"))), doi)) %>% # Assign ids to articles without DOI
   distinct(doi, .keep_all = TRUE) # Remove duplicate dois. Articles without DOI not deduplicated here.
@@ -175,7 +175,7 @@ data_2018_2020_clean <- data_2018_2020_raw %>%
 # deduplicate dois (prefer WoS entries), keep all articles without doi
 data_2018_2020_doi_dedup <- data_2018_2020_clean %>%
   mutate(doi = tolower(doi)) %>%
-  mutate(doi_existent = (doi != "keine doi"), .after = "doi") %>% # new column stating existence of doi # FIXME: use str_detect()!!
+  mutate(doi_existent = !str_detect(doi, "keine doi"), .after = "doi") %>% # new column stating existence of doi
   mutate(doi = if_else(!doi_existent,
                        paste0("noDOI!!", replicate(n(), UUIDgenerate(n=1L, output = "string"))), doi)) %>% # Assign ids to articles without DOI
   arrange(desc(doi_existent), desc(datenbank)) %>% # sort by database in descending order, so that WoS entries are first
