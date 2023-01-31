@@ -134,7 +134,7 @@ data_2016_2017 <- left_join(data_2016_2017_no_dups, data_unpaywall_2016_2017, by
          e_issn,
          jahr = publ_year,
          pmid,
-         verlag = publisher,
+         publisher,
          author_address = aut_affil,
          document_type = doc_type,
          e_mail_address = email_corr_author,
@@ -175,7 +175,7 @@ data_2018_2020_clean <- data_2018_2020_raw %>%
 # deduplicate dois (prefer WoS entries), keep all articles without doi
 data_2018_2020_doi_dedup <- data_2018_2020_clean %>%
   mutate(doi = tolower(doi)) %>%
-  mutate(doi_existent = (doi != "keine doi"), .after = "doi") %>% # new column stating existence of doi
+  mutate(doi_existent = (doi != "keine doi"), .after = "doi") %>% # new column stating existence of doi # FIXME: use str_detect()!!
   mutate(doi = if_else(!doi_existent,
                        paste0("noDOI!!", replicate(n(), UUIDgenerate(n=1L, output = "string"))), doi)) %>% # Assign ids to articles without DOI
   arrange(desc(doi_existent), desc(datenbank)) %>% # sort by database in descending order, so that WoS entries are first
@@ -219,7 +219,7 @@ data_2018_2020 <- data_2018_2020_no_dups %>%
          e_issn,
          jahr,
          pmid,
-         verlag,
+         publisher = verlag,
          author_address,
          document_type,
          e_mail_address,
@@ -336,7 +336,7 @@ data_2021 <- data_2021_no_pmid_dups %>%
          e_issn,
          jahr,
          pmid,
-         verlag,
+         publisher = verlag,
          author_address,
          document_type,
          e_mail_address,
@@ -352,7 +352,7 @@ data_2021 <- data_2021_no_pmid_dups %>%
 # Add 2021 data to existing data with rbind ----
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-data <- rbind(data_2016_2020, data_2021)
+data_2016_2021 <- rbind(data_2016_2020, data_2021)
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # Deduplicate dois: prefer data from previous years over newer data ----
@@ -365,10 +365,17 @@ data <- rbind(data_2016_2020, data_2021)
 #   filter(n>1) %>%
 #   select(doi)
 
-data <- data %>%
+data_clean <- data_2016_2021 %>%
   filter(jahr != 0) %>%
   distinct(doi, .keep_all = TRUE)
 # FIXME: deduplicate also for other identifiers
+
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# Add additional unpaywall data ----
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+data <- data_clean %>%
+  left_join(unpaywall_2016_2021_slim, by = "doi")
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # Exploratory data analysis ----
