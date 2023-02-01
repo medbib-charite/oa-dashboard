@@ -393,13 +393,13 @@ data %>%
   ggplot(aes(x = jahr, fill = oa_status)) +
   geom_bar()
 
-data_sum <- data %>%
+summary_data <- data %>%
   group_by(jahr, oa_status) %>%
   summarise(value = n()) %>%
   mutate(percent = round(value / sum(value) * 100, 1))
 
 status_absolute <-
-  hchart(data_sum,
+  hchart(summary_data,
          "column",
          hcaes(x = jahr, y = value, group = oa_status)) %>%
   hc_plotOptions(series = list(stacking = "normal")) %>%
@@ -412,7 +412,7 @@ status_absolute <-
   )
 
 status_absolute_spline <-
-  data_sum %>%
+  summary_data %>%
   mutate(jahr = factor(jahr)) %>%
   hchart("spline",
          hcaes(x = jahr, y = value, group = oa_status)) %>%
@@ -433,7 +433,7 @@ status_absolute_spline <-
 # %>% hc_subtitle(text = text, align = "left", style = list(fontSize = "12px"))
 
 status_percent <-
-  hchart(data_sum,
+  hchart(summary_data,
          "column",
          hcaes(x = jahr, y = percent, group = oa_status)) %>%
   hc_plotOptions(series = list(stacking = "normal")) %>%
@@ -455,7 +455,7 @@ status_percent <-
 # Visualizations of year and oa_status corresponding authors ----
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-data_corresponding_sum <- data %>%
+summary_corresponding <- data %>%
   filter(corresponding_author_cha == TRUE) %>%
   group_by(jahr, oa_status) %>%
   summarise(value = n()) %>%
@@ -463,7 +463,7 @@ data_corresponding_sum <- data %>%
 
 status_corresponding_absolute <-
   hchart(
-    data_corresponding_sum,
+    summary_corresponding,
     "column",
     hcaes(x = jahr, y = value, group = oa_status)
   ) %>%
@@ -477,7 +477,7 @@ status_corresponding_absolute <-
   )
 
 status_corresponding_absolute_spline <-
-  data_corresponding_sum %>%
+  summary_corresponding %>%
   mutate(jahr = factor(jahr)) %>%
   hchart("spline",
          hcaes(x = jahr, y = value, group = oa_status)) %>%
@@ -492,7 +492,7 @@ status_corresponding_absolute_spline <-
 
 status_corresponding_percent <-
   hchart(
-    data_corresponding_sum,
+    summary_corresponding,
     "column",
     hcaes(x = jahr, y = percent, group = oa_status)
   ) %>%
@@ -513,7 +513,7 @@ status_corresponding_percent <-
 # Visualizations of journals and oa_status ----
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-journal_data <- data %>%
+summary_journal_2020 <- data %>%
   filter(jahr == 2020) %>%
   group_by(zeitschrift, oa_status) %>%
   summarise(value = n(), .groups = "drop_last") %>%
@@ -522,14 +522,14 @@ journal_data <- data %>%
   filter(value_zs >= 5) %>%
   mutate(zeitschrift = forcats::fct_reorder(zeitschrift, -value_zs))
 
-journal_data_2 <- journal_data %>%
+summary_journal_2020_2 <- summary_journal_2020 %>%
   group_by(zeitschrift) %>%
   spread(oa_status, value, fill = 0) %>%
   gather(oa_status, value, 3:8) %>%
   mutate(oa_status = factor(oa_status, levels = oa_status_colors)) %>%
   mutate(percent = round(value / sum(value) * 100, 1))
 
-journal_absolute <- journal_data_2 %>%
+journal_2020_absolute <- summary_journal_2020_2 %>%
   hchart("bar", hcaes(x = zeitschrift, y = value, group = oa_status)) %>%
   hc_plotOptions(series = list(stacking = "normal")) %>%
   hc_colors(color) %>%
@@ -543,11 +543,11 @@ journal_absolute <- journal_data_2 %>%
   hc_tooltip(pointFormat = "<b>{point.oa_status}</b><br>{point.value} articles ({point.percent} %)<br>{point.value_zs} total articles") %>%
   hc_exporting(
     enabled = TRUE, # always enabled
-    filename = "journal_absolute",
+    filename = "journal_2020_absolute",
     buttons = list(contextButton = list(menuItems = c('downloadJPEG', 'separator', 'downloadCSV')))
   )
 
-journal_percent <- journal_data_2 %>%
+journal_2020_percent <- summary_journal_2020_2 %>%
   hchart("bar", hcaes(x = zeitschrift, y = percent, group = oa_status)) %>%
   hc_plotOptions(series = list(stacking = "normal")) %>%
   hc_colors(color) %>%
@@ -560,7 +560,7 @@ journal_percent <- journal_data_2 %>%
   hc_tooltip(pointFormat = "<b>{point.oa_status}</b><br>{point.value} articles ({point.percent} %)<br>{point.value_zs} total articles") %>%
   hc_exporting(
     enabled = TRUE, # always enabled
-    filename = "journal_percent",
+    filename = "journal_2020_percent",
     buttons = list(contextButton = list(menuItems = c('downloadJPEG', 'separator', 'downloadCSV')))
   )
 
@@ -610,7 +610,7 @@ publisher_2020_absolute <- summary_publisher_2020_2 %>%
   hc_tooltip(pointFormat = "<b>{point.oa_status}</b><br>{point.value} articles ({point.percent} %)<br>{point.value_pub} total articles") %>%
   hc_exporting(
     enabled = TRUE, # always enabled
-    filename = "publisher_absolute",
+    filename = "publisher_2020_absolute",
     buttons = list(contextButton = list(menuItems = c('downloadJPEG', 'separator', 'downloadCSV')))
   )
 

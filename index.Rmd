@@ -169,7 +169,7 @@ publisher_2020_absolute
 ### 2020: Articles by journal in absolute numbers
 
 ```{r}
-journal_absolute
+journal_2020_absolute
 ```
 
 Row {.tabset}
@@ -221,9 +221,7 @@ Row
 ```{r}
 library(kableExtra)
 
-load("data/data_unpaywall.Rda")
-
-data_sum %>%
+summary_data %>%
   kbl(align = "llll",
       col.names = c("year",
                     "oa_status",
@@ -240,7 +238,7 @@ Row
 
 ### Articles with a Charité corresponding author, by OA status and year
 ```{r}
-data_corresponding_sum %>%
+summary_corresponding %>%
   kbl(align = "llll",
       col.names = c("year",
                     "oa_status",
