@@ -172,6 +172,21 @@ publisher_2020_absolute
 journal_2020_absolute
 ```
 
+Row {data-height=auto}
+-----------------------------------------------------------------------
+
+### 2021: Articles by publisher in absolute numbers
+
+```{r}
+publisher_2021_absolute
+```
+
+### 2021: Articles by journal in absolute numbers
+
+```{r}
+journal_2021_absolute
+```
+
 Row {.tabset}
 -----------------------------------------------------------------------
 

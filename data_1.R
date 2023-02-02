@@ -513,6 +513,10 @@ status_corresponding_percent <-
 # Visualizations of journals and oa_status ----
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+## 2020 ----
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
 summary_journal_2020 <- data %>%
   filter(jahr == 2020) %>%
   group_by(zeitschrift, oa_status) %>%
@@ -565,7 +569,67 @@ journal_2020_percent <- summary_journal_2020_2 %>%
   )
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+## 2021 ----
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+summary_journal_2021 <- data %>%
+  filter(jahr == 2021) %>%
+  group_by(zeitschrift, oa_status) %>%
+  summarise(value = n(), .groups = "drop_last") %>%
+  mutate(value_zs = sum(value)) %>%
+  ungroup() %>%
+  filter(value_zs >= 5) %>%
+  mutate(zeitschrift = forcats::fct_reorder(zeitschrift, -value_zs))
+
+summary_journal_2021_2 <- summary_journal_2021 %>%
+  group_by(zeitschrift) %>%
+  spread(oa_status, value, fill = 0) %>%
+  gather(oa_status, value, 3:8) %>%
+  mutate(oa_status = factor(oa_status, levels = oa_status_colors)) %>%
+  mutate(percent = round(value / sum(value) * 100, 1))
+
+journal_2021_absolute <- summary_journal_2021_2 %>%
+  hchart("bar", hcaes(x = zeitschrift, y = value, group = oa_status)) %>%
+  hc_plotOptions(series = list(stacking = "normal")) %>%
+  hc_colors(color) %>%
+  hc_xAxis(min = 0,
+           max = 15,
+           scrollbar = list(enabled = TRUE)) %>%
+  hc_size(height = 500) %>%
+  hc_xAxis(title = list(text = "Journal")) %>%
+  hc_yAxis(title = list(text = "Number"),
+           reversedStacks = FALSE) %>%
+  hc_tooltip(pointFormat = "<b>{point.oa_status}</b><br>{point.value} articles ({point.percent} %)<br>{point.value_zs} total articles") %>%
+  hc_exporting(
+    enabled = TRUE, # always enabled
+    filename = "journal_2021_absolute",
+    buttons = list(contextButton = list(menuItems = c('downloadJPEG', 'separator', 'downloadCSV')))
+  )
+
+journal_2021_percent <- summary_journal_2021_2 %>%
+  hchart("bar", hcaes(x = zeitschrift, y = percent, group = oa_status)) %>%
+  hc_plotOptions(series = list(stacking = "normal")) %>%
+  hc_colors(color) %>%
+  hc_xAxis(min = 0,
+           max = 15,
+           scrollbar = list(enabled = TRUE)) %>%
+  hc_yAxis(labels = list(format = '{value} %'),
+           max = 100, reversedStacks = FALSE) %>%
+  hc_size(height = 500) %>%
+  hc_tooltip(pointFormat = "<b>{point.oa_status}</b><br>{point.value} articles ({point.percent} %)<br>{point.value_zs} total articles") %>%
+  hc_exporting(
+    enabled = TRUE, # always enabled
+    filename = "journal_2021_percent",
+    buttons = list(contextButton = list(menuItems = c('downloadJPEG', 'separator', 'downloadCSV')))
+  )
+
+
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # Visualizations of publishers (from Unpaywall) and oa_status ----
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+## 2020 ----
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 data_publisher_2020 <- data %>%
@@ -633,6 +697,56 @@ publisher_donut <- data_publisher_2020 %>%
   hc_exporting(
     enabled = TRUE, # always enabled
     filename = "publisher_donut",
+    buttons = list(contextButton = list(menuItems = c('downloadJPEG', 'separator', 'downloadCSV')))
+  )
+
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+## 2021 ----
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+data_publisher_2021 <- data %>%
+  filter(jahr == 2021) %>%
+  select(doi,
+         oa_status,
+         publisher = unpw_publisher)
+
+summary_publisher_2021 <- data_publisher_2021 %>%
+  group_by(publisher, oa_status) %>%
+  summarise(value = n(), .groups = "drop_last") %>%
+  mutate(value_pub = sum(value)) %>%
+  ungroup() %>%
+  # filter(value_pub >= 5) %>%
+  mutate(publisher = forcats::fct_reorder(publisher, -value_pub))
+
+summary_publisher_2021_2 <- summary_publisher_2021 %>%
+  group_by(publisher) %>%
+  spread(oa_status, value, fill = 0) %>%
+  gather(oa_status, value, 3:8) %>%
+  mutate(oa_status = factor(oa_status, levels = oa_status_colors)) %>%
+  mutate(percent = round(value / sum(value) * 100, 1)) %>%
+  filter(value_pub >= 3) %>%
+  drop_na()
+
+table_publishers_2021 <- summary_publisher_2021_2 %>%
+  select(-value_pub, -percent) %>%
+  pivot_wider(names_from = oa_status, values_from = value) %>%
+  select(-`no result`)
+
+publisher_2021_absolute <- summary_publisher_2021_2 %>%
+  hchart("bar", hcaes(x = publisher, y = value, group = oa_status)) %>%
+  hc_plotOptions(series = list(stacking = "normal")) %>%
+  hc_colors(color) %>%
+  hc_xAxis(min = 0,
+           max = 15,
+           scrollbar = list(enabled = TRUE)) %>%
+  hc_size(height = 500) %>%
+  hc_xAxis(title = list(text = "Publisher")) %>%
+  hc_yAxis(title = list(text = "Number"),
+           reversedStacks = FALSE) %>%
+  hc_tooltip(pointFormat = "<b>{point.oa_status}</b><br>{point.value} articles ({point.percent} %)<br>{point.value_pub} total articles") %>%
+  hc_exporting(
+    enabled = TRUE, # always enabled
+    filename = "publisher_2021_absolute",
     buttons = list(contextButton = list(menuItems = c('downloadJPEG', 'separator', 'downloadCSV')))
   )
 
