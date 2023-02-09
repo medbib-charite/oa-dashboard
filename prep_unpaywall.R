@@ -6,6 +6,7 @@
 library(readxl)
 library(tidyverse)
 library(dplyr)
+library(janitor)
 library(jsonlite)
 
 
@@ -34,18 +35,26 @@ unpaywall_2016_2020_slim <- unpaywall_2016_2020_unnested %>%
 
 
 # 2021: Load and clean Unpaywall data, retrieved 2022-09-20 ----
-unpaywall_2021_file <- "raw_data/2021_unpaywall_fetched_2022-09-20.xlsx"
+unpaywall_2021_file <- "raw_data/2021_unpaywall_fetched_2022-09-20_json.xlsx"
 unpaywall_2021_raw <- read_excel(unpaywall_2021_file)
 
-# FIXME: still not working, problem with "NA" in json text; instead: reload excel into python and re-convert dict in this (and other?) column into JSON
-unpaywall_2021_unnested <- unpaywall_2021_raw %>%
-  mutate(oa_locations = str_replace_all(oa_locations, c("'" = '"', "None" = "null", "True" = "true", "False" = "false"))) %>%
-  drop_na() %>%
+# Remove doi duplicates keeping last entry (this is the newest as there were changed during the API request)
+# https://datacornering.com/remove-duplicates-and-keep-last-in-r/
+unpaywall_2021_clean <- unpaywall_2021_raw %>%
+  clean_names() %>%
+  group_by(doi) %>%
+  filter(row_number() == n())
+
+unpaywall_2021_oalocations <- unpaywall_2021_clean %>%
+  select(doi, oa_locations) %>%
+  drop_na(oa_locations) %>%
   rowwise() %>%
-  mutate(oa_locations = case_when(oa_locations == "[]" ~ list(),
-                                  is.na(oa_locations) ~ list(),
-                                  TRUE ~ list(fromJSON(oa_locations))))
-  # https://stackoverflow.com/questions/37997283/extract-format-and-separate-json-already-stored-in-a-data-frame-column
+  mutate(oa_locations = if_else(!is.na(oa_locations), list(fromJSON(oa_locations)), list(oa_locations)))
+
+unpaywall_2021_unnested <- unpaywall_2021_clean %>%
+  select(-oa_locations) %>%
+  left_join(unpaywall_2021_oalocations, by = "doi") %>%
+  unnest(oa_locations)
 
 unpaywall_2021_slim <- unpaywall_2021_unnested %>%
   mutate(origin_unpaywall = "2021") %>%
