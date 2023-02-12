@@ -118,63 +118,28 @@ load("data/data_unpaywall.Rda")
 # Analyse Licences ----
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-data_license_unnest <- data_unpaywall %>%
-  # 1. Unnest the list structure
-  unnest(oa_locations, keep_empty = TRUE) %>%
-  # 2. Clean the license strings and create "others" category
-  mutate(license = case_when(grepl("specific|cc0|implied|pd", license, ignore.case = TRUE) ~ "other license",
-                             TRUE ~ license)) %>%
-  select(doi, license)
+data_license <- select(data, doi, license)
 
-data_license_unnest_2 <- data_license_unnest %>%
-  drop_na() %>%
-  # 3. Keep only distinct doi-license rows
-  distinct(doi, license, .keep_all = TRUE) %>%
-  # 4. Create column with logical operator that shows dois > 1
-  group_by(doi) %>%
-  mutate(dupe = n() > 1) %>%
-  filter(dupe == TRUE) %>%
-  # 5. Select only rows with shortest (== best) license
-  mutate(min = min(nchar(license))) %>%
-  mutate(best = if_else(nchar(license) == min, TRUE, FALSE)) %>%
-  filter(best == TRUE) %>%
-  select(doi, license)
-
-#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# Combine lists ----
-#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-data_license_unnest_distinct <- data_license_unnest %>%
-  distinct(doi, .keep_all = TRUE)
-
-data_license_final <- rbind(data_license_unnest_2, data_license_unnest_distinct) %>%
-  distinct(doi, .keep_all = TRUE) %>%
-  mutate(license = replace_na(license, "no license found")) %>%
-  mutate(license = factor(license, levels = c("cc-by", "cc-by-nc", "cc-by-sa", "cc-by-nc-sa", "cc-by-nd", "cc-by-nc-nd", "other license", "no license found")))
-
-data_license_final_count <- data_license_final %>%
-  group_by(license) %>%
-  summarise(count = n())
-
-# https://stackoverflow.com/questions/6986657/find-duplicated-rows-based-on-2-columns-in-data-frame-in-r
-
-# 740 Artikel haben mindestens zwei unterschiedliche Lizenzen    # FIXME: Anzahl entfernen oder aktualisieren
+# UNUSED?
+# data_license_final_count <- data_license %>%
+#   group_by(license) %>%
+#   summarise(count = n())
 
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # Add oa_status to data ----
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 data_doi <- data %>%
-  filter(!str_detect(doi, "keine doi")) %>%
-  filter(jahr %in% c(2016, 2017, 2018, 2019, 2020))
+  filter(doi_existent) %>%
+  filter(jahr %in% c(2016, 2017, 2018, 2019, 2020, 2021))
 
-data_medbib_license <- data_doi %>%
-  select(doi, oa_status)
+# data_medbib_license <- data_doi %>%
+#   select(doi, oa_status)
+#
+# data_license_oa_status_final <- data_medbib_license %>%
+#   inner_join(data_license, by = "doi")
 
-data_license_oa_status_final <- data_medbib_license %>%
-  inner_join(data_license_final, by = "doi")
-
-data_license_oa_status_final_count <- data_license_oa_status_final %>%
+data_license_oa_status_final_count <- data_doi %>%
   group_by(license, oa_status) %>%
   summarise(count = n())
 
@@ -209,18 +174,20 @@ chart_lizenzen <- data_license_oa_status_final_count_2 %>%
 save(chart_lizenzen, file = "charts/chart_lizenzen.Rda")
 
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# Visualize licenses only for 2020 ----
+# Visualize licenses ----
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+## only for 2020 ----
+
 data_doi_2020 <- data %>%
-  filter(!str_detect(doi, "keine doi")) %>%
+  filter(doi_existent) %>%
   filter(jahr == 2020)
 
 data_medbib_license_2020 <- data_doi_2020 %>%
   select(doi, oa_status)
 
 data_license_oa_status_final_2020 <- data_medbib_license_2020 %>%
-  inner_join(data_license_final, by = "doi")
+  inner_join(data_license, by = "doi")
 
 data_license_oa_status_final_count_2020 <- data_license_oa_status_final_2020 %>%
   group_by(license, oa_status) %>%
@@ -251,6 +218,48 @@ chart_lizenzen_year_2020 <- data_license_oa_status_final_count_2_2020 %>%
   )
 
 save(chart_lizenzen_year_2020, file = "charts/chart_lizenzen_year_2020.Rda")
+
+## only for 2021 ----
+
+data_doi_2021 <- data %>%
+  filter(doi_existent) %>%
+  filter(jahr == 2021)
+
+data_medbib_license_2021 <- data_doi_2021 %>%
+  select(doi, oa_status)
+
+data_license_oa_status_final_2021 <- data_medbib_license_2021 %>%
+  inner_join(data_license, by = "doi")
+
+data_license_oa_status_final_count_2021 <- data_license_oa_status_final_2021 %>%
+  group_by(license, oa_status) %>%
+  summarise(count = n())
+
+data_license_oa_status_final_count_2_2021 <- data_license_oa_status_final_count_2021 %>%
+  group_by(license) %>%
+  spread(oa_status, count, fill = 0) %>% # to solve order problem
+  gather(oa_status, count, -license) %>%
+  mutate(oa_status = factor(oa_status, levels = oa_status_colors)) %>%
+  arrange(license)
+
+save(data_license_oa_status_final_count_2_2021, file = "data/data_license_oa_status_final_count_2_2021.Rda")
+
+chart_lizenzen_year_2021 <- data_license_oa_status_final_count_2_2021 %>%
+  hchart("column",
+         hcaes(x = license, y = count, group = oa_status)) %>%
+  hc_plotOptions(series = list(stacking = "normal")) %>%
+  hc_xAxis(title = list(text = "License")) %>%
+  hc_yAxis(title = list(text = "Number"),
+           labels = list(format = '{value:.0f}')) %>%
+  hc_colors(color) %>%
+  hc_tooltip(pointFormat = "{point.count} articles") %>%
+  hc_exporting(
+    enabled = TRUE, # always enabled
+    filename = "chart_lizenzen_oa",
+    buttons = list(contextButton = list(menuItems = c('downloadJPEG', 'separator', 'downloadCSV')))
+  )
+
+save(chart_lizenzen_year_2021, file = "charts/chart_lizenzen_year_2021.Rda")
 
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # Visualize licenses only for OA status gold, green, hybrid ----

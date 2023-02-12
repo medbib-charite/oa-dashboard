@@ -212,7 +212,7 @@ Row {data-height=auto}
 Row 
 -----------------------------------------------------------------------
 
-### 2016 - 2020: Licenses for all articles involving Charité authors
+### 2016 - 2021: Licenses for all articles involving Charité authors
 
 ```{r}
 load("charts/chart_lizenzen.Rda")
@@ -224,6 +224,13 @@ chart_lizenzen
 ```{r}
 load("charts/chart_lizenzen_year_2020.Rda")
 chart_lizenzen_year_2020
+```
+
+### only 2021: Licenses for all articles involving Charité authors
+
+```{r}
+load("charts/chart_lizenzen_year_2021.Rda")
+chart_lizenzen_year_2021
 ```
 
 Data tables
