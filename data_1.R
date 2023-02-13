@@ -371,11 +371,12 @@ data_clean <- data_2016_2021 %>%
 # FIXME: deduplicate also for other identifiers
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# Add additional unpaywall data ----
+# Add additional Unpaywall data ----
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 data <- data_clean %>%
-  left_join(unpaywall_2016_2021_slim, by = "doi")
+  left_join(unpaywall_2016_2021_slim, by = "doi") %>%
+  mutate(license = replace_na(license, "no license found"))
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # Exploratory data analysis ----

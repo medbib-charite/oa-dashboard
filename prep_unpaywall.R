@@ -47,7 +47,7 @@ unpaywall_2016_2020_slim <- unpaywall_2016_2020_distinct_best_license %>%
 
 
 # 2021: Load and clean Unpaywall data, retrieved 2022-09-20 ----
-unpaywall_2021_file <- "raw_data/2021_unpaywall_fetched_2022-09-20_json.xlsx"
+unpaywall_2021_file <- "raw_data/2021_unpaywall_fetched_2022-09-20.xlsx"
 unpaywall_2021_raw <- read_excel(unpaywall_2021_file)
 
 # Remove doi duplicates keeping last entry (this is the newest as there were changed during the API request)
