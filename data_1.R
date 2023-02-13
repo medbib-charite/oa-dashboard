@@ -354,8 +354,13 @@ data_2021 <- data_2021_no_pmid_dups %>%
 
 data_2016_2021 <- rbind(data_2016_2020, data_2021)
 
+
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# Deduplicate dois: prefer data from previous years over newer data ----
+# All years combined ----
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+## Deduplicate dois: prefer data from previous years over newer data ----
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 # Test: finding duplicate dois
@@ -371,7 +376,7 @@ data_clean <- data_2016_2021 %>%
 # FIXME: deduplicate also for other identifiers
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# Add additional Unpaywall data ----
+## Add additional Unpaywall data ----
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 data <- data_clean %>%

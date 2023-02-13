@@ -165,18 +165,20 @@ Row {data-height=auto}
 
 <font size="5"> Publishers and journals among articles involving Charité authors, by open access status</font>
 
-Row {data-height=auto}
------------------------------------------------------------------------
 
-### 2020: Articles by publisher in absolute numbers 
-```{r}
-publisher_2020_absolute
-```
+<!-- Row {data-height=auto} -->
+<!-- ----------------------------------------------------------------------- -->
 
-### 2020: Articles by journal in absolute numbers
-```{r}
-journal_2020_absolute
-```
+<!-- ### 2020: Articles by publisher in absolute numbers  -->
+<!-- ```{r} -->
+<!-- publisher_2020_absolute -->
+<!-- ``` -->
+
+<!-- ### 2020: Articles by journal in absolute numbers -->
+<!-- ```{r} -->
+<!-- journal_2020_absolute -->
+<!-- ``` -->
+
 
 Row {data-height=auto}
 -----------------------------------------------------------------------
@@ -191,18 +193,20 @@ publisher_2021_absolute
 journal_2021_absolute
 ```
 
-Row {.tabset}
------------------------------------------------------------------------
 
-### 2018 - 2020: Centrally funded articles with a Charité corresponding author; costs at top 10 publishers
-```{r}
-publisher_costs
-```
+<!-- Row {.tabset} -->
+<!-- ----------------------------------------------------------------------- -->
 
-### ... and by year
-```{r}
-publisher_costs_year
-```
+<!-- ### 2018 - 2020: Centrally funded articles with a Charité corresponding author; costs at top 10 publishers -->
+<!-- ```{r} -->
+<!-- publisher_costs -->
+<!-- ``` -->
+
+<!-- ### ... and by year -->
+<!-- ```{r} -->
+<!-- publisher_costs_year -->
+<!-- ``` -->
+
 
 Row {data-height=auto}
 -----------------------------------------------------------------------
@@ -220,11 +224,11 @@ load("charts/chart_lizenzen.Rda")
 chart_lizenzen
 ```
 
-### only 2020: Licenses for all articles involving Charité authors
-```{r}
-load("charts/chart_lizenzen_year_2020.Rda")
-chart_lizenzen_year_2020
-```
+<!-- ### only 2020: Licenses for all articles involving Charité authors -->
+<!-- ```{r} -->
+<!-- load("charts/chart_lizenzen_year_2020.Rda") -->
+<!-- chart_lizenzen_year_2020 -->
+<!-- ``` -->
 
 ### only 2021: Licenses for all articles involving Charité authors
 ```{r}
