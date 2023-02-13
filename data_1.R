@@ -106,7 +106,7 @@ data_2016_2017_no_dups <- data_2016_2017_no_pmid_dups %>%
   rbind(data_2016_2017_no_pmid_dups %>% filter(datenbank != "WOS"))
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-## Add oa status from unpaywall to data and clean column names ----
+## Add oa status from Unpaywall to data and clean column names ----
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 load("data/data_unpaywall.Rda") # Unpaywall data 2018-2020
@@ -281,7 +281,7 @@ data_2016_2020 <- data_2016_2020 %>%
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # Data 2021 ----
-## Load 2021 data (containing unpaywall data, retrieved September 2022 ----
+## Load 2021 data (containing Unpaywall data, retrieved September 2022 ----
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 publications_charite_2016_2021_final <- "raw_data/publications_charite_2016-2021_final.xlsx"

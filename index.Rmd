@@ -78,28 +78,24 @@ is_doaj_2021 <- round(is_doaj_2021[[2]]/sum(is_doaj_2021)*100, 1)
 
 
 ### 2018: Percentage of open access among all articles involving Charité authors 
-
 ```{r}
 rate <- summary_is_oa %>% filter(jahr == 2018 & is_oa == TRUE) %>% pull(perc)
 gauge(rate, min = 0, max = 100, symbol = ' %', gaugeSectors(colors = "#e97202"))
 ```
 
 ### 2019: Percentage of open access among all articles involving Charité authors 
-
 ```{r}
 rate <- summary_is_oa %>% filter(jahr == 2019 & is_oa == TRUE) %>% pull(perc)
 gauge(rate, min = 0, max = 100, symbol = ' %', gaugeSectors(colors = "#e97202"))
 ```
 
 ### 2020: Percentage of open access among all articles involving Charité authors 
-
 ```{r}
 rate <- summary_is_oa %>% filter(jahr == 2020 & is_oa == TRUE) %>% pull(perc)
 gauge(rate, min = 0, max = 100, symbol = ' %', gaugeSectors(colors = "#e97202"))
 ```
 
 ### 2021: Percentage of open access among all articles involving Charité authors 
-
 ```{r}
 rate <- summary_is_oa %>% filter(jahr == 2021 & is_oa == TRUE) %>% pull(perc)
 gauge(rate, min = 0, max = 100, symbol = ' %', gaugeSectors(colors = "#e97202"))
@@ -139,13 +135,11 @@ Row {data-height=auto}
 -----------------------------------------------------------------------
 
 ### 2016 - 2021: Articles involving Charité authors by OA status (in %)
-
 ```{r}
 status_percent
 ```
 
 ### 2016 - 2021: Articles with a Charité corresponding author by OA status (in %)
-
 ```{r}
 status_corresponding_percent
 ```
@@ -154,13 +148,11 @@ Row {data-height=auto}
 -----------------------------------------------------------------------
 
 ### 2016 - 2021: Articles involving Charité authors by OA status (absolute numbers)
-
 ```{r}
 status_absolute_spline
 ```
 
 ### 2016 - 2021: Articles with a Charité corresponding author by OA status (absolute numbers)
-
 ```{r}
 status_corresponding_absolute_spline
 ```
@@ -177,13 +169,11 @@ Row {data-height=auto}
 -----------------------------------------------------------------------
 
 ### 2020: Articles by publisher in absolute numbers 
-
 ```{r}
 publisher_2020_absolute
 ```
 
 ### 2020: Articles by journal in absolute numbers
-
 ```{r}
 journal_2020_absolute
 ```
@@ -192,13 +182,11 @@ Row {data-height=auto}
 -----------------------------------------------------------------------
 
 ### 2021: Articles by publisher in absolute numbers
-
 ```{r}
 publisher_2021_absolute
 ```
 
 ### 2021: Articles by journal in absolute numbers
-
 ```{r}
 journal_2021_absolute
 ```
@@ -207,13 +195,11 @@ Row {.tabset}
 -----------------------------------------------------------------------
 
 ### 2018 - 2020: Centrally funded articles with a Charité corresponding author; costs at top 10 publishers
-
 ```{r}
 publisher_costs
 ```
 
 ### ... and by year
-
 ```{r}
 publisher_costs_year
 ```
@@ -225,25 +211,22 @@ Row {data-height=auto}
 
 <font size="5"> Open licenses under which articles involving Charité authors were published</font>
 
-Row 
+Row
 -----------------------------------------------------------------------
 
 ### 2016 - 2021: Licenses for all articles involving Charité authors
-
 ```{r}
 load("charts/chart_lizenzen.Rda")
 chart_lizenzen
 ```
 
 ### only 2020: Licenses for all articles involving Charité authors
-
 ```{r}
 load("charts/chart_lizenzen_year_2020.Rda")
 chart_lizenzen_year_2020
 ```
 
 ### only 2021: Licenses for all articles involving Charité authors
-
 ```{r}
 load("charts/chart_lizenzen_year_2021.Rda")
 chart_lizenzen_year_2021

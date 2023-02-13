@@ -18,7 +18,7 @@ data_doi <- data %>%
 #  sample_n(size = 100)
 
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# Load data from unpaywall ----
+# Load data from Unpaywall ----
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 # https://cran.r-project.org/web/packages/roadoi/vignettes/intro.html
