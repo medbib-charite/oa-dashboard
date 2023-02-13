@@ -55,15 +55,25 @@ summary_is_oa <- data %>%
   group_by(jahr, is_oa) %>%
   summarise(count = sum(count), perc = sum(perc))
 
-data_unpaywall_is_doaj <- data_unpaywall %>% # FIXME: Prozentwert is_doaj weniger umständlich berechnen (Anzahl TRUE / Anzahl gesamt); caution: data_unpaywall only contains articles with DOI. Others are not included in the calculation
-  filter(year == 2020)
-is_doaj <- sort(table(data_unpaywall_is_doaj$journal_is_in_doaj), decreasing = TRUE)
-is_doaj <- round(is_doaj[[2]]/sum(is_doaj)*100, 1)
+## 2020 - currently UNUSED
+# data_2020 <- data %>%
+#   filter(jahr == 2020)
+# 
+# is_corresponding_2020 <- sort(table(data_2020$corresponding_author_cha), decreasing = TRUE)
+# is_corresponding_2020 <- round(is_corresponding_2020[[2]]/sum(is_corresponding_2020)*100, 1)
+# 
+# is_doaj_2020 <- sort(table(data_2020$journal_is_in_doaj), decreasing = TRUE)
+# is_doaj_2020 <- round(is_doaj_2020[[2]]/sum(is_doaj_2020)*100, 1)
 
-data_is_corresponding <- data %>% # FIXME: Prozentwert is_doaj weniger umständlich berechnen (Anzahl TRUE / Anzahl gesamt)
-  filter(jahr == 2020)
-is_corresponding <- sort(table(data_is_corresponding$corresponding_author_cha), decreasing = TRUE)
-is_corresponding <- round(is_corresponding[[2]]/sum(is_corresponding)*100, 1)
+## 2021
+data_2021 <- data %>%
+  filter(jahr == 2021)
+
+is_corresponding_2021 <- sort(table(data_2021$corresponding_author_cha), decreasing = TRUE)
+is_corresponding_2021 <- round(is_corresponding_2021[[2]]/sum(is_corresponding_2021)*100, 1)
+
+is_doaj_2021 <- sort(table(data_2021$journal_is_in_doaj), decreasing = TRUE)
+is_doaj_2021 <- round(is_doaj_2021[[2]]/sum(is_doaj_2021)*100, 1)
 ```
 
 
@@ -99,18 +109,24 @@ gauge(rate, min = 0, max = 100, symbol = ' %', gaugeSectors(colors = "#e97202"))
 Row 
 -----------------------------------------------------------------------
 
-### 2020: Charité corresponding author articles among articles involving Charité authors
-
+### 2021: Charité corresponding author articles among articles involving Charité authors
 ```{r}
-rate <- is_corresponding
+rate <- is_corresponding_2021
 gauge(rate, min = 0, max = 100, symbol = ' %', gaugeSectors(colors = "#e97202"))
 ```
-### 2020: Percentage of articles involving Charité authors appearing in a DOAJ-listed journal 
 
+### 2021: Percentage of articles involving Charité authors appearing in a DOAJ-listed journal
 ```{r}
-rate <- is_doaj
+rate <- is_doaj_2021
 gauge(rate, min = 0, max = 100, symbol = ' %', gaugeSectors(colors = "#F4C244"))
 ```
+
+<!-- ### 2020: Percentage of articles involving Charité authors appearing in a DOAJ-listed journal -->
+
+<!-- ```{r} -->
+<!-- rate <- is_doaj_2020 -->
+<!-- gauge(rate, min = 0, max = 100, symbol = ' %', gaugeSectors(colors = "#F4C244")) -->
+<!-- ``` -->
 
 Row {data-height=auto}
 -----------------------------------------------------------------------
