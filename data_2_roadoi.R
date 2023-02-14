@@ -177,32 +177,32 @@ save(chart_lizenzen, file = "charts/chart_lizenzen.Rda")
 # Visualize licenses ----
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-## only for 2020 ----
+## only for 2017 ----
 
-data_doi_2020 <- data %>%
+data_doi_2017 <- data %>%
   filter(doi_existent) %>%
-  filter(jahr == 2020)
+  filter(jahr == 2017)
 
-data_medbib_license_2020 <- data_doi_2020 %>%
+data_medbib_license_2017 <- data_doi_2017 %>%
   select(doi, oa_status)
 
-data_license_oa_status_final_2020 <- data_medbib_license_2020 %>%
+data_license_oa_status_final_2017 <- data_medbib_license_2017 %>%
   inner_join(data_license, by = "doi")
 
-data_license_oa_status_final_count_2020 <- data_license_oa_status_final_2020 %>%
+data_license_oa_status_final_count_2017 <- data_license_oa_status_final_2017 %>%
   group_by(license, oa_status) %>%
   summarise(count = n())
 
-data_license_oa_status_final_count_2_2020 <- data_license_oa_status_final_count_2020 %>%
+data_license_oa_status_final_count_2_2017 <- data_license_oa_status_final_count_2017 %>%
   group_by(license) %>%
   spread(oa_status, count, fill = 0) %>% # to solve order problem
   gather(oa_status, count, -license) %>%
   mutate(oa_status = factor(oa_status, levels = oa_status_colors)) %>%
   arrange(license)
 
-save(data_license_oa_status_final_count_2_2020, file = "data/data_license_oa_status_final_count_2_2020.Rda")
+save(data_license_oa_status_final_count_2_2017, file = "data/data_license_oa_status_final_count_2_2017.Rda")
 
-chart_lizenzen_year_2020 <- data_license_oa_status_final_count_2_2020 %>%
+chart_lizenzen_year_2017 <- data_license_oa_status_final_count_2_2017 %>%
   hchart("column",
          hcaes(x = license, y = count, group = oa_status)) %>%
   hc_plotOptions(series = list(stacking = "normal")) %>%
@@ -217,7 +217,7 @@ chart_lizenzen_year_2020 <- data_license_oa_status_final_count_2_2020 %>%
     buttons = list(contextButton = list(menuItems = c('downloadJPEG', 'separator', 'downloadCSV')))
   )
 
-save(chart_lizenzen_year_2020, file = "charts/chart_lizenzen_year_2020.Rda")
+save(chart_lizenzen_year_2017, file = "charts/chart_lizenzen_year_2017.Rda")
 
 ## only for 2021 ----
 

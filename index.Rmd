@@ -218,17 +218,17 @@ Row {data-height=auto}
 Row
 -----------------------------------------------------------------------
 
-### 2016 - 2021: Licenses for all articles involving Charité authors
-```{r}
-load("charts/chart_lizenzen.Rda")
-chart_lizenzen
-```
-
-<!-- ### only 2020: Licenses for all articles involving Charité authors -->
+<!-- ### 2016 - 2021: Licenses for all articles involving Charité authors -->
 <!-- ```{r} -->
-<!-- load("charts/chart_lizenzen_year_2020.Rda") -->
-<!-- chart_lizenzen_year_2020 -->
+<!-- load("charts/chart_lizenzen.Rda") -->
+<!-- chart_lizenzen -->
 <!-- ``` -->
+
+### only 2017: Licenses for all articles involving Charité authors
+```{r}
+load("charts/chart_lizenzen_year_2017.Rda")
+chart_lizenzen_year_2017
+```
 
 ### only 2021: Licenses for all articles involving Charité authors
 ```{r}
