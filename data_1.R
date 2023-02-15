@@ -399,13 +399,14 @@ data %>%
   ggplot(aes(x = jahr, fill = oa_status)) +
   geom_bar()
 
-summary_data <- data %>%
+summary_data_2017_2021 <- data %>%
+  filter(jahr %in% c(2017, 2018, 2019, 2020, 2021)) %>%
   group_by(jahr, oa_status) %>%
   summarise(value = n()) %>%
   mutate(percent = round(value / sum(value) * 100, 1))
 
 status_absolute <-
-  hchart(summary_data,
+  hchart(summary_data_2017_2021,
          "column",
          hcaes(x = jahr, y = value, group = oa_status)) %>%
   hc_plotOptions(series = list(stacking = "normal")) %>%
@@ -418,7 +419,7 @@ status_absolute <-
   )
 
 status_absolute_spline <-
-  summary_data %>%
+  summary_data_2017_2021 %>%
   mutate(jahr = factor(jahr)) %>%
   hchart("spline",
          hcaes(x = jahr, y = value, group = oa_status)) %>%
@@ -439,7 +440,7 @@ status_absolute_spline <-
 # %>% hc_subtitle(text = text, align = "left", style = list(fontSize = "12px"))
 
 status_percent <-
-  hchart(summary_data,
+  hchart(summary_data_2017_2021,
          "column",
          hcaes(x = jahr, y = percent, group = oa_status)) %>%
   hc_plotOptions(series = list(stacking = "normal")) %>%
@@ -461,15 +462,16 @@ status_percent <-
 # Visualizations of year and oa_status corresponding authors ----
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-summary_corresponding <- data %>%
+summary_corresponding_2017_2021 <- data %>%
   filter(corresponding_author_cha == TRUE) %>%
+  filter(jahr %in% c(2017, 2018, 2019, 2020, 2021)) %>%
   group_by(jahr, oa_status) %>%
   summarise(value = n()) %>%
   mutate(percent = round(value / sum(value) * 100, 1))
 
 status_corresponding_absolute <-
   hchart(
-    summary_corresponding,
+    summary_corresponding_2017_2021,
     "column",
     hcaes(x = jahr, y = value, group = oa_status)
   ) %>%
@@ -483,7 +485,7 @@ status_corresponding_absolute <-
   )
 
 status_corresponding_absolute_spline <-
-  summary_corresponding %>%
+  summary_corresponding_2017_2021 %>%
   mutate(jahr = factor(jahr)) %>%
   hchart("spline",
          hcaes(x = jahr, y = value, group = oa_status)) %>%
@@ -498,7 +500,7 @@ status_corresponding_absolute_spline <-
 
 status_corresponding_percent <-
   hchart(
-    summary_corresponding,
+    summary_corresponding_2017_2021,
     "column",
     hcaes(x = jahr, y = percent, group = oa_status)
   ) %>%

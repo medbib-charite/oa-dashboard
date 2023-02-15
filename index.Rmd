@@ -134,12 +134,12 @@ Row {data-height=auto}
 Row {data-height=auto}
 -----------------------------------------------------------------------
 
-### 2016 - 2021: Articles involving Charité authors by OA status (in %)
+### 2017 - 2021: Articles involving Charité authors by OA status (in %)
 ```{r}
 status_percent
 ```
 
-### 2016 - 2021: Articles with a Charité corresponding author by OA status (in %)
+### 2017 - 2021: Articles with a Charité corresponding author by OA status (in %)
 ```{r}
 status_corresponding_percent
 ```
@@ -147,12 +147,12 @@ status_corresponding_percent
 Row {data-height=auto}
 -----------------------------------------------------------------------
 
-### 2016 - 2021: Articles involving Charité authors by OA status (absolute numbers)
+### 2017 - 2021: Articles involving Charité authors by OA status (absolute numbers)
 ```{r}
 status_absolute_spline
 ```
 
-### 2016 - 2021: Articles with a Charité corresponding author by OA status (absolute numbers)
+### 2017 - 2021: Articles with a Charité corresponding author by OA status (absolute numbers)
 ```{r}
 status_corresponding_absolute_spline
 ```
@@ -246,7 +246,7 @@ Row
 ```{r}
 library(kableExtra)
 
-summary_data %>%
+summary_data_2017_2021 %>%
   kbl(align = "llll",
       col.names = c("year",
                     "oa_status",
@@ -263,7 +263,7 @@ Row
 
 ### Articles with a Charité corresponding author, by OA status and year
 ```{r}
-summary_corresponding %>%
+summary_corresponding_2017_2021 %>%
   kbl(align = "llll",
       col.names = c("year",
                     "oa_status",
