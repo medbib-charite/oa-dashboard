@@ -1,12 +1,15 @@
 ## Contributors
 - Jenny Delasalle (Concept)
-- Ursula Flitner (Concept, Data collection)
+- Ursula Flitner (Concept)
+- Elena Gandert (Technical implementation, Updates), since 2022
 - Manuela Gregor (Data collection)
-- Katja Maly (Data collection)
-- Anja Siebert (Data collection)
-- Jan Taubitz (Concept, Technical implementation)
+- Katja Schütze (Data collection), 2021
+- Anja Siebert (Data collection), 2021
+- Jan Taubitz (Concept, Technical implementation), 2021
 
-### Latest Update: Dec. 1,  2021
+### Latest Update: Feb. 15,  2023
+
+### The text below will receive an update before the end of February 2023.
 
 ## Sources
 - [Embase (via Ovid)](http://ovidsp.ovid.com/autologin.html)
