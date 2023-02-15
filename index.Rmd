@@ -32,8 +32,14 @@ Row {.no-title}
 -----------------------------------------------------------------------
 
 ###
-<font size="5">The Charité Medical Library presents data about open access publishing in journal articles at the Charité in interactive, clickable diagrams. This dashboard is complementary to the [Charité Metrics Dashboard](https://s-quest.bihealth.org/charite-dashboard/) from the BIH QUEST Center at Charité.</font>
+<font size="5">The [Charité Medical Library](https://bibliothek.charite.de/en/) presents data about open access publishing in journal articles at the Charité in interactive, clickable diagrams. This dashboard is complementary to the [Charité Metrics Dashboard](https://s-quest.bihealth.org/charite-dashboard/) from the BIH QUEST Center at Charité.</font>
 
+
+Row {.no-title}
+-----------------------------------------------------------------------
+
+###
+<font size="5">Percentage of open access among all articles involving Charité authors</font>
 
 
 Row 
@@ -77,25 +83,25 @@ is_doaj_2021 <- round(is_doaj_2021[[2]]/sum(is_doaj_2021)*100, 1)
 ```
 
 
-### 2018: Percentage of open access among all articles involving Charité authors 
+### <b>2018</b>
 ```{r}
 rate <- summary_is_oa %>% filter(jahr == 2018 & is_oa == TRUE) %>% pull(perc)
 gauge(rate, min = 0, max = 100, symbol = ' %', gaugeSectors(colors = "#e97202"))
 ```
 
-### 2019: Percentage of open access among all articles involving Charité authors 
+### <b>2019</b>
 ```{r}
 rate <- summary_is_oa %>% filter(jahr == 2019 & is_oa == TRUE) %>% pull(perc)
 gauge(rate, min = 0, max = 100, symbol = ' %', gaugeSectors(colors = "#e97202"))
 ```
 
-### 2020: Percentage of open access among all articles involving Charité authors 
+### <b>2020</b>
 ```{r}
 rate <- summary_is_oa %>% filter(jahr == 2020 & is_oa == TRUE) %>% pull(perc)
 gauge(rate, min = 0, max = 100, symbol = ' %', gaugeSectors(colors = "#e97202"))
 ```
 
-### 2021: Percentage of open access among all articles involving Charité authors 
+### <b>2021</b>
 ```{r}
 rate <- summary_is_oa %>% filter(jahr == 2021 & is_oa == TRUE) %>% pull(perc)
 gauge(rate, min = 0, max = 100, symbol = ' %', gaugeSectors(colors = "#e97202"))
@@ -124,11 +130,9 @@ gauge(rate, min = 0, max = 100, symbol = ' %', gaugeSectors(colors = "#F4C244"))
 <!-- gauge(rate, min = 0, max = 100, symbol = ' %', gaugeSectors(colors = "#F4C244")) -->
 <!-- ``` -->
 
-Row {data-height=auto}
+Row {.no-title}
 -----------------------------------------------------------------------
-
-### Analysis 1
-
+###
 <font size="5"> Open access status among articles involving Charité authors and among articles with a Charité corresponding author</font>
 
 Row {data-height=auto}
@@ -158,11 +162,9 @@ status_corresponding_absolute_spline
 ```
 
 
-Row {data-height=auto}
+Row {.no-title}
 -----------------------------------------------------------------------
-
-### Analysis 2
-
+###
 <font size="5"> Publishers and journals among articles involving Charité authors, by open access status</font>
 
 
@@ -208,11 +210,10 @@ journal_2021_absolute
 <!-- ``` -->
 
 
-Row {data-height=auto}
+Row {.no-title}
 -----------------------------------------------------------------------
 
-### Analysis 3
-
+###
 <font size="5"> Open licenses under which articles involving Charité authors were published</font>
 
 Row
