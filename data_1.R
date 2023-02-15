@@ -4,14 +4,14 @@
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 ##+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-## Clean the workspace ----
+# Clean the workspace ----
 ##+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 rm(list = ls())
 gc()
 
 ##+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-## Load libraries ----
+# Load libraries ----
 ##+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 library(gameofthrones)
 library(highcharter)
@@ -21,16 +21,7 @@ library(readxl)
 library(tidyverse)
 library(dplyr)
 library(writexl)
-
-#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# Load data ----
-#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-endfassung <- "raw_data/Endfassung.xlsx"
-
-raw_data <- read_excel(endfassung,
-                       sheet = "Worksheet")
-
+library(uuid)
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # Define color and oa-status variables ----
@@ -40,138 +31,242 @@ oa_status_colors <- c("gold", "hybrid", "green", "bronze", "closed", "no result"
 color <- c("#F4C244", "#A0CBDA", "#4FAC5B", "#D85DBF", "#2C405E", "#5F7036")
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# Clean data, create some new variables ----
+# Load sources ----
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-data_clean <- raw_data %>%
-  clean_names() %>%
-  mutate(doi = tolower(doi),
-         oa_status = tolower(oa_status)) %>% # Convert dois and oa_status to lower case
-  distinct(doi, .keep_all = TRUE) %>%
-  mutate(oa_status = str_replace(oa_status, "kein ergebnis", "no result")) %>%
-  mutate(oa_status = replace_na(oa_status, "no result")) %>%
-  mutate(oa_status = factor(oa_status, levels = oa_status_colors)) %>%
-  mutate(is_oa = if_else(oa_status %in% c("gold", "hybrid", "green"), TRUE, FALSE), .after = "oa_status") %>%
-  mutate(corresponding_author_cha = if_else(row_number() %in% c(1:6292), TRUE, FALSE), .after = "is_oa") %>%   # FIXME: row numbers
-  select(!c(datenbank, autor_en))
-
+source("prep_unpaywall.R", encoding = 'UTF-8')
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# Load data for 2016 and 2017 ----
+# Data 2016 and 2017 ----
+## Load data for 2016 and 2017 ----
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-data_2016_2017 <- "raw_data/2016-2018_merge charite_publikationen_article_review_wos_embase_corr_bih.xlsx"
+data_2016_2017_file <- "raw_data/2016-2018_merge charite_publikationen_article_review_wos_embase_corr_bih.xlsx"
 
-total_2016 <- read_excel(data_2016_2017,
-                         sheet = "merge_wos_embase_2016")
+total_2016_raw <- read_excel(data_2016_2017_file,
+                             sheet = "merge_wos_embase_2016")
 
-corr_2016 <- read_excel(data_2016_2017,
-                        sheet = "merge_wos_embase_2016_corresp.")
+corr_2016_raw <- read_excel(data_2016_2017_file,
+                            sheet = "merge_wos_embase_2016_corresp.")
 
-total_2017 <- read_excel(data_2016_2017,
-                         sheet = "merge_wos_embase_2017")
+total_2017_raw <- read_excel(data_2016_2017_file,
+                             sheet = "merge_wos_embase_2017")
 
-corr_2017 <- read_excel(data_2016_2017,
-                        sheet = "merge_wos_embase_2017_corresp.")
+corr_2017_raw <- read_excel(data_2016_2017_file,
+                            sheet = "merge_wos_embase_2017_corresp.")
 
-total_2016_2017 <- rbind(total_2016, total_2017)
+total_2016_2017_raw <- rbind(total_2016_raw, total_2017_raw)
 
-corr_2016_2017 <- rbind(corr_2016, corr_2017)
+corr_2016_2017_raw <- rbind(corr_2016_raw, corr_2017_raw)
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # Clean 2016 and 2017 data, create some new variables ----
+# Articles without doi will be deduplicated with PMID and WOS Number
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-total_2016_2017_clean <- total_2016_2017 %>%
+# create Charité corresponding author column
+total_2016_2017 <- total_2016_2017_raw %>%
   clean_names() %>%
-  mutate(doi = tolower(doi)) %>% # Convert dois to lower case
-  distinct(doi, .keep_all = TRUE) %>%
   mutate(corresponding_author_cha = FALSE)
 
-corr_2016_2017_clean <- corr_2016_2017 %>%
+corr_2016_2017 <- corr_2016_2017_raw %>%
   clean_names() %>%
-  mutate(doi = tolower(doi)) %>% # Convert dois to lower case
-  distinct(doi, .keep_all = TRUE) %>%
   mutate(corresponding_author_cha = TRUE)
 
-# combine data for corresponding and contributing authors
-data_2016_2017_clean <- rbind(corr_2016_2017_clean, total_2016_2017_clean)
+# combine data for corresponding and contributing authors and remove duplicate entries (introduced by xlsx sheets)
+data_2016_2017_raw <- rbind(corr_2016_2017, total_2016_2017) %>%
+  distinct(across(-corresponding_author_cha), .keep_all = TRUE) %>%
+  mutate(datenbank = case_when(str_detect(identifier, "WOS:") ~ "WOS",
+                               str_detect(identifier, "Embase") ~ "Embase")) %>%
+  filter(datenbank != 0) # only keep entries from those databases
 
-# deduplicate dois (corresponding authors before contributing authors)
-data_2016_2017 <- data_2016_2017_clean %>%
-  group_by(doi) %>%
-  slice(1) %>%
-  filter(doi != 0) %>%
-  rename(jahr = publ_year, zeitschrift = source) %>%
-  ungroup()
+# deduplicate dois, keep all articles without doi
+data_2016_2017_doi_dedup <- data_2016_2017_raw %>%
+  mutate(doi = tolower(doi)) %>%
+  mutate(doi_existent = (doi != 0), .after = "doi") %>% # add column stating existence of doi
+  mutate(doi = if_else(!doi_existent,
+                       paste0("noDOI!!", replicate(n(), UUIDgenerate(n=1L, output = "string"))), doi)) %>% # Assign ids to articles without DOI
+  distinct(doi, .keep_all = TRUE) # Remove duplicate dois. Articles without DOI not deduplicated here.
+
+# deduplicate articles without doi using the PMID (found within all articles with or without doi)
+data_2016_2017_noDOI_pmid_no_dup <- data_2016_2017_doi_dedup %>%
+  filter(!doi_existent & pmid != 0) %>%
+  distinct(pmid, .keep_all = TRUE) %>%
+  filter(!pmid %in% (data_2016_2017_doi_dedup %>% filter(doi_existent) %>% pull(pmid)))
+
+# re-combine articles with dois with the deduplicated articles without doi
+data_2016_2017_no_pmid_dups <- data_2016_2017_doi_dedup %>%
+  filter(!(!doi_existent & pmid != 0)) %>% # inverted condition of data_2016_2017_noDOI_pmid_no_dup
+  rbind(data_2016_2017_noDOI_pmid_no_dup)
+
+# remove articles with duplicate WOS Accession Number
+data_2016_2017_no_dups <- data_2016_2017_no_pmid_dups %>%
+  filter(datenbank == "WOS") %>%
+  distinct(identifier, .keep_all = TRUE) %>%
+  rbind(data_2016_2017_no_pmid_dups %>% filter(datenbank != "WOS"))
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# Add oa status from unpaywall to data and clean column names ----
+## Add oa status from Unpaywall to data and clean column names ----
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-load("data/data_unpaywall.Rda")
+load("data/data_unpaywall.Rda") # Unpaywall data 2018-2020
 
 data_unpaywall_2016_2017 <- data_unpaywall %>%
   distinct(doi, .keep_all = TRUE) %>%
   select(doi, oa_status)
 
-data_2016_2017_oa <- left_join(data_2016_2017, data_unpaywall_2016_2017, by = "doi") %>%
+data_2016_2017 <- left_join(data_2016_2017_no_dups, data_unpaywall_2016_2017, by = "doi") %>%
   mutate(oa_status = replace_na(oa_status, "no result")) %>%
   mutate(oa_status = factor(oa_status, levels = oa_status_colors)) %>%
   mutate(is_oa = if_else(oa_status %in% c("gold", "hybrid", "green"), TRUE, FALSE), .after = "oa_status") %>%
+  mutate(corresponding_author = NA,     # add columns for rbind with other years
+         accession_number_embase = NA,
+         accession_number_wos = NA) %>%
+  arrange(desc(doi_existent)) %>%
   select(doi,
+         doi_existent,
+         accession_number_embase,
+         accession_number_wos,
          titel,
-         zeitschrift,
-         corresponding_author = corresp_author,
+         zeitschrift = source,
+         corresponding_author,
          issn,
          e_issn,
-         jahr,
-         pub_med_id = pmid,
-         verlag = publisher,
+         jahr = publ_year,
+         pmid,
+         publisher,
          author_address = aut_affil,
          document_type = doc_type,
          e_mail_address = email_corr_author,
          open_access_indicator = oa,
-         reprint_address_gelb_sind_korrespondenzautoren_der_charite = corresp_author,
+         reprint_address = corresp_author,
+         corresponding_author_cha,
          oa_status,
-         is_oa,
-         corresponding_author_cha)
+         is_oa)
+
+
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# Data 2018–2020 ----
+## Load data for 2018–2020 ----
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+data_2018_2020_file <- "raw_data/2018-2020.xlsx"
+
+data_2018_2020_raw <- read_excel(data_2018_2020_file,
+                       sheet = "Worksheet",
+                       guess_max = 20000) # extend to get correct column type also for accession number cols
+
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+## Clean data, create some new variables ----
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+data_2018_2020_clean <- data_2018_2020_raw %>%
+  clean_names() %>%
+  mutate(oa_status = tolower(oa_status)) %>%
+  mutate(oa_status = str_replace(oa_status, "kein ergebnis", "no result")) %>%
+  mutate(oa_status = replace_na(oa_status, "no result")) %>%
+  mutate(oa_status = factor(oa_status, levels = oa_status_colors)) %>%
+  mutate(is_oa = if_else(oa_status %in% c("gold", "hybrid", "green"), TRUE, FALSE), .after = "oa_status") %>%
+  rename(reprint_address = reprint_address_gelb_sind_korrespondenzautoren_der_charite,
+         pmid = pub_med_id,
+         accession_number_wos = accession_number_wo_s) %>%
+  select(!autor_en)
+
+# deduplicate dois (prefer WoS entries), keep all articles without doi
+data_2018_2020_doi_dedup <- data_2018_2020_clean %>%
+  mutate(doi = tolower(doi)) %>%
+  mutate(doi_existent = !str_detect(doi, "keine doi"), .after = "doi") %>% # new column stating existence of doi
+  mutate(doi = if_else(!doi_existent,
+                       paste0("noDOI!!", replicate(n(), UUIDgenerate(n=1L, output = "string"))), doi)) %>% # Assign ids to articles without DOI
+  arrange(desc(doi_existent), desc(datenbank)) %>% # sort by database in descending order, so that WoS entries are first
+  distinct(doi, .keep_all = TRUE) # Remove duplicate dois. Articles without DOI not deduplicated here.
+
+# deduplicate articles without (!) doi using the PMID (found within all articles with or without doi)
+data_2018_2020_noDOI_pmid_no_dup <- data_2018_2020_doi_dedup %>%
+  filter(!doi_existent & !is.na(pmid)) %>%
+  distinct(pmid, .keep_all = TRUE) %>%
+  filter(!pmid %in% (data_2018_2020_doi_dedup %>% filter(doi_existent) %>% pull(pmid)))
+
+# re-combine articles with dois with the deduplicated articles without doi
+data_2018_2020_no_pmid_dups <- data_2018_2020_doi_dedup %>%
+  filter(!(!doi_existent & !is.na(pmid))) %>%  # inverted condition of data_2018_2020_noDOI_pmid_no_dup
+  rbind(data_2018_2020_noDOI_pmid_no_dup)
+
+# remove articles with duplicate WOS Accession Number
+data_2018_2020_no_wos_dups <- data_2018_2020_no_pmid_dups %>%
+  arrange(desc(doi_existent)) %>% # sort by doi_existent to prefer article entries with doi
+  filter(!is.na(accession_number_wos)) %>%
+  distinct(accession_number_wos, .keep_all = TRUE) %>%
+  rbind(data_2018_2020_no_pmid_dups %>% filter(is.na(accession_number_wos)))
+
+# remove articles with duplicate EMBASE Accession Number
+data_2018_2020_no_dups <- data_2018_2020_no_wos_dups %>%
+  arrange(desc(doi_existent)) %>% # sort by doi_existent to prefer article entries with doi
+  filter(!is.na(accession_number_embase)) %>%
+  distinct(accession_number_embase, .keep_all = TRUE) %>%
+  rbind(data_2018_2020_no_wos_dups %>% filter(is.na(accession_number_embase)))
+
+data_2018_2020 <- data_2018_2020_no_dups %>%
+  arrange(desc(doi_existent)) %>%
+  select(doi,
+         doi_existent,
+         accession_number_embase,
+         accession_number_wos,
+         titel,
+         zeitschrift,
+         corresponding_author,
+         issn,
+         e_issn,
+         jahr,
+         pmid,
+         publisher = verlag,
+         author_address,
+         document_type,
+         e_mail_address,
+         open_access_indicator,
+         reprint_address,
+         corresponding_author_cha,
+         oa_status,
+         is_oa)
+
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # Combine dataframes of 2016-2017 data and 2018-2020 data with rbind ----
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-data <- rbind(data_2016_2017_oa, data_clean)
+data_2016_2020 <- rbind(data_2016_2017, data_2018_2020) %>%
+  distinct(doi, .keep_all = TRUE)
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # New manipulation 2021-12-01; change oa_status to green for bronze articles
 # with repository copy, delete 71 false datasets ----                           # FIXME: update or remove number of false datasets (71 before the 2021 articles)
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-data_unpaywall_oa_status <- data_unpaywall %>%
+data_unpaywall_oa_status <- data_unpaywall %>%  # Unpaywall data 2018-2020
   distinct(doi, .keep_all = TRUE) %>%
   select(doi, oa_status, has_repository_copy) %>%                               # TODO: could line be removed as unnecessary? will be selected later anyway
   mutate(oa_status_new = case_when(oa_status == "bronze" & has_repository_copy == TRUE ~ "green",
-                                   TRUE ~ oa_status)) %>%
+                                   TRUE ~ oa_status)) %>%     # TODO: warum case_when und nicht: if_else(oa_status == "bronze" & has_repository_copy == TRUE, "green", oa_status)
   select(doi, oa_status_new)
 
 # Control test (column oa_status in data_unpaywall_oa_status needed)
 # test <- data_unpaywall_oa_status %>%
 #   filter(oa_status != oa_status_new)
 
-data <- data %>% left_join(data_unpaywall_oa_status, by = "doi") %>%
+
+data_2016_2020 <- data_2016_2020 %>% left_join(data_unpaywall_oa_status, by = "doi") %>%
   select(!oa_status) %>%
   rename(oa_status = oa_status_new) %>%
   mutate(oa_status = replace_na(oa_status, "no result")) %>%
   mutate(oa_status = factor(oa_status, levels = oa_status_colors)) %>%
   mutate(is_oa = case_when(oa_status == "green" ~ TRUE,
-                           TRUE ~ is_oa))
+                           TRUE ~ is_oa))     # TODO: warum nicht: if_else(oa_status == "green", TRUE, is_oa)
 
 # Control test
 # test <- data %>%
 #   filter(is_oa == FALSE & oa_status == "green")
 
-wrong_dois_input <- "raw_data/falsche_dois_wos_2016_2020.xls"
+wrong_dois_input <- "raw_data/falsche_dois_wos_2016_2020.xls" # articles without Charité affiliation (incorrect assignment in WoS data)
 
 wrong_dois <- read_excel(wrong_dois_input) %>%
   clean_names() %>%
@@ -179,10 +274,114 @@ wrong_dois <- read_excel(wrong_dois_input) %>%
   mutate(doi = str_to_lower(doi)) %>%
   pull(doi)
 
-data <- data %>%
+data_2016_2020 <- data_2016_2020 %>%
   filter(!doi %in% wrong_dois)
 
 # write_xlsx(data, "data/publications_charite_2016-2020.xlsx")
+
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# Data 2021 ----
+## Load 2021 data (containing Unpaywall data, retrieved September 2022 ----
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+publications_charite_2016_2021_final <- "raw_data/publications_charite_2016-2021_final.xlsx"
+
+data_2021_raw <- read_excel(publications_charite_2016_2021_final,
+                            sheet = "2021")
+
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+## Clean and enrich 2021 data ----
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+data_2021_clean <- data_2021_raw %>%
+  clean_names() %>%
+  mutate(oa_status = tolower(oa_status)) %>%
+  mutate(oa_status = replace_na(oa_status, "no result")) %>%
+  mutate(oa_status = factor(oa_status, levels = oa_status_colors)) %>%
+  mutate(is_oa = if_else(oa_status %in% c("gold", "hybrid", "green"), TRUE, FALSE), .after = "oa_status") %>%
+  rename(pmid = pub_med_id,
+         reprint_address = reprint_address_gelb_sind_korrespondenzautoren_der_charite) %>%
+  mutate(accession_number_embase = NA, # add columns for rbind with other years
+         accession_number_wos = NA)
+
+# deduplicate dois, keep all articles without doi
+data_2021_doi_dedup <- data_2021_clean %>%
+  mutate(doi = tolower(doi)) %>%
+  mutate(doi_existent = (doi != "keine doi")) %>% # new column stating existence of doi
+  mutate(doi = if_else(!doi_existent,
+                       paste0("noDOI!!", replicate(n(), UUIDgenerate(n=1L, output = "string"))), doi)) %>% # Assign ids to articles without DOI
+  distinct(doi, .keep_all = TRUE)
+
+# deduplicate articles without (!) doi using the PMID (found within all articles with or without doi)
+data_2021_noDOI_pmid_no_dup <- data_2021_doi_dedup %>%
+  filter(!doi_existent & !is.na(pmid)) %>%
+  distinct(pmid, .keep_all = TRUE) %>%
+  filter(!pmid %in% (data_2021_doi_dedup %>% filter(doi_existent) %>% pull(pmid)))
+
+# re-combine articles with dois with the deduplicated articles without doi
+data_2021_no_pmid_dups <- data_2021_doi_dedup %>%
+  filter(!(!doi_existent & !is.na(pmid))) %>%  # inverted condition of data_2018_2020_noDOI_pmid_no_dup
+  rbind(data_2021_noDOI_pmid_no_dup)
+
+data_2021 <- data_2021_no_pmid_dups %>%
+  arrange(desc(doi_existent)) %>%
+  select(doi,
+         doi_existent,
+         accession_number_embase,
+         accession_number_wos,
+         titel,
+         zeitschrift,
+         corresponding_author,
+         issn,
+         e_issn,
+         jahr,
+         pmid,
+         publisher = verlag,
+         author_address,
+         document_type,
+         e_mail_address,
+         open_access_indicator,
+         reprint_address,
+         corresponding_author_cha,
+         oa_status,
+         is_oa)
+
+#TODO: deduplicate for wos and embase accession number; data currently not included in 2021 raw data
+
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# Add 2021 data to existing data with rbind ----
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+data_2016_2021 <- rbind(data_2016_2020, data_2021)
+
+
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# All years combined ----
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+## Deduplicate dois: prefer data from previous years over newer data ----
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+# Test: finding duplicate dois
+# test <- data %>%
+#   group_by(doi) %>%
+#   summarise(n = n()) %>%
+#   filter(n>1) %>%
+#   select(doi)
+
+data_clean <- data_2016_2021 %>%
+  filter(jahr != 0) %>%
+  distinct(doi, .keep_all = TRUE)
+# FIXME: deduplicate also for other identifiers
+
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+## Add additional Unpaywall data ----
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+data <- data_clean %>%
+  left_join(unpaywall_2016_2021_slim, by = "doi") %>%
+  mutate(license = replace_na(license, "no license found"))
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # Exploratory data analysis ----
@@ -200,13 +399,14 @@ data %>%
   ggplot(aes(x = jahr, fill = oa_status)) +
   geom_bar()
 
-data_sum <- data %>%
+summary_data_2017_2021 <- data %>%
+  filter(jahr %in% c(2017, 2018, 2019, 2020, 2021)) %>%
   group_by(jahr, oa_status) %>%
   summarise(value = n()) %>%
   mutate(percent = round(value / sum(value) * 100, 1))
 
 status_absolute <-
-  hchart(data_sum,
+  hchart(summary_data_2017_2021,
          "column",
          hcaes(x = jahr, y = value, group = oa_status)) %>%
   hc_plotOptions(series = list(stacking = "normal")) %>%
@@ -219,7 +419,7 @@ status_absolute <-
   )
 
 status_absolute_spline <-
-  data_sum %>%
+  summary_data_2017_2021 %>%
   mutate(jahr = factor(jahr)) %>%
   hchart("spline",
          hcaes(x = jahr, y = value, group = oa_status)) %>%
@@ -240,7 +440,7 @@ status_absolute_spline <-
 # %>% hc_subtitle(text = text, align = "left", style = list(fontSize = "12px"))
 
 status_percent <-
-  hchart(data_sum,
+  hchart(summary_data_2017_2021,
          "column",
          hcaes(x = jahr, y = percent, group = oa_status)) %>%
   hc_plotOptions(series = list(stacking = "normal")) %>%
@@ -262,15 +462,16 @@ status_percent <-
 # Visualizations of year and oa_status corresponding authors ----
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-data_corresponding_sum <- data %>%
+summary_corresponding_2017_2021 <- data %>%
   filter(corresponding_author_cha == TRUE) %>%
+  filter(jahr %in% c(2017, 2018, 2019, 2020, 2021)) %>%
   group_by(jahr, oa_status) %>%
   summarise(value = n()) %>%
   mutate(percent = round(value / sum(value) * 100, 1))
 
 status_corresponding_absolute <-
   hchart(
-    data_corresponding_sum,
+    summary_corresponding_2017_2021,
     "column",
     hcaes(x = jahr, y = value, group = oa_status)
   ) %>%
@@ -284,7 +485,7 @@ status_corresponding_absolute <-
   )
 
 status_corresponding_absolute_spline <-
-  data_corresponding_sum %>%
+  summary_corresponding_2017_2021 %>%
   mutate(jahr = factor(jahr)) %>%
   hchart("spline",
          hcaes(x = jahr, y = value, group = oa_status)) %>%
@@ -299,7 +500,7 @@ status_corresponding_absolute_spline <-
 
 status_corresponding_percent <-
   hchart(
-    data_corresponding_sum,
+    summary_corresponding_2017_2021,
     "column",
     hcaes(x = jahr, y = percent, group = oa_status)
   ) %>%
@@ -320,7 +521,11 @@ status_corresponding_percent <-
 # Visualizations of journals and oa_status ----
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-journal_data <- data %>%
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+## 2020 ----
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+summary_journal_2020 <- data %>%
   filter(jahr == 2020) %>%
   group_by(zeitschrift, oa_status) %>%
   summarise(value = n(), .groups = "drop_last") %>%
@@ -329,14 +534,14 @@ journal_data <- data %>%
   filter(value_zs >= 5) %>%
   mutate(zeitschrift = forcats::fct_reorder(zeitschrift, -value_zs))
 
-journal_data_2 <- journal_data %>%
+summary_journal_2020_2 <- summary_journal_2020 %>%
   group_by(zeitschrift) %>%
   spread(oa_status, value, fill = 0) %>%
   gather(oa_status, value, 3:8) %>%
   mutate(oa_status = factor(oa_status, levels = oa_status_colors)) %>%
   mutate(percent = round(value / sum(value) * 100, 1))
 
-journal_absolute <- journal_data_2 %>%
+journal_2020_absolute <- summary_journal_2020_2 %>%
   hchart("bar", hcaes(x = zeitschrift, y = value, group = oa_status)) %>%
   hc_plotOptions(series = list(stacking = "normal")) %>%
   hc_colors(color) %>%
@@ -350,11 +555,11 @@ journal_absolute <- journal_data_2 %>%
   hc_tooltip(pointFormat = "<b>{point.oa_status}</b><br>{point.value} articles ({point.percent} %)<br>{point.value_zs} total articles") %>%
   hc_exporting(
     enabled = TRUE, # always enabled
-    filename = "journal_absolute",
+    filename = "journal_2020_absolute",
     buttons = list(contextButton = list(menuItems = c('downloadJPEG', 'separator', 'downloadCSV')))
   )
 
-journal_percent <- journal_data_2 %>%
+journal_2020_percent <- summary_journal_2020_2 %>%
   hchart("bar", hcaes(x = zeitschrift, y = percent, group = oa_status)) %>%
   hc_plotOptions(series = list(stacking = "normal")) %>%
   hc_colors(color) %>%
@@ -367,25 +572,81 @@ journal_percent <- journal_data_2 %>%
   hc_tooltip(pointFormat = "<b>{point.oa_status}</b><br>{point.value} articles ({point.percent} %)<br>{point.value_zs} total articles") %>%
   hc_exporting(
     enabled = TRUE, # always enabled
-    filename = "journal_percent",
+    filename = "journal_2020_percent",
     buttons = list(contextButton = list(menuItems = c('downloadJPEG', 'separator', 'downloadCSV')))
   )
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# Visualizations of publishers and oa_status ----
+## 2021 ----
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-load("data/data_unpaywall.Rda") # get publisher names from unpaywall dataset
+summary_journal_2021 <- data %>%
+  filter(jahr == 2021) %>%
+  group_by(zeitschrift, oa_status) %>%
+  summarise(value = n(), .groups = "drop_last") %>%
+  mutate(value_zs = sum(value)) %>%
+  ungroup() %>%
+  filter(value_zs >= 5) %>%
+  mutate(zeitschrift = forcats::fct_reorder(zeitschrift, -value_zs))
 
-data_publisher <- data_unpaywall %>%
-  select(doi, publisher)
+summary_journal_2021_2 <- summary_journal_2021 %>%
+  group_by(zeitschrift) %>%
+  spread(oa_status, value, fill = 0) %>%
+  gather(oa_status, value, 3:8) %>%
+  mutate(oa_status = factor(oa_status, levels = oa_status_colors)) %>%
+  mutate(percent = round(value / sum(value) * 100, 1))
 
-data_publisher_join <- data %>%
+journal_2021_absolute <- summary_journal_2021_2 %>%
+  hchart("bar", hcaes(x = zeitschrift, y = value, group = oa_status)) %>%
+  hc_plotOptions(series = list(stacking = "normal")) %>%
+  hc_colors(color) %>%
+  hc_xAxis(min = 0,
+           max = 15,
+           scrollbar = list(enabled = TRUE)) %>%
+  hc_size(height = 500) %>%
+  hc_xAxis(title = list(text = "Journal")) %>%
+  hc_yAxis(title = list(text = "Number"),
+           reversedStacks = FALSE) %>%
+  hc_tooltip(pointFormat = "<b>{point.oa_status}</b><br>{point.value} articles ({point.percent} %)<br>{point.value_zs} total articles") %>%
+  hc_exporting(
+    enabled = TRUE, # always enabled
+    filename = "journal_2021_absolute",
+    buttons = list(contextButton = list(menuItems = c('downloadJPEG', 'separator', 'downloadCSV')))
+  )
+
+journal_2021_percent <- summary_journal_2021_2 %>%
+  hchart("bar", hcaes(x = zeitschrift, y = percent, group = oa_status)) %>%
+  hc_plotOptions(series = list(stacking = "normal")) %>%
+  hc_colors(color) %>%
+  hc_xAxis(min = 0,
+           max = 15,
+           scrollbar = list(enabled = TRUE)) %>%
+  hc_yAxis(labels = list(format = '{value} %'),
+           max = 100, reversedStacks = FALSE) %>%
+  hc_size(height = 500) %>%
+  hc_tooltip(pointFormat = "<b>{point.oa_status}</b><br>{point.value} articles ({point.percent} %)<br>{point.value_zs} total articles") %>%
+  hc_exporting(
+    enabled = TRUE, # always enabled
+    filename = "journal_2021_percent",
+    buttons = list(contextButton = list(menuItems = c('downloadJPEG', 'separator', 'downloadCSV')))
+  )
+
+
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# Visualizations of publishers (from Unpaywall) and oa_status ----
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+## 2020 ----
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+data_publisher_2020 <- data %>%
   filter(jahr == 2020) %>%
-  select(doi, oa_status) %>%
-  left_join(data_publisher, by = "doi")
+  select(doi,
+         oa_status,
+         publisher = unpw_publisher)
 
-data_publisher_join_sum <- data_publisher_join %>%
+summary_publisher_2020 <- data_publisher_2020 %>%
   group_by(publisher, oa_status) %>%
   summarise(value = n(), .groups = "drop_last") %>%
   mutate(value_pub = sum(value)) %>%
@@ -393,7 +654,7 @@ data_publisher_join_sum <- data_publisher_join %>%
  # filter(value_pub >= 5) %>%
   mutate(publisher = forcats::fct_reorder(publisher, -value_pub))
 
-data_publisher_join_sum_2 <- data_publisher_join_sum %>%
+summary_publisher_2020_2 <- summary_publisher_2020 %>%
   group_by(publisher) %>%
   spread(oa_status, value, fill = 0) %>%
   gather(oa_status, value, 3:8) %>%
@@ -402,12 +663,12 @@ data_publisher_join_sum_2 <- data_publisher_join_sum %>%
   filter(value_pub >= 3) %>%
   drop_na()
 
-data_publisher_table <- data_publisher_join_sum_2 %>%
+table_publishers_2020 <- summary_publisher_2020_2 %>%
   select(-value_pub, -percent) %>%
   pivot_wider(names_from = oa_status, values_from = value) %>%
   select(-`no result`)
 
-publisher_absolute <- data_publisher_join_sum_2 %>%
+publisher_2020_absolute <- summary_publisher_2020_2 %>%
   hchart("bar", hcaes(x = publisher, y = value, group = oa_status)) %>%
   hc_plotOptions(series = list(stacking = "normal")) %>%
   hc_colors(color) %>%
@@ -421,13 +682,13 @@ publisher_absolute <- data_publisher_join_sum_2 %>%
   hc_tooltip(pointFormat = "<b>{point.oa_status}</b><br>{point.value} articles ({point.percent} %)<br>{point.value_pub} total articles") %>%
   hc_exporting(
     enabled = TRUE, # always enabled
-    filename = "publisher_absolute",
+    filename = "publisher_2020_absolute",
     buttons = list(contextButton = list(menuItems = c('downloadJPEG', 'separator', 'downloadCSV')))
   )
 
 pal <- got(4, direction = 1, option = "Jon_Snow")
 
-publisher_donut <- data_publisher_join %>%
+publisher_donut <- data_publisher_2020 %>%
   group_by(publisher) %>%
   summarise(value = n()) %>%
   mutate(publisher_2 = if_else(value <= 500, "other Publishers", publisher)) %>%
@@ -444,6 +705,56 @@ publisher_donut <- data_publisher_join %>%
   hc_exporting(
     enabled = TRUE, # always enabled
     filename = "publisher_donut",
+    buttons = list(contextButton = list(menuItems = c('downloadJPEG', 'separator', 'downloadCSV')))
+  )
+
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+## 2021 ----
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+data_publisher_2021 <- data %>%
+  filter(jahr == 2021) %>%
+  select(doi,
+         oa_status,
+         publisher = unpw_publisher)
+
+summary_publisher_2021 <- data_publisher_2021 %>%
+  group_by(publisher, oa_status) %>%
+  summarise(value = n(), .groups = "drop_last") %>%
+  mutate(value_pub = sum(value)) %>%
+  ungroup() %>%
+  # filter(value_pub >= 5) %>%
+  mutate(publisher = forcats::fct_reorder(publisher, -value_pub))
+
+summary_publisher_2021_2 <- summary_publisher_2021 %>%
+  group_by(publisher) %>%
+  spread(oa_status, value, fill = 0) %>%
+  gather(oa_status, value, 3:8) %>%
+  mutate(oa_status = factor(oa_status, levels = oa_status_colors)) %>%
+  mutate(percent = round(value / sum(value) * 100, 1)) %>%
+  filter(value_pub >= 3) %>%
+  drop_na()
+
+table_publishers_2021 <- summary_publisher_2021_2 %>%
+  select(-value_pub, -percent) %>%
+  pivot_wider(names_from = oa_status, values_from = value) %>%
+  select(-`no result`)
+
+publisher_2021_absolute <- summary_publisher_2021_2 %>%
+  hchart("bar", hcaes(x = publisher, y = value, group = oa_status)) %>%
+  hc_plotOptions(series = list(stacking = "normal")) %>%
+  hc_colors(color) %>%
+  hc_xAxis(min = 0,
+           max = 15,
+           scrollbar = list(enabled = TRUE)) %>%
+  hc_size(height = 500) %>%
+  hc_xAxis(title = list(text = "Publisher")) %>%
+  hc_yAxis(title = list(text = "Number"),
+           reversedStacks = FALSE) %>%
+  hc_tooltip(pointFormat = "<b>{point.oa_status}</b><br>{point.value} articles ({point.percent} %)<br>{point.value_pub} total articles") %>%
+  hc_exporting(
+    enabled = TRUE, # always enabled
+    filename = "publisher_2021_absolute",
     buttons = list(contextButton = list(menuItems = c('downloadJPEG', 'separator', 'downloadCSV')))
   )
 
