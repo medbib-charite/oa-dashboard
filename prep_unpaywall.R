@@ -9,8 +9,8 @@ library(dplyr)
 library(janitor)
 library(jsonlite)
 
-# License levels
-license_levels = c("cc-by", "cc-by-nc", "cc-by-sa", "cc-by-nc-sa", "cc-by-nd", "cc-by-nc-nd", "other license", "no license found")
+# License levels, ordered from most to least permissive, see https://creativecommons.org/about/cclicenses/
+license_levels = c("cc-by", "cc-by-sa", "cc-by-nc", "cc-by-nc-sa", "cc-by-nd", "cc-by-nc-nd", "other license", "no license found")
 
 
 # 2016-2020: Load and clean Unpaywall data, retrieved in 2021 ----
@@ -31,7 +31,7 @@ unpaywall_2016_2020_distinct_best_license <- unpaywall_2016_2020_unnested %>%
   mutate(min_license = min(license)) %>%
   mutate(best_license = min_license == license) %>%
   filter(best_license) %>%
-  distinct(doi, .keep_all = TRUE) # NOTE this rather randomly chooses one license. FIXME if other properties from license are important
+  distinct(doi, .keep_all = TRUE) # NOTE this rather randomly chooses for each article one row with best license in disregard of other properties from license. FIXME if others are important
 
 unpaywall_2016_2020_slim <- unpaywall_2016_2020_distinct_best_license %>%
   mutate(origin_unpaywall = "2016_2020") %>%
