@@ -31,6 +31,12 @@ oa_status_colors <- c("gold", "hybrid", "green", "bronze", "closed", "no result"
 color <- c("#F4C244", "#A0CBDA", "#4FAC5B", "#D85DBF", "#2C405E", "#5F7036")
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# Data input sets, ordered from oldest to newest ----
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+input_dataset_levels = c("2016-2017", "2018-2020", "2021")
+
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # Load sources ----
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
@@ -121,7 +127,8 @@ data_2016_2017 <- left_join(data_2016_2017_no_dups, data_unpaywall_2016_2017, by
   mutate(is_oa = if_else(oa_status %in% c("gold", "hybrid", "green"), TRUE, FALSE), .after = "oa_status") %>%
   mutate(corresponding_author = NA,     # add columns for rbind with other years
          accession_number_embase = NA,
-         accession_number_wos = NA) %>%
+         accession_number_wos = NA,
+         origin_dataset = "2016-2017") %>% # new column mainly for hierarchy during later deduplication
   arrange(desc(doi_existent)) %>%
   select(doi,
          doi_existent,
@@ -142,7 +149,8 @@ data_2016_2017 <- left_join(data_2016_2017_no_dups, data_unpaywall_2016_2017, by
          reprint_address = corresp_author,
          corresponding_author_cha,
          oa_status,
-         is_oa)
+         is_oa,
+         origin_dataset)
 
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -194,20 +202,21 @@ data_2018_2020_no_pmid_dups <- data_2018_2020_doi_dedup %>%
 
 # remove articles with duplicate WOS Accession Number
 data_2018_2020_no_wos_dups <- data_2018_2020_no_pmid_dups %>%
-  arrange(desc(doi_existent)) %>% # sort by doi_existent to prefer article entries with doi
+  arrange(desc(doi_existent)) %>% # sort by doi_existent to prefer article entries with doi #FIXME: refactor cause we only want to consider articles without doi for deduplication based on other identifiers
   filter(!is.na(accession_number_wos)) %>%
   distinct(accession_number_wos, .keep_all = TRUE) %>%
   rbind(data_2018_2020_no_pmid_dups %>% filter(is.na(accession_number_wos)))
 
 # remove articles with duplicate EMBASE Accession Number
 data_2018_2020_no_dups <- data_2018_2020_no_wos_dups %>%
-  arrange(desc(doi_existent)) %>% # sort by doi_existent to prefer article entries with doi
+  arrange(desc(doi_existent)) %>% # sort by doi_existent to prefer article entries with doi #FIXME: refactor cause we only want to consider articles without doi for deduplication based on other identifiers
   filter(!is.na(accession_number_embase)) %>%
   distinct(accession_number_embase, .keep_all = TRUE) %>%
   rbind(data_2018_2020_no_wos_dups %>% filter(is.na(accession_number_embase)))
 
 data_2018_2020 <- data_2018_2020_no_dups %>%
   arrange(desc(doi_existent)) %>%
+  mutate(origin_dataset = "2018-2020") %>% # new column mainly for hierarchy during later deduplication
   select(doi,
          doi_existent,
          accession_number_embase,
@@ -227,7 +236,8 @@ data_2018_2020 <- data_2018_2020_no_dups %>%
          reprint_address,
          corresponding_author_cha,
          oa_status,
-         is_oa)
+         is_oa,
+         origin_dataset)
 
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -325,6 +335,7 @@ data_2021_no_pmid_dups <- data_2021_doi_dedup %>%
 
 data_2021 <- data_2021_no_pmid_dups %>%
   arrange(desc(doi_existent)) %>%
+  mutate(origin_dataset = "2021") %>% # new column mainly for hierarchy during later deduplication
   select(doi,
          doi_existent,
          accession_number_embase,
@@ -344,7 +355,8 @@ data_2021 <- data_2021_no_pmid_dups %>%
          reprint_address,
          corresponding_author_cha,
          oa_status,
-         is_oa)
+         is_oa,
+         origin_dataset)
 
 #TODO: deduplicate for wos and embase accession number; data currently not included in 2021 raw data
 
