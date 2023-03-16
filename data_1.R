@@ -372,7 +372,7 @@ data_2016_2021 <- rbind(data_2016_2020, data_2021)
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-## Deduplicate dois: prefer data from previous years over newer data ----
+## Deduplicate: prefer data from previous years over newer data ----
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 # Test: finding duplicate dois
@@ -384,14 +384,57 @@ data_2016_2021 <- rbind(data_2016_2020, data_2021)
 
 data_clean <- data_2016_2021 %>%
   filter(jahr != 0) %>%
+  mutate(pmid = na_if(pmid, 0)) %>%
+  mutate(origin_dataset = factor(origin_dataset, levels = input_dataset_levels, ordered = TRUE)) %>%
+  relocate(pmid, .after = doi_existent) %>%
+  relocate(origin_dataset, .before = titel)
+
+# deduplicate dois
+data_doi_dedup <- data_clean %>%
   distinct(doi, .keep_all = TRUE)
-# FIXME: deduplicate also for other identifiers
+
+# deduplicate articles without doi using the PMID (found within all articles with or without doi)
+data_noDOI_pmid_no_dup <- data_doi_dedup %>%
+  filter(!doi_existent & !is.na(pmid)) %>%
+  arrange(origin_dataset) %>%     # to prefer older records before newer records
+  distinct(pmid, .keep_all = TRUE) %>%
+  filter(!pmid %in% (data_doi_dedup %>% filter(doi_existent) %>% pull(pmid)))
+
+# re-combine articles with dois with the deduplicated articles without doi
+data_no_pmid_dups <- data_doi_dedup %>%
+  filter(!(!doi_existent & !is.na(pmid))) %>% # inverted condition of data_noDOI_pmid_no_dup
+  rbind(data_noDOI_pmid_no_dup)
+
+# deduplicate articles without doi using the WOS Accession Number (found within all articles with or without doi)
+data_noDOI_wos_no_dup <- data_no_pmid_dups %>%
+  filter(!doi_existent & !is.na(accession_number_wos)) %>%
+  arrange(origin_dataset) %>%     # to prefer older records before newer records
+  distinct(accession_number_wos, .keep_all = TRUE) %>%
+  filter(!accession_number_wos %in% (data_no_pmid_dups %>% filter(doi_existent) %>% pull(accession_number_wos)))
+
+# re-combine articles with dois with the deduplicated articles without doi
+data_no_wos_dups <- data_no_pmid_dups %>%
+  filter(!(!doi_existent & !is.na(accession_number_wos))) %>% # inverted condition of data_noDOI_wos_no_dup
+  rbind(data_noDOI_wos_no_dup)
+
+# deduplicate articles without doi using the Embase Accession Number (found within all articles with or without doi)
+data_noDOI_embase_no_dup <- data_no_wos_dups %>%
+  filter(!doi_existent & !is.na(accession_number_embase)) %>%
+  arrange(origin_dataset) %>%     # to prefer older records before newer records
+  distinct(accession_number_embase, .keep_all = TRUE) %>%
+  filter(!accession_number_embase %in% (data_no_wos_dups %>% filter(doi_existent) %>% pull(accession_number_embase)))
+
+# re-combine articles with dois with the deduplicated articles without doi
+data_no_embase_dups <- data_no_wos_dups %>%
+  filter(!(!doi_existent & !is.na(accession_number_embase))) %>% # inverted condition of data_noDOI_embase_no_dup
+  rbind(data_noDOI_embase_no_dup)
+
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ## Add additional Unpaywall data ----
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-data <- data_clean %>%
+data <- data_no_embase_dups %>%
   left_join(unpaywall_2016_2021_slim, by = "doi") %>%
   mutate(license = replace_na(license, "no license found"))
 
