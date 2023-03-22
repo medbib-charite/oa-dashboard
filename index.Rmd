@@ -196,18 +196,18 @@ journal_2021_absolute
 ```
 
 
-<!-- Row {.tabset} -->
-<!-- ----------------------------------------------------------------------- -->
+Row {.tabset}
+-----------------------------------------------------------------------
 
-<!-- ### 2018 - 2020: Centrally funded articles with a Charité corresponding author; costs at top 10 publishers -->
-<!-- ```{r} -->
-<!-- publisher_costs -->
-<!-- ``` -->
+### 2018 - 2021: Centrally funded articles with a Charité corresponding author; costs at top 10 publishers
+```{r}
+publisher_costs
+```
 
-<!-- ### ... and by year -->
-<!-- ```{r} -->
-<!-- publisher_costs_year -->
-<!-- ``` -->
+### ... and by year
+```{r}
+publisher_costs_year
+```
 
 
 Row {.no-title}

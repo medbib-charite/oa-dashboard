@@ -825,7 +825,7 @@ data_costs <- read_excel(oa_costs,
 
 data_costs_long <- data_costs %>%
   select(-total) %>%
-  pivot_longer(cols = c("2018", "2019", "2020"), names_to = "year")
+  pivot_longer(cols = c("2018", "2019", "2020", "2021"), names_to = "year")
 
 # pal <- got(3, direction = 1, option = "Jon_Snow")
  pal <- c("#858688", "#B2C1DD", "#004ecc")
