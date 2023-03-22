@@ -287,14 +287,12 @@ wrong_dois <- read_excel(wrong_dois_input) %>%
 data_2016_2020 <- data_2016_2020 %>%
   filter(!doi %in% wrong_dois)
 
-# write_xlsx(data, "data/publications_charite_2016-2020.xlsx")
-
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # Data 2021 ----
 ## Load 2021 data (containing Unpaywall data, retrieved September 2022 ----
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-publications_charite_2016_2021_final <- "raw_data/publications_charite_2016-2021_final.xlsx"
+publications_charite_2016_2021_final <- "raw_data/2021.xlsx"
 
 data_2021_raw <- read_excel(publications_charite_2016_2021_final,
                             sheet = "2021")
@@ -437,6 +435,35 @@ data_no_embase_dups <- data_no_wos_dups %>%
 data <- data_no_embase_dups %>%
   left_join(unpaywall_2016_2021_slim, by = "doi") %>%
   mutate(license = replace_na(license, "no license found"))
+
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+## Write data to xlsx ----
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+data_for_xlsx <- data %>%
+  mutate(author_address = str_trunc(author_address, 32767, side = "right")) %>% # Truncate author_address to Excel's limit of 32,767 characters
+  select(doi,
+         titel,
+         zeitschrift,
+         corresponding_author,
+         issn,
+         e_issn,
+         jahr,
+         pmid,
+         accession_number_embase,
+         accession_number_wos,
+         publisher,
+         author_address,
+         document_type,
+         e_mail_address,
+         open_access_indicator,
+         reprint_address,
+         is_oa,
+         corresponding_author_cha,
+         oa_status,
+         license)
+
+# write_xlsx(data_for_xlsx, "data/publications_charite_2016-2021.xlsx")
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # Exploratory data analysis ----
