@@ -66,8 +66,8 @@ total_2016_2017_raw <- rbind(total_2016_raw, total_2017_raw)
 corr_2016_2017_raw <- rbind(corr_2016_raw, corr_2017_raw)
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# Clean 2016 and 2017 data, create some new variables ----
-# Articles without doi will be deduplicated with PMID and WOS Number
+## Clean 2016 and 2017 data, create some new variables ----
+## Articles without doi will be deduplicated with PMID and WOS Number
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 # create Charité corresponding author column
@@ -86,7 +86,7 @@ data_2016_2017_raw <- rbind(corr_2016_2017, total_2016_2017) %>%
                                str_detect(identifier, "Embase") ~ "Embase")) %>%
   filter(datenbank != 0) # only keep entries from those databases
 
-# deduplicate dois, keep all articles without doi
+# assign UUID to articles without doi, then deduplicate dois and keep all articles without doi
 data_2016_2017_doi_dedup <- data_2016_2017_raw %>%
   mutate(doi = tolower(doi)) %>%
   mutate(doi_existent = (doi != 0), .after = "doi") %>% # add column stating existence of doi

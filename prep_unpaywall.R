@@ -1,6 +1,6 @@
-#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# Combining Unpaywall data for all years, keeping relevant columns ----
-#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# Clean and combine Unpaywall data for all years, keeping relevant columns ----
+#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 # Load libraries ----
 library(readxl)
@@ -9,90 +9,96 @@ library(dplyr)
 library(janitor)
 library(jsonlite)
 
-# License levels, ordered from most to least permissive, see https://creativecommons.org/about/cclicenses/
+# License levels, ordered from most to least permissive, see https://creativecommons.org/about/cclicenses/ ----
 license_levels = c("cc-by", "cc-by-sa", "cc-by-nc", "cc-by-nc-sa", "cc-by-nd", "cc-by-nc-nd", "other license", "no license found")
 
+#' Unnest `oa_locations` and find best license according to `license_levels` for each doi
+#' #' @returns A data frame.
+find_best_license <- function(df) {
+  # clean licenses
+  unnest_clean <- df %>%
+    unnest(oa_locations, keep_empty = TRUE, names_sep = "_") %>%
+    rename(license = oa_locations_license) %>%
+    mutate(license = case_when(grepl("specific|cc0|implied|pd", license, ignore.case = TRUE) ~ "other license", TRUE ~ license)) %>%
+    mutate(license = replace_na(license, "no license found")) %>%
+    mutate(license = factor(license, levels = license_levels, ordered = TRUE))
+  # Find best license for each doi
+  find_best <- unnest_clean %>%
+    group_by(doi) %>%
+    mutate(min_license = min(license)) %>%
+    mutate(best_license = min_license == license) %>%
+    filter(best_license) %>%
+    distinct(doi, .keep_all = TRUE) # NOTE this rather randomly chooses for each article one row with best license in disregard of other properties from license. FIXME if others are important
+  return(find_best)
+}
+
+#' Slim a cleaned data frame containing Unpaywall data
+#' to the columns needed for further usage.
+#' Also add the column `origin_unpaywall` and correct data types.
+#' @param unpw_df
+#' @param dataset_years A character string to fill in
+#' the `origin_unpaywall` column.
+#' @param keep_oa_status If `TRUE` keeps the fields `is_oa` and `oa_status`,
+#' otherwise drop them..
+#' Default: `TRUE`
+#' @returns A data frame.
+unpaywall_slim <- function(unpw_df, dataset_years, keep_oa_status = TRUE) {
+  unpw_df <- unpw_df %>%
+    mutate(year = as.double(year)) %>%
+    mutate(origin_unpaywall = dataset_years) %>%
+    select(doi,
+           unpw_year = year,
+           unpw_publisher = publisher,
+           journal_is_in_doaj,
+           license,
+           unpw_is_oa = is_oa,
+           unpw_oa_status = oa_status,
+           has_repository_copy,
+           origin_unpaywall)
+  if (!keep_oa_status) {
+    unpw_df <- select(unpw_df, -c(unpw_is_oa, unpw_oa_status))
+  }
+  return(unpw_df)
+}
 
 # 2016-2020: Load and clean Unpaywall data, retrieved in 2021 ----
 load("data/data_unpaywall.Rda")
 unpaywall_2016_2020_raw <- data_unpaywall
 
-unpaywall_2016_2020_unnested <- unpaywall_2016_2020_raw %>%
-  mutate(year = as.double(year)) %>%
-  unnest(oa_locations, keep_empty = TRUE) %>%
-  mutate(license = case_when(grepl("specific|cc0|implied|pd", license, ignore.case = TRUE) ~ "other license",
-                             TRUE ~ license)) %>%
-  mutate(license = replace_na(license, "no license found")) %>%
-  mutate(license = factor(license, levels = license_levels, ordered = TRUE))
-
-# Find best license for each article based on license_levels
-unpaywall_2016_2020_distinct_best_license <- unpaywall_2016_2020_unnested %>%
-  group_by(doi) %>%
-  mutate(min_license = min(license)) %>%
-  mutate(best_license = min_license == license) %>%
-  filter(best_license) %>%
-  distinct(doi, .keep_all = TRUE) # NOTE this rather randomly chooses for each article one row with best license in disregard of other properties from license. FIXME if others are important
-
-unpaywall_2016_2020_slim <- unpaywall_2016_2020_distinct_best_license %>%
-  mutate(origin_unpaywall = "2016_2020") %>%
-  select(doi,
-         unpw_year = year,
-         unpw_publisher = publisher,
-         journal_is_in_doaj,
-         license,
-         # unpw_is_oa = is_oa, # already is in data to join
-         # unpw_oa_status = oa_status,
-         has_repository_copy,
-         origin_unpaywall)
-
+unpaywall_2016_2020_slim <- unpaywall_2016_2020_raw %>%
+  find_best_license() %>%
+  unpaywall_slim("2016_2020", keep_oa_status = F)
 
 # 2021: Load and clean Unpaywall data, retrieved 2022-09-20 ----
 unpaywall_2021_file <- "raw_data/2021_unpaywall_fetched_2022-09-20.xlsx"
 unpaywall_2021_raw <- read_excel(unpaywall_2021_file)
 
-# Remove doi duplicates keeping last entry (this is the newest as there were changed during the API request)
-# https://datacornering.com/remove-duplicates-and-keep-last-in-r/
+## Remove entries without oa_status (i.e. no result in Unpaywall) and
+## remove doi duplicates keeping last entry
+## (this is the newest as there were changes during running the API request)
+## https://datacornering.com/remove-duplicates-and-keep-last-in-r/
 unpaywall_2021_clean <- unpaywall_2021_raw %>%
   clean_names() %>%
-  mutate(year = as.double(year)) %>%
   group_by(doi) %>%
-  filter(row_number() == n())
-
-unpaywall_2021_oalocations <- unpaywall_2021_clean %>%
+  filter(row_number() == n()) %>%
+  filter(!is.na(oa_status)) %>%
+  mutate(has_repository_copy = case_when(has_repository_copy == 0 ~ FALSE, has_repository_copy == 1 ~ TRUE))
+# Clean bad format of 2021 data caused by storing json in Excel file
+unpaywall_2021_oalocations_only <- unpaywall_2021_clean %>%
   select(doi, oa_locations) %>%
   drop_na(oa_locations) %>%
   filter(oa_locations != "[]") %>%
   rowwise() %>%
   mutate(oa_locations = list(fromJSON(oa_locations)))
-
-unpaywall_2021_unnested <- unpaywall_2021_clean %>%
+# Re-join oa_locations to other 2021 data
+unpaywall_2021_prep_for_license_check <- unpaywall_2021_clean %>%
   select(-oa_locations) %>%
-  left_join(unpaywall_2021_oalocations, by = "doi") %>%
-  rename(updated_dataset = updated) %>%
-  unnest(oa_locations, keep_empty = TRUE) %>%
-  mutate(license = case_when(grepl("specific|cc0|implied|pd", license, ignore.case = TRUE) ~ "other license",
-                             TRUE ~ license)) %>%
-  mutate(license = replace_na(license, "no license found")) %>%
-  mutate(license = factor(license, levels = license_levels, ordered = TRUE))
+  rename(updated_resource = updated) %>%
+  left_join(unpaywall_2021_oalocations_only, by = "doi")
 
-unpaywall_2021_distinct_best_license <- unpaywall_2021_unnested %>%
-  group_by(doi) %>%
-  mutate(min_license = min(license)) %>%
-  mutate(best_license = min_license == license) %>%
-  filter(best_license) %>%
-  distinct(doi, .keep_all = TRUE) # NOTE this rather randomly chooses one license. FIXME if other properties from license are important
-
-unpaywall_2021_slim <- unpaywall_2021_distinct_best_license %>%
-  mutate(origin_unpaywall = "2021") %>%
-  select(doi,
-         unpw_year = year,
-         unpw_publisher = publisher,
-         journal_is_in_doaj,
-         license,
-         # unpw_is_oa = is_oa, # already is in data to join
-         # unpw_oa_status = oa_status,
-         has_repository_copy,
-         origin_unpaywall)
+unpaywall_2021_slim <- unpaywall_2021_prep_for_license_check %>%
+  find_best_license() %>%
+  unpaywall_slim("2021", keep_oa_status = F)
 
 # Combine Unpaywall data all years ----
 unpaywall_2016_2021_slim <- rbind(unpaywall_2016_2020_slim, unpaywall_2021_slim) %>%
