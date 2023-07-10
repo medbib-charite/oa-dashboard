@@ -12,8 +12,7 @@ output:
     vertical_layout: scroll
     css: styles.css
 
-# author: Jan Taubitz
-# email: jan.taubitz@charite.de
+# authors: Jan Taubitz, Elena Gandert
 # source_code: https://github.com/medbib-charite/oa-dashboard
 ---
 
@@ -50,8 +49,6 @@ Row
 ## Analysis for gauges
 ##+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-load("data/data_unpaywall.Rda")
-
 summary_is_oa <- data %>%
   group_by(jahr, oa_status, is_oa) %>%
   summarise(count = n()) %>%
@@ -60,16 +57,6 @@ summary_is_oa <- data %>%
   # eliminate rounding differences created by different groupings
   group_by(jahr, is_oa) %>%
   summarise(count = sum(count), perc = sum(perc))
-
-## 2020 - currently UNUSED
-# data_2020 <- data %>%
-#   filter(jahr == 2020)
-# 
-# is_corresponding_2020 <- sort(table(data_2020$corresponding_author_cha), decreasing = TRUE)
-# is_corresponding_2020 <- round(is_corresponding_2020[[2]]/sum(is_corresponding_2020)*100, 1)
-# 
-# is_doaj_2020 <- sort(table(data_2020$journal_is_in_doaj), decreasing = TRUE)
-# is_doaj_2020 <- round(is_doaj_2020[[2]]/sum(is_doaj_2020)*100, 1)
 
 ## 2021
 data_2021 <- data %>%

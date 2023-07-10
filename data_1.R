@@ -34,7 +34,7 @@ color <- c("#F4C244", "#A0CBDA", "#4FAC5B", "#D85DBF", "#2C405E", "#5F7036")
 # Data input sets, ordered from oldest to newest ----
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-input_dataset_levels = c("2016-2017", "2018-2020", "2021")
+input_dataset_levels = c("2016_2017", "2018_2020", "2021")
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # Load sources ----
@@ -86,7 +86,7 @@ data_2016_2017_raw <- rbind(corr_2016_2017, total_2016_2017) %>%
                                str_detect(identifier, "Embase") ~ "Embase")) %>%
   filter(datenbank != 0) # only keep entries from those databases
 
-# assign UUID to articles without doi, then deduplicate dois and keep all articles without doi
+# assign UUID to articles without doi, then deduplicate dois but keep all articles without doi
 data_2016_2017_doi_dedup <- data_2016_2017_raw %>%
   mutate(doi = tolower(doi)) %>%
   mutate(doi_existent = (doi != 0), .after = "doi") %>% # add column stating existence of doi
@@ -112,23 +112,14 @@ data_2016_2017_no_dups <- data_2016_2017_no_pmid_dups %>%
   rbind(data_2016_2017_no_pmid_dups %>% filter(datenbank != "WOS"))
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-## Add oa status from Unpaywall to data and clean column names ----
+## Clean column names ----
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-load("data/data_unpaywall.Rda") # Unpaywall data 2018-2020
-
-data_unpaywall_2016_2017 <- data_unpaywall %>%
-  distinct(doi, .keep_all = TRUE) %>%
-  select(doi, oa_status)
-
-data_2016_2017 <- left_join(data_2016_2017_no_dups, data_unpaywall_2016_2017, by = "doi") %>%
-  mutate(oa_status = replace_na(oa_status, "no result")) %>%
-  mutate(oa_status = factor(oa_status, levels = oa_status_colors)) %>%
-  mutate(is_oa = if_else(oa_status %in% c("gold", "hybrid", "green"), TRUE, FALSE), .after = "oa_status") %>%
+data_2016_2017 <- data_2016_2017_no_dups %>%
   mutate(corresponding_author = NA,     # add columns for rbind with other years
          accession_number_embase = NA,
          accession_number_wos = NA,
-         origin_dataset = "2016-2017") %>% # new column mainly for hierarchy during later deduplication
+         origin_dataset = "2016_2017") %>% # new column mainly for hierarchy during later deduplication and for join with Unpaywall data
   arrange(desc(doi_existent)) %>%
   select(doi,
          doi_existent,
@@ -148,10 +139,7 @@ data_2016_2017 <- left_join(data_2016_2017_no_dups, data_unpaywall_2016_2017, by
          open_access_indicator = oa,
          reprint_address = corresp_author,
          corresponding_author_cha,
-         oa_status,
-         is_oa,
          origin_dataset)
-
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # Data 2018–2020 ----
@@ -170,17 +158,12 @@ data_2018_2020_raw <- read_excel(data_2018_2020_file,
 
 data_2018_2020_clean <- data_2018_2020_raw %>%
   clean_names() %>%
-  mutate(oa_status = tolower(oa_status)) %>%
-  mutate(oa_status = str_replace(oa_status, "kein ergebnis", "no result")) %>%
-  mutate(oa_status = replace_na(oa_status, "no result")) %>%
-  mutate(oa_status = factor(oa_status, levels = oa_status_colors)) %>%
-  mutate(is_oa = if_else(oa_status %in% c("gold", "hybrid", "green"), TRUE, FALSE), .after = "oa_status") %>%
   rename(reprint_address = reprint_address_gelb_sind_korrespondenzautoren_der_charite,
          pmid = pub_med_id,
          accession_number_wos = accession_number_wo_s) %>%
-  select(!autor_en)
+  select(-autor_en, -oa_status)
 
-# deduplicate dois (prefer WoS entries), keep all articles without doi
+# deduplicate dois (prefer WoS entries), but keep all articles without doi
 data_2018_2020_doi_dedup <- data_2018_2020_clean %>%
   mutate(doi = tolower(doi)) %>%
   mutate(doi_existent = !str_detect(doi, "keine doi"), .after = "doi") %>% # new column stating existence of doi
@@ -215,8 +198,8 @@ data_2018_2020_no_dups <- data_2018_2020_no_wos_dups %>%
   rbind(data_2018_2020_no_wos_dups %>% filter(is.na(accession_number_embase)))
 
 data_2018_2020 <- data_2018_2020_no_dups %>%
+  mutate(origin_dataset = "2018_2020") %>% # new column mainly for hierarchy during later deduplication and for join with Unpaywall data
   arrange(desc(doi_existent)) %>%
-  mutate(origin_dataset = "2018-2020") %>% # new column mainly for hierarchy during later deduplication
   select(doi,
          doi_existent,
          accession_number_embase,
@@ -235,46 +218,19 @@ data_2018_2020 <- data_2018_2020_no_dups %>%
          open_access_indicator,
          reprint_address,
          corresponding_author_cha,
-         oa_status,
-         is_oa,
          origin_dataset)
 
-
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# Combine dataframes of 2016-2017 data and 2018-2020 data with rbind ----
+#+ Combine dataframes of 2016-2017 data and 2018-2020 data with rbind ----
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 data_2016_2020 <- rbind(data_2016_2017, data_2018_2020) %>%
   distinct(doi, .keep_all = TRUE)
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# New manipulation 2021-12-01; change oa_status to green for bronze articles
-# with repository copy, delete 71 false datasets ----                           # FIXME: update or remove number of false datasets (71 before the 2021 articles)
+#+ Delete 71 datasets without Charité affiliation ----
+#+ (corrects some WoS assignments)
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-data_unpaywall_oa_status <- data_unpaywall %>%  # Unpaywall data 2018-2020
-  distinct(doi, .keep_all = TRUE) %>%
-  select(doi, oa_status, has_repository_copy) %>%                               # TODO: could line be removed as unnecessary? will be selected later anyway
-  mutate(oa_status_new = case_when(oa_status == "bronze" & has_repository_copy == TRUE ~ "green",
-                                   TRUE ~ oa_status)) %>%     # TODO: warum case_when und nicht: if_else(oa_status == "bronze" & has_repository_copy == TRUE, "green", oa_status)
-  select(doi, oa_status_new)
-
-# Control test (column oa_status in data_unpaywall_oa_status needed)
-# test <- data_unpaywall_oa_status %>%
-#   filter(oa_status != oa_status_new)
-
-
-data_2016_2020 <- data_2016_2020 %>% left_join(data_unpaywall_oa_status, by = "doi") %>%
-  select(!oa_status) %>%
-  rename(oa_status = oa_status_new) %>%
-  mutate(oa_status = replace_na(oa_status, "no result")) %>%
-  mutate(oa_status = factor(oa_status, levels = oa_status_colors)) %>%
-  mutate(is_oa = case_when(oa_status == "green" ~ TRUE,
-                           TRUE ~ is_oa))     # TODO: warum nicht: if_else(oa_status == "green", TRUE, is_oa)
-
-# Control test
-# test <- data %>%
-#   filter(is_oa == FALSE & oa_status == "green")
 
 wrong_dois_input <- "raw_data/falsche_dois_wos_2016_2020.xls" # articles without Charité affiliation (incorrect assignment in WoS data)
 
@@ -288,8 +244,9 @@ data_2016_2020 <- data_2016_2020 %>%
   filter(!doi %in% wrong_dois)
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# Data 2021 ----
-## Load 2021 data (containing Unpaywall data, retrieved September 2022 ----
+#+ Data 2021 ----
+##+ Load 2021 data ----
+##+ (containing Unpaywall data retrieved September 2022)
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 publications_charite_2016_2021_final <- "raw_data/2021.xlsx"
@@ -298,21 +255,17 @@ data_2021_raw <- read_excel(publications_charite_2016_2021_final,
                             sheet = "2021")
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-## Clean and enrich 2021 data ----
+##+ Clean and enrich 2021 data ----
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 data_2021_clean <- data_2021_raw %>%
   clean_names() %>%
-  mutate(oa_status = tolower(oa_status)) %>%
-  mutate(oa_status = replace_na(oa_status, "no result")) %>%
-  mutate(oa_status = factor(oa_status, levels = oa_status_colors)) %>%
-  mutate(is_oa = if_else(oa_status %in% c("gold", "hybrid", "green"), TRUE, FALSE), .after = "oa_status") %>%
   rename(pmid = pub_med_id,
          reprint_address = reprint_address_gelb_sind_korrespondenzautoren_der_charite) %>%
   mutate(accession_number_embase = NA, # add columns for rbind with other years
          accession_number_wos = NA)
 
-# deduplicate dois, keep all articles without doi
+# deduplicate dois, but keep all articles without doi
 data_2021_doi_dedup <- data_2021_clean %>%
   mutate(doi = tolower(doi)) %>%
   mutate(doi_existent = (doi != "keine doi")) %>% # new column stating existence of doi
@@ -352,8 +305,6 @@ data_2021 <- data_2021_no_pmid_dups %>%
          open_access_indicator,
          reprint_address,
          corresponding_author_cha,
-         oa_status,
-         is_oa,
          origin_dataset)
 
 #TODO: deduplicate for wos and embase accession number; data currently not included in 2021 raw data
@@ -363,7 +314,6 @@ data_2021 <- data_2021_no_pmid_dups %>%
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 data_2016_2021 <- rbind(data_2016_2020, data_2021)
-
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # All years combined ----
@@ -429,12 +379,27 @@ data_no_embase_dups <- data_no_wos_dups %>%
 
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-## Add additional Unpaywall data ----
+## Add Unpaywall data ----
+## Also join by origin_unpaywall to use its data of the request date
+## specifically stated for each year's dataset
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 data <- data_no_embase_dups %>%
-  left_join(unpaywall_2016_2021_slim, by = "doi") %>%
-  mutate(license = replace_na(license, "no license found"))
+  mutate(doi = tolower(doi)) %>%
+  mutate(origin_for_unpw_join = case_when(origin_dataset == "2016_2017" ~ "2016_2020",
+                                          origin_dataset == "2018_2020" ~ "2016_2020",
+                                          TRUE ~ as.character(origin_dataset))) %>%
+  left_join(unpaywall_2016_2021_slim, by = c("doi", "origin_for_unpw_join" = "origin_unpaywall")) %>%
+  rename(origin_unpaywall = origin_for_unpw_join) %>%
+  mutate(license = replace_na(license, "no license found")) %>%
+  mutate(oa_status_new = replace_na(oa_status_new, "no result")) %>%
+  mutate(oa_status = oa_status_new) %>%
+  select(-oa_status_new) %>%
+  mutate(oa_status = factor(oa_status, levels = oa_status_colors)) %>%
+  mutate(is_oa_new = replace_na(is_oa_new, FALSE)) %>%
+  mutate(is_oa = is_oa_new) %>%
+  select(-is_oa_new)
+
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ## Write data to xlsx ----

@@ -32,6 +32,18 @@ find_best_license <- function(df) {
   return(find_best)
 }
 
+#' Add `oa_status_new` and `is_oa_new` for the dashboard's
+#' definition of Open Access:
+#' bronze articles with repository copy are given the status "green".
+#' Bronze is not OA.
+unpaywall_set_oa <- function(df) {
+  df_new <- df %>%
+    mutate(oa_status_new = case_when(oa_status == "bronze" & has_repository_copy == TRUE ~ "green",
+                                     TRUE ~ oa_status)) %>%
+    mutate(is_oa_new = if_else(oa_status_new %in% c("gold", "hybrid", "green"), TRUE, FALSE))
+  return(df_new)
+}
+
 #' Slim a cleaned data frame containing Unpaywall data
 #' to the columns needed for further usage.
 #' Also add the column `origin_unpaywall` and correct data types.
@@ -42,7 +54,7 @@ find_best_license <- function(df) {
 #' otherwise drop them..
 #' Default: `TRUE`
 #' @returns A data frame.
-unpaywall_slim <- function(unpw_df, dataset_years, keep_oa_status = TRUE) {
+unpaywall_slim <- function(unpw_df, dataset_years) {
   unpw_df <- unpw_df %>%
     mutate(year = as.double(year)) %>%
     mutate(origin_unpaywall = dataset_years) %>%
@@ -54,10 +66,9 @@ unpaywall_slim <- function(unpw_df, dataset_years, keep_oa_status = TRUE) {
            unpw_is_oa = is_oa,
            unpw_oa_status = oa_status,
            has_repository_copy,
+           is_oa_new,
+           oa_status_new,
            origin_unpaywall)
-  if (!keep_oa_status) {
-    unpw_df <- select(unpw_df, -c(unpw_is_oa, unpw_oa_status))
-  }
   return(unpw_df)
 }
 
@@ -67,7 +78,8 @@ unpaywall_2016_2020_raw <- data_unpaywall
 
 unpaywall_2016_2020_slim <- unpaywall_2016_2020_raw %>%
   find_best_license() %>%
-  unpaywall_slim("2016_2020", keep_oa_status = F)
+  unpaywall_set_oa() %>%
+  unpaywall_slim("2016_2020")
 
 # 2021: Load and clean Unpaywall data, retrieved 2022-09-20 ----
 unpaywall_2021_file <- "raw_data/2021_unpaywall_fetched_2022-09-20.xlsx"
@@ -79,6 +91,7 @@ unpaywall_2021_raw <- read_excel(unpaywall_2021_file)
 ## https://datacornering.com/remove-duplicates-and-keep-last-in-r/
 unpaywall_2021_clean <- unpaywall_2021_raw %>%
   clean_names() %>%
+  mutate(doi = tolower(doi)) %>%
   group_by(doi) %>%
   filter(row_number() == n()) %>%
   filter(!is.na(oa_status)) %>%
@@ -98,8 +111,9 @@ unpaywall_2021_prep_for_license_check <- unpaywall_2021_clean %>%
 
 unpaywall_2021_slim <- unpaywall_2021_prep_for_license_check %>%
   find_best_license() %>%
-  unpaywall_slim("2021", keep_oa_status = F)
+  unpaywall_set_oa() %>%
+  unpaywall_slim("2021")
 
-# Combine Unpaywall data all years ----
+# Combine Unpaywall data all years, keep earliest request ----
 unpaywall_2016_2021_slim <- rbind(unpaywall_2016_2020_slim, unpaywall_2021_slim) %>%
   distinct(doi, .keep_all = TRUE)
