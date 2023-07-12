@@ -58,22 +58,15 @@ summary_is_oa <- data %>%
   group_by(jahr, is_oa) %>%
   summarise(count = sum(count), perc = sum(perc))
 
-## 2021
-data_2021 <- data %>%
-  filter(jahr == 2021)
+## 2022
+data_2022 <- data %>%
+  filter(jahr == 2022)
 
-is_corresponding_2021 <- sort(table(data_2021$corresponding_author_cha), decreasing = TRUE)
-is_corresponding_2021 <- round(is_corresponding_2021[[2]]/sum(is_corresponding_2021)*100, 1)
+is_corresponding_2022 <- sort(table(data_2022$corresponding_author_cha), decreasing = TRUE)
+is_corresponding_2022 <- round(is_corresponding_2022[[2]]/sum(is_corresponding_2022)*100, 1)
 
-is_doaj_2021 <- sort(table(data_2021$journal_is_in_doaj), decreasing = TRUE)
-is_doaj_2021 <- round(is_doaj_2021[[2]]/sum(is_doaj_2021)*100, 1)
-```
-
-
-### <b>2018</b>
-```{r}
-rate <- summary_is_oa %>% filter(jahr == 2018 & is_oa == TRUE) %>% pull(perc)
-gauge(rate, min = 0, max = 100, symbol = ' %', gaugeSectors(colors = "#e97202"))
+is_doaj_2022 <- sort(table(data_2022$journal_is_in_doaj), decreasing = TRUE)
+is_doaj_2022 <- round(is_doaj_2022[[2]]/sum(is_doaj_2022)*100, 1)
 ```
 
 ### <b>2019</b>
@@ -94,19 +87,24 @@ rate <- summary_is_oa %>% filter(jahr == 2021 & is_oa == TRUE) %>% pull(perc)
 gauge(rate, min = 0, max = 100, symbol = ' %', gaugeSectors(colors = "#e97202"))
 ```
 
+### <b>2022</b>
+```{r}
+rate <- summary_is_oa %>% filter(jahr == 2022 & is_oa == TRUE) %>% pull(perc)
+gauge(rate, min = 0, max = 100, symbol = ' %', gaugeSectors(colors = "#e97202"))
+```
 
 Row 
 -----------------------------------------------------------------------
 
-### 2021: Charité corresponding author articles among articles involving Charité authors
+### 2022: Charité corresponding author articles among articles involving Charité authors
 ```{r}
-rate <- is_corresponding_2021
+rate <- is_corresponding_2022
 gauge(rate, min = 0, max = 100, symbol = ' %', gaugeSectors(colors = "#e97202"))
 ```
 
-### 2021: Percentage of articles involving Charité authors appearing in a DOAJ-listed journal
+### 2022: Percentage of articles involving Charité authors appearing in a DOAJ-listed journal
 ```{r}
-rate <- is_doaj_2021
+rate <- is_doaj_2022
 gauge(rate, min = 0, max = 100, symbol = ' %', gaugeSectors(colors = "#F4C244"))
 ```
 
@@ -125,12 +123,12 @@ Row {.no-title}
 Row {data-height=auto}
 -----------------------------------------------------------------------
 
-### 2017 - 2021: Articles involving Charité authors by OA status (in %)
+### 2017 - 2022: Articles involving Charité authors by OA status (in %)
 ```{r}
 status_percent
 ```
 
-### 2017 - 2021: Articles with a Charité corresponding author by OA status (in %)
+### 2017 - 2022: Articles with a Charité corresponding author by OA status (in %)
 ```{r}
 status_corresponding_percent
 ```
@@ -138,12 +136,12 @@ status_corresponding_percent
 Row {data-height=auto}
 -----------------------------------------------------------------------
 
-### 2017 - 2021: Articles involving Charité authors by OA status (absolute numbers)
+### 2017 - 2022: Articles involving Charité authors by OA status (absolute numbers)
 ```{r}
 status_absolute_spline
 ```
 
-### 2017 - 2021: Articles with a Charité corresponding author by OA status (absolute numbers)
+### 2017 - 2022: Articles with a Charité corresponding author by OA status (absolute numbers)
 ```{r}
 status_corresponding_absolute_spline
 ```
@@ -172,16 +170,15 @@ Row {.no-title}
 Row {data-height=auto}
 -----------------------------------------------------------------------
 
-### 2021: Articles by publisher in absolute numbers
+### 2022: Articles by publisher in absolute numbers
 ```{r}
-publisher_2021_absolute
+publisher_2022_absolute
 ```
 
-### 2021: Articles by journal in absolute numbers
+### 2022: Articles by journal in absolute numbers
 ```{r}
-journal_2021_absolute
+journal_2022_absolute
 ```
-
 
 Row {.tabset}
 -----------------------------------------------------------------------
@@ -218,10 +215,10 @@ load("charts/chart_lizenzen_year_2017.Rda")
 chart_lizenzen_year_2017
 ```
 
-### only 2021: Licenses for all articles involving Charité authors
+### only 2022: Licenses for all articles involving Charité authors
 ```{r}
-load("charts/chart_lizenzen_year_2021.Rda")
-chart_lizenzen_year_2021
+load("charts/chart_lizenzen_year_2022.Rda")
+chart_lizenzen_year_2022
 ```
 
 Data tables
@@ -234,7 +231,7 @@ Row
 ```{r}
 library(kableExtra)
 
-summary_data_2017_2021 %>%
+summary_data_2017_2022 %>%
   kbl(align = "llll",
       col.names = c("year",
                     "oa_status",
@@ -251,7 +248,7 @@ Row
 
 ### Articles with a Charité corresponding author, by OA status and year
 ```{r}
-summary_corresponding_2017_2021 %>%
+summary_corresponding_2017_2022 %>%
   kbl(align = "llll",
       col.names = c("year",
                     "oa_status",

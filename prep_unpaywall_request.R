@@ -49,3 +49,6 @@ request_and_save_unpaywall <- function(file, sheet, year) {
   unpw_as_character <- apply(unpw,2,as.character)  # not the best solution
   write.csv(unpw_as_character, file = paste0("raw_data/unpaywall_", year, "_", Sys.Date(), ".csv"))
 }
+
+# 2022 ----
+request_and_save_unpaywall(file = "raw_data/2022.xlsx", sheet = "Merge", year = 2022)

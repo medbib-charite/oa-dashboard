@@ -4,10 +4,10 @@
 - Elena Gandert (Technical implementation, Updates), since 2022
 - Manuela Gregor (Data collection)
 - Katja Schütze (Data collection), 2021
-- Anja Siebert (Data collection), 2021
+- Anja Siebert (Data collection)
 - Jan Taubitz (Concept, Technical implementation), 2021
 
-### Latest Update: March 22, 2023
+### Latest Update: July 12, 2023
 
 ## Sources:
 - [Embase (via Ovid)](http://ovidsp.ovid.com/autologin.html)
@@ -18,12 +18,14 @@
 Chosen data sources include information about corresponding authors and their affiliations. Corresponding authors are of special interest here because they are responsible for paying fees associated with gold and hybrid Open Access (OA) publishing. Such data is used in cost estimates for the Charité. However, any author can self-archive a paper (green open access) and thus the total number of papers with a Charité authorship is significant when measuring the percentage of open access reached by the institution as a whole. While the percentage of OA publishing is a key indicator for the visibility and discoverability of research findings, the quality and costs of open access must also be monitored, hence the selection of analyses presented in this dashboard.
 
 ## Dates of query:
-- Bibliographic records 2016–2017:  April 9, 2019
+- Bibliographic records 2016–2017: April 9, 2019
 - Bibliographic records 2018–2020: April 28, 2021
 - Bibliographic records 2021: April 2022
+- Bibliographic records 2022: April 6, 2023
 - Unpaywall lookup 2016–2017: August 24, 2021
 - Unpaywall lookup 2018–2020: June 15, 2021
 - Unpaywall lookup 2021: September 2022
+- Unpaywall lookup 2022: June 23, 2023
 
 ## Updates to the dashboard & data deduplication:
 Data collection is time consuming and thus happens annually. Metadata describing articles from Web of Science, EMBASE and from the Charité Medical Library (including our Publication Fund) are combined and deduplicated largely by DOI-matching but also involving manual checks especially where DOIs are missing from the data. Articles without a DOI are deduplicated using the PMID, WOS Accession Number and Embase Accession Number, if applicable. Those deduplications are undertaken firstly within each raw data set (2016–2017, 2018–2020, 2021), secondly between these data sets, always preferring records from previous years over newer records.

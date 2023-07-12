@@ -131,7 +131,7 @@ data_license <- select(data, doi, license)
 
 data_doi <- data %>%
   filter(doi_existent) %>%
-  filter(jahr %in% c(2016, 2017, 2018, 2019, 2020, 2021))
+  filter(jahr %in% c(2016, 2017, 2018, 2019, 2020, 2021, 2022))
 
 # data_medbib_license <- data_doi %>%
 #   select(doi, oa_status)
@@ -219,32 +219,32 @@ chart_lizenzen_year_2017 <- data_license_oa_status_final_count_2_2017 %>%
 
 save(chart_lizenzen_year_2017, file = "charts/chart_lizenzen_year_2017.Rda")
 
-## only for 2021 ----
+## only for 2022 ----
 
-data_doi_2021 <- data %>%
+data_doi_2022 <- data %>%
   filter(doi_existent) %>%
-  filter(jahr == 2021)
+  filter(jahr == 2022)
 
-data_medbib_license_2021 <- data_doi_2021 %>%
+data_medbib_license_2022 <- data_doi_2022 %>%
   select(doi, oa_status)
 
-data_license_oa_status_final_2021 <- data_medbib_license_2021 %>%
+data_license_oa_status_final_2022 <- data_medbib_license_2022 %>%
   inner_join(data_license, by = "doi")
 
-data_license_oa_status_final_count_2021 <- data_license_oa_status_final_2021 %>%
+data_license_oa_status_final_count_2022 <- data_license_oa_status_final_2022 %>%
   group_by(license, oa_status) %>%
   summarise(count = n())
 
-data_license_oa_status_final_count_2_2021 <- data_license_oa_status_final_count_2021 %>%
+data_license_oa_status_final_count_2_2022 <- data_license_oa_status_final_count_2022 %>%
   group_by(license) %>%
   spread(oa_status, count, fill = 0) %>% # to solve order problem
   gather(oa_status, count, -license) %>%
   mutate(oa_status = factor(oa_status, levels = oa_status_colors)) %>%
   arrange(license)
 
-save(data_license_oa_status_final_count_2_2021, file = "data/data_license_oa_status_final_count_2_2021.Rda")
+save(data_license_oa_status_final_count_2_2022, file = "data/data_license_oa_status_final_count_2_2022.Rda")
 
-chart_lizenzen_year_2021 <- data_license_oa_status_final_count_2_2021 %>%
+chart_lizenzen_year_2022 <- data_license_oa_status_final_count_2_2022 %>%
   hchart("column",
          hcaes(x = license, y = count, group = oa_status)) %>%
   hc_plotOptions(series = list(stacking = "normal")) %>%
@@ -259,7 +259,7 @@ chart_lizenzen_year_2021 <- data_license_oa_status_final_count_2_2021 %>%
     buttons = list(contextButton = list(menuItems = c('downloadJPEG', 'separator', 'downloadCSV')))
   )
 
-save(chart_lizenzen_year_2021, file = "charts/chart_lizenzen_year_2021.Rda")
+save(chart_lizenzen_year_2022, file = "charts/chart_lizenzen_year_2022.Rda")
 
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # Visualize licenses only for OA status gold, green, hybrid ----
