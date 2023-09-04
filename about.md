@@ -36,9 +36,9 @@ Dashboard data forms the basis of predictions for future open access costs for t
 
 Since open access status changes and in particular green OA is often delayed, data on the OA-status for 2021 articles and beyond is captured as a snapshot at the time of the Unpaywall lookup. However, in the dashboard for the years 2016 – 2017 and 2018 – 2020 we can see the snapshot across all years at the time of Unpaywall lookups in 2021.
 
-The analysis "Publishers and journals among articles involving Charité authors, by open access status" shows the most recent publisher and journal choices of Charité authors from 2020 and looks at centrally financed OA-costs over the last three years: the blue chart is clickable to show costs by publisher or by year, showing the steep rise in central costs since the launch of the Publication Fund in 2018 and introduction of DEAL with Wiley in 2019 and SpringerNature in 2020. Actual and complete costs for the institution are likely to be much higher than reported here, since data is currently only available for centrally financed articles. Efforts are being made to complete the picture.
+The analysis "Publishers and journals among articles involving Charité authors, by open access status" shows the most recent publisher and journal choices of Charité authors from 2020 and looks at centrally financed OA-costs over the last five years: the blue chart is clickable to show costs by publisher or by year, showing the steep rise in central costs since the launch of the Publication Fund in 2018 and introduction of DEAL with Wiley in 2019 and SpringerNature in 2020. Actual and complete costs for the institution are likely to be much higher than reported here, since data is currently only available for centrally financed articles. Efforts are being made to complete the picture.
 
-The last analysis looks at the use of open licenses over the last three years, according to the open access status of an article. 
+The last analysis looks at the use of open licenses in specific years, according to the open access status of an article.
 
 ## Open Access (OA) status or "color":
 

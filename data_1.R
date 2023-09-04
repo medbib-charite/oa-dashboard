@@ -555,6 +555,7 @@ status_absolute <-
   hc_plotOptions(series = list(stacking = "normal")) %>%
   hc_colors(color) %>%
   hc_yAxis(reversedStacks = FALSE, labels = list(format = '{value:.0f}')) %>%
+  hc_chart(backgroundColor = "white") %>%
   hc_exporting(
     enabled = TRUE, # always enabled
     filename = "status_absolute",
@@ -569,6 +570,7 @@ status_absolute_spline <-
   hc_colors(color) %>%
   hc_xAxis(title = list(text = "Year")) %>%
   hc_yAxis(title = list(text = "Number")) %>%
+  hc_chart(backgroundColor = "white") %>%
   hc_exporting(
     enabled = TRUE,
     # always enabled
@@ -593,6 +595,7 @@ status_percent <-
            labels = list(format = '{value} %'),
            max = 100, reversedStacks = FALSE) %>%
   hc_tooltip(pointFormat = "<b>{point.oa_status}</b><br>{point.value} articles ({point.percent} %)") %>%
+  hc_chart(backgroundColor = "white") %>%
   hc_exporting(
     enabled = TRUE, # always enabled
     filename = "status_percent",
@@ -621,6 +624,7 @@ status_corresponding_absolute <-
   hc_plotOptions(series = list(stacking = "normal")) %>%
   hc_colors(color) %>%
   hc_yAxis(reversedStacks = FALSE) %>%
+  hc_chart(backgroundColor = "white") %>%
   hc_exporting(
     enabled = TRUE, # always enabled
     filename = "status_corresponding_absolute",
@@ -635,6 +639,7 @@ status_corresponding_absolute_spline <-
   hc_colors(color) %>%
   hc_xAxis(title = list(text = "Year")) %>%
   hc_yAxis(title = list(text = "Number")) %>%
+  hc_chart(backgroundColor = "white") %>%
   hc_exporting(
     enabled = TRUE, # always enabled
     filename = "status_corresponding_absolute_spline",
@@ -654,6 +659,7 @@ status_corresponding_percent <-
            labels = list(format = '{value} %'),
            max = 100, reversedStacks = FALSE) %>%
   hc_tooltip(pointFormat = "<b>{point.oa_status}</b><br>{point.value} articles ({point.percent} %)") %>%
+  hc_chart(backgroundColor = "white") %>%
   hc_exporting(
     enabled = TRUE, # always enabled
     filename = "status_corresponding_percent",
@@ -696,6 +702,7 @@ journal_2020_absolute <- summary_journal_2020_2 %>%
   hc_yAxis(title = list(text = "Number"),
            reversedStacks = FALSE) %>%
   hc_tooltip(pointFormat = "<b>{point.oa_status}</b><br>{point.value} articles ({point.percent} %)<br>{point.value_zs} total articles") %>%
+  hc_chart(backgroundColor = "white") %>%
   hc_exporting(
     enabled = TRUE, # always enabled
     filename = "journal_2020_absolute",
@@ -713,6 +720,7 @@ journal_2020_percent <- summary_journal_2020_2 %>%
                          max = 100, reversedStacks = FALSE) %>%
   hc_size(height = 500) %>%
   hc_tooltip(pointFormat = "<b>{point.oa_status}</b><br>{point.value} articles ({point.percent} %)<br>{point.value_zs} total articles") %>%
+  hc_chart(backgroundColor = "white") %>%
   hc_exporting(
     enabled = TRUE, # always enabled
     filename = "journal_2020_percent",
@@ -751,6 +759,7 @@ journal_2021_absolute <- summary_journal_2021_2 %>%
   hc_yAxis(title = list(text = "Number"),
            reversedStacks = FALSE) %>%
   hc_tooltip(pointFormat = "<b>{point.oa_status}</b><br>{point.value} articles ({point.percent} %)<br>{point.value_zs} total articles") %>%
+  hc_chart(backgroundColor = "white") %>%
   hc_exporting(
     enabled = TRUE, # always enabled
     filename = "journal_2021_absolute",
@@ -768,6 +777,7 @@ journal_2021_percent <- summary_journal_2021_2 %>%
            max = 100, reversedStacks = FALSE) %>%
   hc_size(height = 500) %>%
   hc_tooltip(pointFormat = "<b>{point.oa_status}</b><br>{point.value} articles ({point.percent} %)<br>{point.value_zs} total articles") %>%
+  hc_chart(backgroundColor = "white") %>%
   hc_exporting(
     enabled = TRUE, # always enabled
     filename = "journal_2021_percent",
@@ -806,6 +816,7 @@ journal_2022_absolute <- summary_journal_2022_2 %>%
   hc_yAxis(title = list(text = "Number"),
            reversedStacks = FALSE) %>%
   hc_tooltip(pointFormat = "<b>{point.oa_status}</b><br>{point.value} articles ({point.percent} %)<br>{point.value_zs} total articles") %>%
+  hc_chart(backgroundColor = "white") %>%
   hc_exporting(
     enabled = TRUE, # always enabled
     filename = "journal_2022_absolute",
@@ -823,6 +834,7 @@ journal_2022_percent <- summary_journal_2022_2 %>%
            max = 100, reversedStacks = FALSE) %>%
   hc_size(height = 500) %>%
   hc_tooltip(pointFormat = "<b>{point.oa_status}</b><br>{point.value} articles ({point.percent} %)<br>{point.value_zs} total articles") %>%
+  hc_chart(backgroundColor = "white") %>%
   hc_exporting(
     enabled = TRUE, # always enabled
     filename = "journal_2022_percent",
@@ -878,6 +890,7 @@ publisher_2020_absolute <- summary_publisher_2020_2 %>%
   hc_yAxis(title = list(text = "Number"),
            reversedStacks = FALSE) %>%
   hc_tooltip(pointFormat = "<b>{point.oa_status}</b><br>{point.value} articles ({point.percent} %)<br>{point.value_pub} total articles") %>%
+  hc_chart(backgroundColor = "white") %>%
   hc_exporting(
     enabled = TRUE, # always enabled
     filename = "publisher_2020_absolute",
@@ -900,6 +913,7 @@ publisher_donut <- data_publisher_2020 %>%
          innerSize = "50%") %>%
   hc_colors(pal) %>%
   hc_tooltip(pointFormat = "{point.value} Artikel ({point.perc} %)") %>%
+  hc_chart(backgroundColor = "white") %>%
   hc_exporting(
     enabled = TRUE, # always enabled
     filename = "publisher_donut",
@@ -950,6 +964,7 @@ publisher_2021_absolute <- summary_publisher_2021_2 %>%
   hc_yAxis(title = list(text = "Number"),
            reversedStacks = FALSE) %>%
   hc_tooltip(pointFormat = "<b>{point.oa_status}</b><br>{point.value} articles ({point.percent} %)<br>{point.value_pub} total articles") %>%
+  hc_chart(backgroundColor = "white") %>%
   hc_exporting(
     enabled = TRUE, # always enabled
     filename = "publisher_2021_absolute",
@@ -1000,31 +1015,10 @@ publisher_2022_absolute <- summary_publisher_2022_2 %>%
   hc_yAxis(title = list(text = "Number"),
            reversedStacks = FALSE) %>%
   hc_tooltip(pointFormat = "<b>{point.oa_status}</b><br>{point.value} articles ({point.percent} %)<br>{point.value_pub} total articles") %>%
+  hc_chart(backgroundColor = "white") %>%
   hc_exporting(
     enabled = TRUE, # always enabled
     filename = "publisher_2022_absolute",
-    buttons = list(contextButton = list(menuItems = c('downloadJPEG', 'separator', 'downloadCSV')))
-  )
-
-pal <- got(4, direction = 1, option = "Jon_Snow")
-
-publisher_donut <- data_publisher_2022 %>%
-  group_by(publisher) %>%
-  summarise(value = n()) %>%
-  mutate(publisher_2 = if_else(value <= 500, "other Publishers", publisher)) %>%
-  group_by(publisher_2) %>%
-  summarise(value = sum(value)) %>%
-  mutate(perc = round(value / sum(value) * 100, 1)) %>%
-  arrange(value) %>%
-  hchart("pie",
-         hcaes(x = publisher_2, y = value),
-         size = "65%",
-         innerSize = "50%") %>%
-  hc_colors(pal) %>%
-  hc_tooltip(pointFormat = "{point.value} Artikel ({point.perc} %)") %>%
-  hc_exporting(
-    enabled = TRUE, # always enabled
-    filename = "publisher_donut",
     buttons = list(contextButton = list(menuItems = c('downloadJPEG', 'separator', 'downloadCSV')))
   )
 
@@ -1040,12 +1034,11 @@ data_costs <- read_excel(oa_costs,
 
 data_costs_long <- data_costs %>%
   select(-total) %>%
-  pivot_longer(cols = c("2018", "2019", "2020", "2021"), names_to = "year")
+  pivot_longer(cols = c("2018", "2019", "2020", "2021", "2022"), names_to = "year")
 
-# pal <- got(3, direction = 1, option = "Jon_Snow")
- pal <- c("#858688", "#B2C1DD", "#004ecc")
+# pal <- got(5, direction = 1, option = "Jon_Snow")
+ pal <- c("#858688", "#B5BCC8", "#A5BAE2", "#4F81D3", "#004ECC")
 # pal <- c("#8797AE", "#B2C1DD", "#2C74B4")
-
 
 publisher_costs <-
   data_costs_long %>%
@@ -1056,6 +1049,7 @@ publisher_costs <-
   hc_yAxis(title = list(text = "Funding amount"),
            labels = list(format = '{value:,0f} €'), reversedStacks = FALSE) %>%
   hc_colors(pal) %>%
+  hc_chart(backgroundColor = "white") %>%
   hc_exporting(
     enabled = TRUE, # always enabled
     filename = "publisher_costs",
@@ -1081,6 +1075,7 @@ publisher_costs_year <-
   hc_yAxis(title = list(text = "Funding amount"),
            labels = list(format = '{value:,0f} €'), reversedStacks = FALSE) %>%
   hc_colors(pal) %>%
+  hc_chart(backgroundColor = "white") %>%
   hc_exporting(
     enabled = TRUE, # always enabled
     filename = "publisher_costs",

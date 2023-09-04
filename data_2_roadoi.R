@@ -165,6 +165,7 @@ chart_lizenzen <- data_license_oa_status_final_count_2 %>%
            labels = list(format = '{value:.0f}')) %>%
   hc_colors(color) %>%
   hc_tooltip(pointFormat = "{point.count} articles")  %>%
+  hc_chart(backgroundColor = "white") %>%
   hc_exporting(
     enabled = TRUE, # always enabled
     filename = "chart_lizenzen",
@@ -211,6 +212,7 @@ chart_lizenzen_year_2017 <- data_license_oa_status_final_count_2_2017 %>%
            labels = list(format = '{value:.0f}')) %>%
   hc_colors(color) %>%
   hc_tooltip(pointFormat = "{point.count} articles") %>%
+  hc_chart(backgroundColor = "white") %>%
   hc_exporting(
     enabled = TRUE, # always enabled
     filename = "chart_lizenzen_oa",
@@ -253,6 +255,7 @@ chart_lizenzen_year_2022 <- data_license_oa_status_final_count_2_2022 %>%
            labels = list(format = '{value:.0f}')) %>%
   hc_colors(color) %>%
   hc_tooltip(pointFormat = "{point.count} articles") %>%
+  hc_chart(backgroundColor = "white") %>%
   hc_exporting(
     enabled = TRUE, # always enabled
     filename = "chart_lizenzen_oa",
@@ -275,6 +278,7 @@ chart_lizenzen_oa <- data_license_oa_status_final_count_2 %>%
            labels = list(format = '{value:.0f}')) %>%
   hc_colors(color) %>%
   hc_tooltip(pointFormat = "{point.count} articles") %>%
+  hc_chart(backgroundColor = "white") %>%
   hc_exporting(
     enabled = TRUE, # always enabled
     filename = "chart_lizenzen_oa",

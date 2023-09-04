@@ -183,12 +183,12 @@ journal_2022_absolute
 Row {.tabset}
 -----------------------------------------------------------------------
 
-### 2018 - 2021: Centrally funded articles with a Charité corresponding author; costs at top 10 publishers
+### 2018 - 2022: Centrally funded articles (with a Charité corresponding author); top 10 publishers by Charité expenditures
 ```{r}
 publisher_costs
 ```
 
-### ... and by year
+### ... and Charité expenditures by year
 ```{r}
 publisher_costs_year
 ```
