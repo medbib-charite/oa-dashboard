@@ -7,7 +7,7 @@
 - Anja Siebert (Data collection)
 - Jan Taubitz (Concept, Technical implementation), 2021
 
-### Latest Update: July 12, 2023
+### Latest Update: September 4, 2023
 
 ## Sources:
 - [Embase (via Ovid)](http://ovidsp.ovid.com/autologin.html)

@@ -50,3 +50,4 @@ rsconnect/
 
 # Working and testing files
 workfiles/
+.Rproj.user
