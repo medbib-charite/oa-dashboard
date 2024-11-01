@@ -52,3 +52,19 @@ request_and_save_unpaywall <- function(file, sheet, year) {
 
 # 2022 ----
 request_and_save_unpaywall(file = "raw_data/2022.xlsx", sheet = "Merge", year = 2022)
+
+# 2023 ----
+read_xlsx("raw_data/2023.xlsx", sheet = "Merge") %>%
+  filter(!DOI == "10.1158/1078-0432.CCR-22-3790") %>% # remove this DOI because it causes a timeout every time
+  mutate(Addresses = str_trunc(Addresses, 32767, side = "right")) %>%
+  write_xlsx("raw_data/2023_for_unpw_request.xlsx")
+request_and_save_unpaywall(file = "raw_data/2023_for_unpw_request.xlsx", sheet = "Sheet1", year = 2023)
+request_and_save_unpaywall(file = "raw_data/2023.xlsx", sheet = "Merge", year = 2023)
+
+
+## Test: request again the dois without result in the first time; result: they are not in Unpaywall at all ----
+rest_of_2023 <- read_xlsx("raw_data/2023.xlsx", sheet = "Merge") %>%
+  filter(!(tolower(DOI) %in% `unpaywall_2023_2024-09-25`$doi)) %>%
+  filter(!DOI == "10.1158/1078-0432.CCR-22-3790") # remove this DOI because it causes a timeout every time
+write_xlsx(rest_of_2023, "raw_data/rest_of_2023.xlsx")
+request_and_save_unpaywall(file = "raw_data/rest_of_2023.xlsx", sheet = "Sheet1", year = "2023_rest_without_unpw_result")
