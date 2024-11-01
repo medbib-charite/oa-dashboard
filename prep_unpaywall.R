@@ -48,8 +48,8 @@ unpaywall_set_oa <- function(df) {
 #' to the columns needed for further usage.
 #' Also add the column `origin_unpaywall` and correct data types.
 #' @param unpw_df
-#' @param dataset_years A character string to fill in
-#' the `origin_unpaywall` column.
+#' @param dataset_years A character string giving provenance, will be filled
+#' in column `origin_unpaywall`.
 #' @param keep_oa_status If `TRUE` keeps the fields `is_oa` and `oa_status`,
 #' otherwise drop them..
 #' Default: `TRUE`
@@ -95,6 +95,12 @@ unpaywall_2021_clean <- unpaywall_2021_raw %>%
   group_by(doi) %>%
   filter(row_number() == n()) %>%
   filter(!is.na(oa_status)) %>%
+  mutate(journal_is_in_doaj = case_when(journal_is_in_doaj == 1 ~ TRUE,
+                                        journal_is_in_doaj == 0 ~ FALSE,
+                                        TRUE ~ NA)) %>%
+  mutate(is_oa = case_when(is_oa == 1 ~ TRUE,
+                           is_oa == 0 ~ FALSE,
+                           TRUE ~ NA)) %>%
   mutate(has_repository_copy = case_when(has_repository_copy == 0 ~ FALSE, has_repository_copy == 1 ~ TRUE))
 # Clean bad format of 2021 data caused by storing json in Excel file
 unpaywall_2021_oalocations_only <- unpaywall_2021_clean %>%
@@ -122,6 +128,14 @@ unpaywall_2022_slim <- unpaywall_2022_raw %>%
   unpaywall_set_oa() %>%
   unpaywall_slim("2022")
 
+# 2023: Load and clean Unpaywall data ----
+unpaywall_2023_raw <- readRDS("raw_data/unpaywall_2023_2024-09-25.Rds")
+
+unpaywall_2023_slim <- unpaywall_2023_raw %>%
+  find_best_license() %>%
+  unpaywall_set_oa() %>%
+  unpaywall_slim("2023")
+
 # Combine Unpaywall data all years, keep earliest request ----
-unpaywall_2016_2022_slim <- rbind(unpaywall_2016_2020_slim, unpaywall_2021_slim, unpaywall_2022_slim) %>%
+unpaywall_2016_2023_slim <- rbind(unpaywall_2016_2020_slim, unpaywall_2021_slim, unpaywall_2022_slim, unpaywall_2023_slim) %>%
   distinct(doi, .keep_all = TRUE)
