@@ -10,7 +10,8 @@ library(janitor)
 library(jsonlite)
 
 # License levels, ordered from most to least permissive, see https://creativecommons.org/about/cclicenses/ ----
-license_levels = c("cc-by", "cc-by-sa", "cc-by-nc", "cc-by-nc-sa", "cc-by-nd", "cc-by-nc-nd", "other license", "no license found")
+cc_licenses = c("cc-by", "cc-by-sa", "cc-by-nc", "cc-by-nc-sa", "cc-by-nd", "cc-by-nc-nd")
+license_levels = c(cc_licenses, "other license", "no license found")
 
 #' Unnest `oa_locations` and find best license according to `license_levels` for each doi
 #' #' @returns A data frame.
@@ -19,8 +20,9 @@ find_best_license <- function(df) {
   unnest_clean <- df %>%
     unnest(oa_locations, keep_empty = TRUE, names_sep = "_") %>%
     rename(license = oa_locations_license) %>%
-    mutate(license = case_when(grepl("specific|cc0|implied|pd", license, ignore.case = TRUE) ~ "other license", TRUE ~ license)) %>%
-    mutate(license = replace_na(license, "no license found")) %>%
+    mutate(license = case_when(is.na(license) ~ "no license found",
+                               !license %in% cc_licenses ~ "other license",
+                               TRUE ~ license)) %>%
     mutate(license = factor(license, levels = license_levels, ordered = TRUE))
   # Find best license for each doi
   find_best <- unnest_clean %>%
