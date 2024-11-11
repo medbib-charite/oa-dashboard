@@ -34,7 +34,7 @@ color <- c("#F4C244", "#A0CBDA", "#4FAC5B", "#D85DBF", "#2C405E", "#5F7036")
 # Data input sets, ordered from oldest to newest ----
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-input_dataset_levels = c("2016_2017", "2018_2020", "2021", "2022")
+input_dataset_levels = c("2016_2017", "2018_2020", "2021", "2022", "2023")
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # Load sources ----
@@ -221,15 +221,15 @@ data_2018_2020 <- data_2018_2020_no_dups %>%
          origin_dataset)
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-#+ Combine dataframes of 2016-2017 data and 2018-2020 data with rbind ----
+# Combine dataframes of 2016-2017 data and 2018-2020 data with rbind ----
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 data_2016_2020 <- rbind(data_2016_2017, data_2018_2020) %>%
   distinct(doi, .keep_all = TRUE)
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-#+ Delete 71 datasets without Charité affiliation ----
-#+ (corrects some WoS assignments)
+# Delete 71 datasets without Charité affiliation ----
+# (corrects some WoS assignments)
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 wrong_dois_input <- "raw_data/falsche_dois_wos_2016_2020.xls" # articles without Charité affiliation (incorrect assignment in WoS data)
@@ -244,9 +244,9 @@ data_2016_2020 <- data_2016_2020 %>%
   filter(!doi %in% wrong_dois)
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-#+ Data 2021 ----
-##+ Load 2021 data ----
-##+ (containing Unpaywall data retrieved September 2022)
+# Data 2021 ----
+## Load 2021 data ----
+## (containing Unpaywall data retrieved September 2022)
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 publications_charite_2016_2021_final <- "raw_data/2021.xlsx"
@@ -255,7 +255,7 @@ data_2021_raw <- read_excel(publications_charite_2016_2021_final,
                             sheet = "2021")
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-##+ Clean and enrich 2021 data ----
+## Clean and enrich 2021 data ----
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 data_2021_clean <- data_2021_raw %>%
@@ -307,7 +307,7 @@ data_2021 <- data_2021_no_pmid_dups %>%
          corresponding_author_cha,
          origin_dataset)
 
-#TODO: deduplicate for wos and embase accession number; data currently not included in 2021 raw data
+#TODO: deduplicate for wos and embase accession number; data necessary for this purpose are currently not included in 2021 raw data
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # Add 2021 data to existing data with rbind ----
@@ -316,8 +316,8 @@ data_2021 <- data_2021_no_pmid_dups %>%
 data_2016_2021 <- rbind(data_2016_2020, data_2021)
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-#+ Data 2022 ----
-##+ Load 2022 data ----
+# Data 2022 ----
+## Load 2022 data ----
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 data_2022_file <- "raw_data/2022.xlsx"
@@ -326,7 +326,7 @@ data_2022_raw <- read_excel(data_2022_file,
                             sheet = "Merge")
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-##+ Clean and enrich 2022 data ----
+## Clean and enrich 2022 data ----
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 data_2022_clean <- data_2022_raw %>%
@@ -412,6 +412,109 @@ data_2022 <- data_2022_no_dups %>%
 data_2016_2022 <- rbind(data_2016_2020, data_2021, data_2022)
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# Data 2023 ----
+## Load 2023 data ----
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+data_2023_file <- "raw_data/2023.xlsx"
+
+data_2023_raw <- read_excel(data_2023_file,
+                            sheet = "Merge",
+                            guess_max = 7000)
+
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+## Clean and enrich 2023 data ----
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+data_2023_clean <- data_2023_raw %>%
+  clean_names() %>%
+  mutate(unique_identifier_emb = as.character(unique_identifier_emb)) %>%
+  rename(pmid = pubmed_id,
+         reprint_address = reprint_addresses,
+         author_address = addresses,
+         corresponding_author_cha = ca,
+         e_mail_address = email_addresses,
+         open_access_indicator = open_access_designations,
+         accession_number_embase = unique_identifier_emb,
+         accession_number_wos = ut_unique_wos_id) %>%
+  mutate(jahr = 2023,
+         corresponding_author = reprint_address) %>%    # TODO: corresponding_author and reprint_address are the same: check in previous years
+  mutate(corresponding_author_cha = case_when(corresponding_author_cha == "ja" ~ TRUE,
+                                              TRUE ~ FALSE)) %>%
+  mutate(datenbank = case_when(str_detect(accession_number_wos, "WOS:") ~ "WOS",
+                               str_detect(accession_number_wos, "Embase") ~ "Embase")) %>%
+  mutate(accession_number_wos = if_else(datenbank == "WOS", accession_number_wos, NA_character_)) %>%
+  filter(datenbank != 0) # only keep entries from those databases
+
+# deduplicate dois, but keep all articles without doi
+data_2023_doi_dedup <- data_2023_clean %>%
+  mutate(doi = tolower(doi)) %>%
+  mutate(doi_existent = (!is.na(doi))) %>% # new column stating existence of doi
+  mutate(doi = if_else(!doi_existent,
+                       paste0("noDOI!!", replicate(n(), UUIDgenerate(n=1L, output = "string"))), doi)) %>% # Assign ids to articles without DOI
+  distinct(doi, .keep_all = TRUE)
+
+# deduplicate articles without (!) doi using the PMID (found within all articles with or without doi)
+data_2023_noDOI_pmid_no_dup <- data_2023_doi_dedup %>%
+  filter(!doi_existent & !is.na(pmid)) %>%
+  distinct(pmid, .keep_all = TRUE) %>%
+  filter(!pmid %in% (data_2023_doi_dedup %>% filter(doi_existent) %>% pull(pmid)))
+
+# re-combine articles with dois with the deduplicated articles without doi
+data_2023_no_pmid_dups <- data_2023_doi_dedup %>%
+  filter(!(!doi_existent & !is.na(pmid))) %>%  # inverted condition of data_2023_noDOI_pmid_no_dup
+  rbind(data_2023_noDOI_pmid_no_dup)
+
+# remove articles with duplicate WOS Accession Number
+data_2023_no_wos_dups <- data_2023_no_pmid_dups %>%
+  arrange(desc(doi_existent)) %>% # sort by doi_existent to prefer article entries with doi #FIXME: refactor cause we only want to consider articles without doi for deduplication based on other identifiers
+  filter(!is.na(accession_number_wos)) %>%
+  distinct(accession_number_wos, .keep_all = TRUE) %>%
+  rbind(data_2023_no_pmid_dups %>% filter(is.na(accession_number_wos)))
+
+# remove articles with duplicate EMBASE Accession Number
+data_2023_no_dups <- data_2023_no_wos_dups %>%
+  arrange(desc(doi_existent)) %>% # sort by doi_existent to prefer article entries with doi #FIXME: refactor cause we only want to consider articles without doi for deduplication based on other identifiers
+  filter(!is.na(accession_number_embase)) %>%
+  distinct(accession_number_embase, .keep_all = TRUE) %>%
+  rbind(data_2023_no_wos_dups %>% filter(is.na(accession_number_embase)))
+
+data_2023 <- data_2023_no_dups %>%
+  arrange(desc(doi_existent)) %>%
+  mutate(origin_dataset = "2023") %>% # new column mainly for hierarchy during later deduplication
+  select(doi,
+         doi_existent,
+         accession_number_embase,
+         accession_number_wos,
+         titel = article_title,
+         zeitschrift = source_title,
+         corresponding_author,
+         issn,
+         e_issn,
+         jahr,
+         pmid,
+         publisher,
+         author_address,
+         document_type,
+         e_mail_address,
+         open_access_indicator,
+         reprint_address,
+         corresponding_author_cha,
+         origin_dataset)
+
+
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# Add 2023 data to existing data with rbind ----
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+data_2016_2023_all <- rbind(data_2016_2020, data_2021, data_2022, data_2023)
+
+# Remove articles without Charité affiliation ----
+
+remove_2023_dois <- read_csv("raw_data/dois_without_charit_affil_2023.csv")
+data_2016_2023 <- anti_join(data_2016_2023_all, remove_2023_dois, by = "doi")
+
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # All years combined ----
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
@@ -426,7 +529,7 @@ data_2016_2022 <- rbind(data_2016_2020, data_2021, data_2022)
 #   filter(n>1) %>%
 #   select(doi)
 
-data_clean <- data_2016_2022 %>%
+data_clean <- data_2016_2023 %>%
   filter(jahr != 0) %>%
   mutate(pmid = na_if(pmid, 0)) %>%
   mutate(origin_dataset = factor(origin_dataset, levels = input_dataset_levels, ordered = TRUE)) %>%
@@ -485,7 +588,7 @@ data <- data_no_embase_dups %>%
   mutate(origin_for_unpw_join = case_when(origin_dataset == "2016_2017" ~ "2016_2020",
                                           origin_dataset == "2018_2020" ~ "2016_2020",
                                           TRUE ~ as.character(origin_dataset))) %>%
-  left_join(unpaywall_2016_2022_slim, by = c("doi", "origin_for_unpw_join" = "origin_unpaywall")) %>%
+  left_join(unpaywall_2016_2023_slim, by = c("doi", "origin_for_unpw_join" = "origin_unpaywall")) %>%
   rename(origin_unpaywall = origin_for_unpw_join) %>%
   mutate(license = replace_na(license, "no license found")) %>%
   mutate(oa_status_new = replace_na(oa_status_new, "no result")) %>%
@@ -542,14 +645,14 @@ data %>%
   ggplot(aes(x = jahr, fill = oa_status)) +
   geom_bar()
 
-summary_data_2017_2022 <- data %>%
-  filter(jahr %in% c(2017, 2018, 2019, 2020, 2021, 2022)) %>%
+summary_data_2017_2023 <- data %>%
+  filter(jahr %in% c(2017, 2018, 2019, 2020, 2021, 2022, 2023)) %>%
   group_by(jahr, oa_status) %>%
   summarise(value = n()) %>%
   mutate(percent = round(value / sum(value) * 100, 1))
 
 status_absolute <-
-  hchart(summary_data_2017_2022,
+  hchart(summary_data_2017_2023,
          "column",
          hcaes(x = jahr, y = value, group = oa_status)) %>%
   hc_plotOptions(series = list(stacking = "normal")) %>%
@@ -563,7 +666,7 @@ status_absolute <-
   )
 
 status_absolute_spline <-
-  summary_data_2017_2022 %>%
+  summary_data_2017_2023 %>%
   mutate(jahr = factor(jahr)) %>%
   hchart("spline",
          hcaes(x = jahr, y = value, group = oa_status)) %>%
@@ -585,7 +688,7 @@ status_absolute_spline <-
 # %>% hc_subtitle(text = text, align = "left", style = list(fontSize = "12px"))
 
 status_percent <-
-  hchart(summary_data_2017_2022,
+  hchart(summary_data_2017_2023,
          "column",
          hcaes(x = jahr, y = percent, group = oa_status)) %>%
   hc_plotOptions(series = list(stacking = "normal")) %>%
@@ -608,16 +711,16 @@ status_percent <-
 # Visualizations of year and oa_status corresponding authors ----
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-summary_corresponding_2017_2022 <- data %>%
+summary_corresponding_2017_2023 <- data %>%
   filter(corresponding_author_cha == TRUE) %>%
-  filter(jahr %in% c(2017, 2018, 2019, 2020, 2021, 2022)) %>%
+  filter(jahr %in% c(2017, 2018, 2019, 2020, 2021, 2022, 2023)) %>%
   group_by(jahr, oa_status) %>%
   summarise(value = n()) %>%
   mutate(percent = round(value / sum(value) * 100, 1))
 
 status_corresponding_absolute <-
   hchart(
-    summary_corresponding_2017_2022,
+    summary_corresponding_2017_2023,
     "column",
     hcaes(x = jahr, y = value, group = oa_status)
   ) %>%
@@ -632,7 +735,7 @@ status_corresponding_absolute <-
   )
 
 status_corresponding_absolute_spline <-
-  summary_corresponding_2017_2022 %>%
+  summary_corresponding_2017_2023 %>%
   mutate(jahr = factor(jahr)) %>%
   hchart("spline",
          hcaes(x = jahr, y = value, group = oa_status)) %>%
@@ -648,7 +751,7 @@ status_corresponding_absolute_spline <-
 
 status_corresponding_percent <-
   hchart(
-    summary_corresponding_2017_2022,
+    summary_corresponding_2017_2023,
     "column",
     hcaes(x = jahr, y = percent, group = oa_status)
   ) %>%
@@ -840,6 +943,62 @@ journal_2022_percent <- summary_journal_2022_2 %>%
     filename = "journal_2022_percent",
     buttons = list(contextButton = list(menuItems = c('downloadJPEG', 'separator', 'downloadCSV')))
   )
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+## 2023 ----
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+summary_journal_2023 <- data %>%
+  filter(jahr == 2023) %>%
+  group_by(zeitschrift, oa_status) %>%
+  summarise(value = n(), .groups = "drop_last") %>%
+  mutate(value_zs = sum(value)) %>%
+  ungroup() %>%
+  filter(value_zs >= 5) %>%
+  mutate(zeitschrift = forcats::fct_reorder(zeitschrift, -value_zs))
+
+summary_journal_2023_2 <- summary_journal_2023 %>%
+  group_by(zeitschrift) %>%
+  spread(oa_status, value, fill = 0) %>%
+  gather(oa_status, value, 3:8) %>%
+  mutate(oa_status = factor(oa_status, levels = oa_status_colors)) %>%
+  mutate(percent = round(value / sum(value) * 100, 1))
+
+journal_2023_absolute <- summary_journal_2023_2 %>%
+  hchart("bar", hcaes(x = zeitschrift, y = value, group = oa_status)) %>%
+  hc_plotOptions(series = list(stacking = "normal")) %>%
+  hc_colors(color) %>%
+  hc_xAxis(min = 0,
+           max = 15,
+           scrollbar = list(enabled = TRUE)) %>%
+  hc_size(height = 500) %>%
+  hc_xAxis(title = list(text = "Journal")) %>%
+  hc_yAxis(title = list(text = "Number"),
+           reversedStacks = FALSE) %>%
+  hc_tooltip(pointFormat = "<b>{point.oa_status}</b><br>{point.value} articles ({point.percent} %)<br>{point.value_zs} total articles") %>%
+  hc_chart(backgroundColor = "white") %>%
+  hc_exporting(
+    enabled = TRUE, # always enabled
+    filename = "journal_2023_absolute",
+    buttons = list(contextButton = list(menuItems = c('downloadJPEG', 'separator', 'downloadCSV')))
+  )
+
+journal_2023_percent <- summary_journal_2023_2 %>%
+  hchart("bar", hcaes(x = zeitschrift, y = percent, group = oa_status)) %>%
+  hc_plotOptions(series = list(stacking = "normal")) %>%
+  hc_colors(color) %>%
+  hc_xAxis(min = 0,
+           max = 15,
+           scrollbar = list(enabled = TRUE)) %>%
+  hc_yAxis(labels = list(format = '{value} %'),
+           max = 100, reversedStacks = FALSE) %>%
+  hc_size(height = 500) %>%
+  hc_tooltip(pointFormat = "<b>{point.oa_status}</b><br>{point.value} articles ({point.percent} %)<br>{point.value_zs} total articles") %>%
+  hc_chart(backgroundColor = "white") %>%
+  hc_exporting(
+    enabled = TRUE, # always enabled
+    filename = "journal_2023_percent",
+    buttons = list(contextButton = list(menuItems = c('downloadJPEG', 'separator', 'downloadCSV')))
+  )
 
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -1019,6 +1178,56 @@ publisher_2022_absolute <- summary_publisher_2022_2 %>%
   hc_exporting(
     enabled = TRUE, # always enabled
     filename = "publisher_2022_absolute",
+    buttons = list(contextButton = list(menuItems = c('downloadJPEG', 'separator', 'downloadCSV')))
+  )
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+## 2023 ----
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+data_publisher_2023 <- data %>%
+  filter(jahr == 2023) %>%
+  select(doi,
+         oa_status,
+         publisher = unpw_publisher)
+
+summary_publisher_2023 <- data_publisher_2023 %>%
+  group_by(publisher, oa_status) %>%
+  summarise(value = n(), .groups = "drop_last") %>%
+  mutate(value_pub = sum(value)) %>%
+  ungroup() %>%
+  # filter(value_pub >= 5) %>%
+  mutate(publisher = forcats::fct_reorder(publisher, -value_pub))
+
+summary_publisher_2023_2 <- summary_publisher_2023 %>%
+  group_by(publisher) %>%
+  spread(oa_status, value, fill = 0) %>%
+  gather(oa_status, value, 3:8) %>%
+  mutate(oa_status = factor(oa_status, levels = oa_status_colors)) %>%
+  mutate(percent = round(value / sum(value) * 100, 1)) %>%
+  filter(value_pub >= 3) %>%
+  drop_na()
+
+table_publishers_2023 <- summary_publisher_2023_2 %>%
+  select(-value_pub, -percent) %>%
+  pivot_wider(names_from = oa_status, values_from = value) %>%
+  select(-`no result`)
+
+publisher_2023_absolute <- summary_publisher_2023_2 %>%
+  hchart("bar", hcaes(x = publisher, y = value, group = oa_status)) %>%
+  hc_plotOptions(series = list(stacking = "normal")) %>%
+  hc_colors(color) %>%
+  hc_xAxis(min = 0,
+           max = 15,
+           scrollbar = list(enabled = TRUE)) %>%
+  hc_size(height = 500) %>%
+  hc_xAxis(title = list(text = "Publisher")) %>%
+  hc_yAxis(title = list(text = "Number"),
+           reversedStacks = FALSE) %>%
+  hc_tooltip(pointFormat = "<b>{point.oa_status}</b><br>{point.value} articles ({point.percent} %)<br>{point.value_pub} total articles") %>%
+  hc_chart(backgroundColor = "white") %>%
+  hc_exporting(
+    enabled = TRUE, # always enabled
+    filename = "publisher_2023_absolute",
     buttons = list(contextButton = list(menuItems = c('downloadJPEG', 'separator', 'downloadCSV')))
   )
 

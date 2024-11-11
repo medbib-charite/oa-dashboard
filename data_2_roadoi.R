@@ -115,7 +115,7 @@ load("data/data_unpaywall.Rda")
 # https://subugoe.github.io/scholcomm_analytics/posts/unpaywall_evidence/
 
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# Analyse Licences ----
+# Analyse Licenses ----
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 data_license <- select(data, doi, license)
@@ -131,7 +131,7 @@ data_license <- select(data, doi, license)
 
 data_doi <- data %>%
   filter(doi_existent) %>%
-  filter(jahr %in% c(2016, 2017, 2018, 2019, 2020, 2021, 2022))
+  filter(jahr %in% c(2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023))
 
 # data_medbib_license <- data_doi %>%
 #   select(doi, oa_status)
@@ -263,6 +263,49 @@ chart_lizenzen_year_2022 <- data_license_oa_status_final_count_2_2022 %>%
   )
 
 save(chart_lizenzen_year_2022, file = "charts/chart_lizenzen_year_2022.Rda")
+
+## only for 2023 ----
+
+data_doi_2023 <- data %>%
+  filter(doi_existent) %>%
+  filter(jahr == 2023)
+
+data_medbib_license_2023 <- data_doi_2023 %>%
+  select(doi, oa_status)
+
+data_license_oa_status_final_2023 <- data_medbib_license_2023 %>%
+  inner_join(data_license, by = "doi")
+
+data_license_oa_status_final_count_2023 <- data_license_oa_status_final_2023 %>%
+  group_by(license, oa_status) %>%
+  summarise(count = n())
+
+data_license_oa_status_final_count_2_2023 <- data_license_oa_status_final_count_2023 %>%
+  group_by(license) %>%
+  spread(oa_status, count, fill = 0) %>% # to solve order problem
+  gather(oa_status, count, -license) %>%
+  mutate(oa_status = factor(oa_status, levels = oa_status_colors)) %>%
+  arrange(license)
+
+save(data_license_oa_status_final_count_2_2023, file = "data/data_license_oa_status_final_count_2_2023.Rda")
+
+chart_lizenzen_year_2023 <- data_license_oa_status_final_count_2_2023 %>%
+  hchart("column",
+         hcaes(x = license, y = count, group = oa_status)) %>%
+  hc_plotOptions(series = list(stacking = "normal")) %>%
+  hc_xAxis(title = list(text = "License")) %>%
+  hc_yAxis(title = list(text = "Number"),
+           labels = list(format = '{value:.0f}')) %>%
+  hc_colors(color) %>%
+  hc_tooltip(pointFormat = "{point.count} articles") %>%
+  hc_chart(backgroundColor = "white") %>%
+  hc_exporting(
+    enabled = TRUE, # always enabled
+    filename = "chart_lizenzen_oa",
+    buttons = list(contextButton = list(menuItems = c('downloadJPEG', 'separator', 'downloadCSV')))
+  )
+
+save(chart_lizenzen_year_2023, file = "charts/chart_lizenzen_year_2023.Rda")
 
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # Visualize licenses only for OA status gold, green, hybrid ----
