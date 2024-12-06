@@ -7,7 +7,7 @@
 - Anja Siebert (Data collection)
 - Jan Taubitz (Concept, Technical implementation), 2021
 
-### Latest Update: September 4, 2023
+### Latest Update: December 6, 2024
 
 ## Sources:
 - [Embase (via Ovid)](http://ovidsp.ovid.com/autologin.html)
@@ -22,13 +22,15 @@ Chosen data sources include information about corresponding authors and their af
 - Bibliographic records 2018–2020: April 28, 2021
 - Bibliographic records 2021: April 2022
 - Bibliographic records 2022: April 6, 2023
+- Bibliographic records 2023: July 11, 2024
 - Unpaywall lookup 2016–2017: August 24, 2021
 - Unpaywall lookup 2018–2020: June 15, 2021
 - Unpaywall lookup 2021: September 2022
 - Unpaywall lookup 2022: June 23, 2023
+- Unpaywall lookup 2023: September 25, 2024
 
 ## Updates to the dashboard & data deduplication:
-Data collection is time consuming and thus happens annually. Metadata describing articles from Web of Science, EMBASE and from the Charité Medical Library (including our Publication Fund) are combined and deduplicated largely by DOI-matching but also involving manual checks especially where DOIs are missing from the data. Articles without a DOI are deduplicated using the PMID, WOS Accession Number and Embase Accession Number, if applicable. Those deduplications are undertaken firstly within each raw data set (2016–2017, 2018–2020, 2021), secondly between these data sets, always preferring records from previous years over newer records.
+Data collection is time consuming and thus happens annually. Metadata describing articles from Web of Science, EMBASE and from the Charité Medical Library (including our Publication Fund) are combined and deduplicated largely by DOI-matching but also involving manual checks especially where DOIs are missing from the data. Articles without a DOI are deduplicated using the PMID, WOS Accession Number and Embase Accession Number, if applicable. Those deduplications are undertaken firstly within each raw data set (2016–2017, 2018–2020, 2021, 2022, 2023), secondly between these data sets, always preferring records from previous years over newer records.
 
 ## Choice of timeframe & introducing the analyses:
 
