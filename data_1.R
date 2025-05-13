@@ -1,6 +1,5 @@
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # Manipulation and Visualization of Medbib dataset ----
-# jan.taubitz@charite.de - 2021
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 ##+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -34,7 +33,13 @@ color <- c("#F4C244", "#A0CBDA", "#4FAC5B", "#D85DBF", "#2C405E", "#5F7036")
 # Data input sets, ordered from oldest to newest ----
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-input_dataset_levels = c("2016_2017", "2018_2020", "2021", "2022", "2023")
+levels_input_dataset = c("2016_2017", "2018_2020", "2021", "2022", "2023")
+
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# Cost visualisation: years ----
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+levels_cost_years = c("2018", "2019", "2020", "2021", "2022", "2023")
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # Load sources ----
@@ -532,7 +537,7 @@ data_2016_2023 <- anti_join(data_2016_2023_all, remove_2023_dois, by = "doi")
 data_clean <- data_2016_2023 %>%
   filter(jahr != 0) %>%
   mutate(pmid = na_if(pmid, 0)) %>%
-  mutate(origin_dataset = factor(origin_dataset, levels = input_dataset_levels, ordered = TRUE)) %>%
+  mutate(origin_dataset = factor(origin_dataset, levels = levels_input_dataset, ordered = TRUE)) %>%
   relocate(pmid, .after = doi_existent) %>%
   relocate(origin_dataset, .before = titel)
 
@@ -1231,28 +1236,61 @@ publisher_2023_absolute <- summary_publisher_2023_2 %>%
     buttons = list(contextButton = list(menuItems = c('downloadJPEG', 'separator', 'downloadCSV')))
   )
 
-
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# Load data of OA costs ----
+# Cost data from OpenAPC: request data and prepare chart ----
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-oa_costs <- "raw_data/oa_costs.xlsx"
+openapc_cols_keep <- c("institution",
+                       "period",
+                       "publisher",
+                       "euro")
 
-data_costs <- read_excel(oa_costs,
-                         sheet = "Sheet1")
+apc_filename <- sprintf("raw_data/openapc_apc_%s.csv", Sys.Date())
+deal_hybrid_filename <- sprintf("raw_data/openapc_deal_hybrid_%s.csv", Sys.Date())
 
-data_costs_long <- data_costs %>%
-  select(-total) %>%
-  pivot_longer(cols = c("2018", "2019", "2020", "2021", "2022"), names_to = "year")
+# download files and keep for later reference
+download.file("https://olap.openapc.net/cube/charite/facts?format=csv&header=names&cut=", apc_filename, mode = "wb")
+download.file("https://olap.openapc.net/cube/charite_deal/facts?format=csv&header=names&cut=is_hybrid%3ATRUE", deal_hybrid_filename, mode = "wb")
+openapc_apc <- read.csv(apc_filename) %>%
+  select(all_of(openapc_cols_keep))
+openapc_deal_hybrid <- read.csv(deal_hybrid_filename) %>%
+  select(all_of(openapc_cols_keep))
 
-# pal <- got(5, direction = 1, option = "Jon_Snow")
- pal <- c("#858688", "#B5BCC8", "#A5BAE2", "#4F81D3", "#004ECC")
-# pal <- c("#8797AE", "#B2C1DD", "#2C74B4")
+openapc <- rbind(openapc_apc, openapc_deal_hybrid) %>%
+  # add Springer Nature Postpayment (not yet included in OpenAPC as of April 2025, will be included in autumn 2025)
+  add_row(institution = "Charité - Universitätsmedizin Berlin",
+          period = 2023,
+          publisher = "Springer Nature",
+          euro = 320966.63) %>%
+  mutate(period = factor(period, levels = levels_cost_years))
 
-publisher_costs <-
-  data_costs_long %>%
+# Top 10 publishers by total payment over all years
+top_ten_publishers <- openapc %>%
+  group_by(publisher) %>%
+  summarise(total_costs = sum(euro)) %>%
+  arrange(desc(total_costs)) %>%
+  head(10) %>%
+  pull(publisher)
+
+costs <- openapc %>%
+  group_by(publisher, period) %>%
+  summarise(costs = sum(euro)) %>%
+  filter(publisher %in% top_ten_publishers)
+
+# order by the total costs of the publisher
+costs_ordered_by_publisher_total <- costs %>%
+  mutate(costs = round(costs, digits = 2)) %>%
+  mutate(publisher = factor(publisher, levels = top_ten_publishers)) %>%
+  arrange(publisher)
+
+# pal <- c("#858688", "#B5BCC8", "#A5BAE2", "#4F81D3", "#004ECC")
+# pal <- got(6, direction = 1, option = "Jon_Snow")
+pal <- colorRampPalette(c("#858688", "#B2C1DD", "#004ecc"))
+pal <- pal(length(levels_cost_years))
+
+publisher_costs <- costs_ordered_by_publisher_total %>%
   hchart("column",
-         hcaes(x = publisher, y = value, group = year)) %>%
+         hcaes(x = publisher, y = costs, group = period)) %>%
   hc_plotOptions(series = list(stacking = "normal")) %>%
   hc_xAxis(title = list(text = "Publisher")) %>%
   hc_yAxis(title = list(text = "Funding amount"),
@@ -1275,10 +1313,9 @@ publisher_costs <-
 pal <- colorRampPalette(c("#858688", "#B2C1DD", "#004ecc"))
 pal <- pal(10)
 
-publisher_costs_year <-
-  data_costs_long %>%
+publisher_costs_year <- costs %>%
   hchart("bar",
-         hcaes(x = year, y = value, group = publisher)) %>%
+         hcaes(x = period, y = costs, group = publisher)) %>%
   hc_plotOptions(series = list(stacking = "normal")) %>%
   hc_xAxis(title = list(text = "Year")) %>%
   hc_yAxis(title = list(text = "Funding amount"),

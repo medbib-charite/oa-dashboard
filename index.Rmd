@@ -25,26 +25,19 @@ library(flexdashboard)
 source("data_2_roadoi.R", encoding = 'UTF-8')
 ```
 
-Dashboard {data-icon="fa-globe"}
-===================================== 
+# Dashboard {data-icon="fa-globe"}
 
-Row {.no-title}
------------------------------------------------------------------------
+## Row {.no-title}
 
 ###
 <font size="5">The [Charité Medical Library](https://bibliothek.charite.de/en/) presents data about open access publishing in journal articles at the Charité in interactive, clickable diagrams. This dashboard is complementary to the [Charité Metrics Dashboard](https://s-quest.bihealth.org/charite-dashboard/) from the BIH QUEST Center at Charité.</font>
 
-
-Row {.no-title}
------------------------------------------------------------------------
+## Row {.no-title}
 
 ###
 <font size="5">Percentage of open access among all articles involving Charité authors</font>
 
-
-Row 
------------------------------------------------------------------------
-
+## Row
 ```{r}
 ##+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ## Analysis for gauges
@@ -67,32 +60,31 @@ is_corresponding_2023 <- round(proportions(table(data_2023$corresponding_author_
 is_doaj_2023 <- round(proportions(table(data_2023$journal_is_in_doaj))*100,1)[["TRUE"]]
 ```
 
-### <b>2020</b>
+### 2020
 ```{r}
 rate <- summary_is_oa %>% filter(jahr == 2020 & is_oa == TRUE) %>% pull(perc)
 gauge(rate, min = 0, max = 100, symbol = ' %', gaugeSectors(colors = "#e97202"))
 ```
 
-### <b>2021</b>
+### 2021
 ```{r}
 rate <- summary_is_oa %>% filter(jahr == 2021 & is_oa == TRUE) %>% pull(perc)
 gauge(rate, min = 0, max = 100, symbol = ' %', gaugeSectors(colors = "#e97202"))
 ```
 
-### <b>2022</b>
+### 2022
 ```{r}
 rate <- summary_is_oa %>% filter(jahr == 2022 & is_oa == TRUE) %>% pull(perc)
 gauge(rate, min = 0, max = 100, symbol = ' %', gaugeSectors(colors = "#e97202"))
 ```
 
-### <b>2023</b>
+### 2023
 ```{r}
 rate <- summary_is_oa %>% filter(jahr == 2023 & is_oa == TRUE) %>% pull(perc)
 gauge(rate, min = 0, max = 100, symbol = ' %', gaugeSectors(colors = "#e97202"))
 ```
 
-Row 
------------------------------------------------------------------------
+## Row
 
 ### 2023: Charité corresponding author articles among articles involving Charité authors
 ```{r}
@@ -106,20 +98,13 @@ rate <- is_doaj_2023
 gauge(rate, min = 0, max = 100, symbol = ' %', gaugeSectors(colors = "#F4C244"))
 ```
 
-<!-- ### 2020: Percentage of articles involving Charité authors appearing in a DOAJ-listed journal -->
 
-<!-- ```{r} -->
-<!-- rate <- is_doaj_2020 -->
-<!-- gauge(rate, min = 0, max = 100, symbol = ' %', gaugeSectors(colors = "#F4C244")) -->
-<!-- ``` -->
+## Row {.no-title}
 
-Row {.no-title}
------------------------------------------------------------------------
 ###
 <font size="5"> Open access status among articles involving Charité authors and among articles with a Charité corresponding author</font>
 
-Row {data-height=auto}
------------------------------------------------------------------------
+## Row {data-height="auto"}
 
 ### 2017 - 2023: Articles involving Charité authors by OA status (in %)
 ```{r}
@@ -131,8 +116,7 @@ status_percent
 status_corresponding_percent
 ```
 
-Row {data-height=auto}
------------------------------------------------------------------------
+## Row {data-height="auto"}
 
 ### 2017 - 2023: Articles involving Charité authors by OA status (absolute numbers)
 ```{r}
@@ -144,15 +128,12 @@ status_absolute_spline
 status_corresponding_absolute_spline
 ```
 
+## Row {.no-title}
 
-Row {.no-title}
------------------------------------------------------------------------
 ###
 <font size="5"> Publishers and journals among articles involving Charité authors, by open access status</font>
 
-
-Row {data-height=auto}
------------------------------------------------------------------------
+## Row {data-height="auto"}
 
 ### 2023: Articles by publisher in absolute numbers
 ```{r}
@@ -164,10 +145,9 @@ publisher_2023_absolute
 journal_2023_absolute
 ```
 
-Row {.tabset}
------------------------------------------------------------------------
+## Row {.tabset}
 
-### 2018 - 2022: Centrally funded articles (with a Charité corresponding author); top 10 publishers by Charité expenditures
+### 2018 - 2023: Centrally funded articles (with a Charité corresponding author); top 10 publishers by Charité expenditures
 ```{r}
 publisher_costs
 ```
@@ -177,20 +157,21 @@ publisher_costs
 publisher_costs_year
 ```
 
-
-Row {.no-title}
------------------------------------------------------------------------
+## Row {.no-title}
 
 ###
 <font size="5"> Open licenses under which articles involving Charité authors were published</font>
 
-Row
------------------------------------------------------------------------
+## Row
 
 <!-- ### 2016 - 2021: Licenses for all articles involving Charité authors -->
+
 <!-- ```{r} -->
+
 <!-- load("charts/chart_lizenzen.Rda") -->
+
 <!-- chart_lizenzen -->
+
 <!-- ``` -->
 
 ### only 2017: Licenses for all articles involving Charité authors
@@ -205,13 +186,12 @@ load("charts/chart_lizenzen_year_2023.Rda")
 chart_lizenzen_year_2023
 ```
 
-Data tables
-=====================================
+# Data tables
 
-Row 
------------------------------------------------------------------------
+## Row
 
 ### Articles involving Charité authors, by OA status and year
+
 ```{r}
 library(kableExtra)
 
@@ -227,10 +207,10 @@ summary_data_2017_2023 %>%
 )
 ```
 
-Row 
------------------------------------------------------------------------
+## Row
 
 ### Articles with a Charité corresponding author, by OA status and year
+
 ```{r}
 summary_corresponding_2017_2023 %>%
   kbl(align = "llll",
@@ -244,10 +224,10 @@ summary_corresponding_2017_2023 %>%
 )
 ```
 
-Row 
------------------------------------------------------------------------
+## Row
 
 ### Articles involving Charité authors, by OA status and license
+
 ```{r}
 load("data/data_license_oa_status_final_count_2.Rda")
 
@@ -259,14 +239,9 @@ data_license_oa_status_final_count_2 %>%
 )
 ```
 
-
-About
-=====================================
+# About
 
 ```{r}
 library(htmltools)
   includeMarkdown('about.md')
 ```
-
-
-

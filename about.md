@@ -7,13 +7,14 @@
 - Anja Siebert (Data collection)
 - Jan Taubitz (Concept, Technical implementation), 2021
 
-### Latest Update: December 6, 2024
+### Latest Update: May 13, 2025
 
 ## Sources:
 - [Embase (via Ovid)](http://ovidsp.ovid.com/autologin.html)
 - Statistics from the Charité Medical Library
 - [Unpaywall](https://unpaywall.org)
 - [Web of Science](https://www.webofscience.com/wos/woscc/basic-search)
+- [OpenAPC](https://treemaps.openapc.net/)
 
 Chosen data sources include information about corresponding authors and their affiliations. Corresponding authors are of special interest here because they are responsible for paying fees associated with gold and hybrid Open Access (OA) publishing. Such data is used in cost estimates for the Charité. However, any author can self-archive a paper (green open access) and thus the total number of papers with a Charité authorship is significant when measuring the percentage of open access reached by the institution as a whole. While the percentage of OA publishing is a key indicator for the visibility and discoverability of research findings, the quality and costs of open access must also be monitored, hence the selection of analyses presented in this dashboard.
 
@@ -28,6 +29,7 @@ Chosen data sources include information about corresponding authors and their af
 - Unpaywall lookup 2021: September 2022
 - Unpaywall lookup 2022: June 23, 2023
 - Unpaywall lookup 2023: September 25, 2024
+- OpenAPC (a single query for all years): May 13, 2025
 
 ## Updates to the dashboard & data deduplication:
 Data collection is time consuming and thus happens annually. Metadata describing articles from Web of Science, EMBASE and from the Charité Medical Library (including our Publication Fund) are combined and deduplicated largely by DOI-matching but also involving manual checks especially where DOIs are missing from the data. Articles without a DOI are deduplicated using the PMID, WOS Accession Number and Embase Accession Number, if applicable. Those deduplications are undertaken firstly within each raw data set (2016–2017, 2018–2020, 2021, 2022, 2023), secondly between these data sets, always preferring records from previous years over newer records.
@@ -36,9 +38,9 @@ Data collection is time consuming and thus happens annually. Metadata describing
 
 Dashboard data forms the basis of predictions for future open access costs for the Charité.
 
-Since open access status changes and in particular green OA is often delayed, data on the OA-status for 2021 articles and beyond is captured as a snapshot at the time of the Unpaywall lookup. However, in the dashboard for the years 2016 – 2017 and 2018 – 2020 we can see the snapshot across all years at the time of Unpaywall lookups in 2021.
+Since open access status changes and in particular green OA is often delayed, data on the OA-status for 2021 articles and beyond is captured as a snapshot at the time of the Unpaywall lookup. However, in the dashboard for the years 2017 and 2018 – 2020 we can see the snapshot across all years at the time of Unpaywall lookups in 2021.
 
-The analysis "Publishers and journals among articles involving Charité authors, by open access status" shows the most recent publisher and journal choices of Charité authors from 2020 and looks at centrally financed OA-costs over the last five years: the blue chart is clickable to show costs by publisher or by year, showing the steep rise in central costs since the launch of the Publication Fund in 2018 and introduction of DEAL with Wiley in 2019 and SpringerNature in 2020. Actual and complete costs for the institution are likely to be much higher than reported here, since data is currently only available for centrally financed articles. Efforts are being made to complete the picture.
+The analysis "Publishers and journals among articles involving Charité authors, by open access status" shows the most recent publisher and journal choices of Charité authors from 2023 and looks at centrally financed OA-costs over the last six years: the blue chart is clickable to show expenditures by publisher or by year, showing the steep rise in central costs since the launch of the Publication Fund in 2018 and introduction of DEAL with Wiley in 2019 and Springer Nature in 2020. For reasons of consistency and standardization of publisher names, we use our own expenditure data after it has been enriched by OpenAPC. Actual and complete costs for the institution are likely to be much higher than reported here, since data is currently only available for centrally financed articles. Efforts are being made to complete the picture.
 
 The last analysis looks at the use of open licenses in specific years, according to the open access status of an article.
 
