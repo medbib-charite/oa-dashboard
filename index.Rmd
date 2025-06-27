@@ -164,26 +164,17 @@ publisher_costs_year
 
 ## Row
 
-<!-- ### 2016 - 2021: Licenses for all articles involving Charité authors -->
-
-<!-- ```{r} -->
-
-<!-- load("charts/chart_lizenzen.Rda") -->
-
-<!-- chart_lizenzen -->
-
-<!-- ``` -->
-
 ### only 2017: Licenses for all articles involving Charité authors
 ```{r}
-load("charts/chart_lizenzen_year_2017.Rda")
-chart_lizenzen_year_2017
+load(visu_licenses(data, 2017))
+chart_lizenzen
 ```
+
 
 ### only 2023: Licenses for all articles involving Charité authors
 ```{r}
-load("charts/chart_lizenzen_year_2023.Rda")
-chart_lizenzen_year_2023
+load(visu_licenses(data, 2023))
+chart_lizenzen
 ```
 
 # Data tables

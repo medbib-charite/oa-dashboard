@@ -8,11 +8,7 @@
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 source("data_1.R", encoding = 'UTF-8')
-
 library(roadoi)
-
-data_doi <- data %>%
-  filter(!str_detect(doi, "keine doi"))
 
 #sample_data <- data_doi %>%
 #  sample_n(size = 100)
@@ -84,8 +80,8 @@ data_doi <- data %>%
 #
 # data_unpaywall <- rbind(data_unpaywall_2016, data_unpaywall_2017, data_unpaywall_2018, data_unpaywall_2019, data_unpaywall_2020)
 # save(data_unpaywall, file = "data/data_unpaywall.Rda")
-
-load("data/data_unpaywall.Rda")
+#
+# load("data/data_unpaywall.Rda")
 
 
 
@@ -115,220 +111,62 @@ load("data/data_unpaywall.Rda")
 # https://subugoe.github.io/scholcomm_analytics/posts/unpaywall_evidence/
 
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# Analyse Licenses ----
-#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-data_license <- select(data, doi, license)
-
-# UNUSED?
-# data_license_final_count <- data_license %>%
-#   group_by(license) %>%
-#   summarise(count = n())
-
-#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# Add oa_status to data ----
-#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-data_doi <- data %>%
-  filter(doi_existent) %>%
-  filter(jahr %in% c(2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023))
-
-# data_medbib_license <- data_doi %>%
-#   select(doi, oa_status)
-#
-# data_license_oa_status_final <- data_medbib_license %>%
-#   inner_join(data_license, by = "doi")
-
-data_license_oa_status_final_count <- data_doi %>%
-  group_by(license, oa_status) %>%
-  summarise(count = n())
-
-data_license_oa_status_final_count_2 <- data_license_oa_status_final_count %>%
-  group_by(license) %>%
-  spread(oa_status, count, fill = 0) %>% # to solve order problem
-  gather(oa_status, count, -license) %>%
-  mutate(oa_status = factor(oa_status, levels = oa_status_colors)) %>%
-  arrange(license)
-
-save(data_license_oa_status_final_count_2, file = "data/data_license_oa_status_final_count_2.Rda")
-
-#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # Visualize licenses ----
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-chart_lizenzen <- data_license_oa_status_final_count_2 %>%
-  hchart("column",
-         hcaes(x = license, y = count, group = oa_status)) %>%
-  hc_plotOptions(series = list(stacking = "normal")) %>%
-  hc_xAxis(title = list(text = "License")) %>%
-  hc_yAxis(title = list(text = "Number"),
-           labels = list(format = '{value:.0f}')) %>%
-  hc_colors(color) %>%
-  hc_tooltip(pointFormat = "{point.count} articles")  %>%
-  hc_chart(backgroundColor = "white") %>%
-  hc_exporting(
-    enabled = TRUE, # always enabled
-    filename = "chart_lizenzen",
-    buttons = list(contextButton = list(menuItems = c('downloadJPEG', 'separator', 'downloadCSV')))
-  )
+#' Create a chart with stacked columns, one column for each license.
+#' @param data_df The data; must include cols `doi_existent`, `jahr`, `doi`, `oa_status` and `license`.
+#' @param year (optional) The year which data the chart will include. If no year is given,
+#' it will be about all years (no filter applied).
+#' @returns the filename incl. a chart `chart_lizenzen` that can be loaded e.g. in the Rmd.
+visu_licenses <- function(data_df, year){
+  if (missing(year)) {
+    data_filtered_year <- data_df %>%
+      filter(jahr %in% c(2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023)) #TODO: Implement constant for those relevant years
+    filename_addition <- "all_years"
+  } else {
+    data_filtered_year <- data_df %>%
+      filter(jahr == year)
+    filename_addition <- year
+  }
 
-save(chart_lizenzen, file = "charts/chart_lizenzen.Rda")
+  data_doi <- data_filtered_year %>%
+    filter(doi_existent)
 
-#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# Visualize licenses ----
-#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  data_license_oa_status <- data_doi %>%
+    select(doi, oa_status, license)
 
-## only for 2017 ----
+  data_license_oa_status_count <- data_license_oa_status %>%
+    group_by(license, oa_status) %>%
+    summarise(count = n())
 
-data_doi_2017 <- data %>%
-  filter(doi_existent) %>%
-  filter(jahr == 2017)
+  data_license_oa_status_count_2 <- data_license_oa_status_count %>%
+    group_by(license) %>%
+    spread(oa_status, count, fill = 0) %>% # to solve order problem
+    gather(oa_status, count, -license) %>%
+    mutate(oa_status = factor(oa_status, levels = oa_status_colors)) %>%
+    arrange(license)
 
-data_medbib_license_2017 <- data_doi_2017 %>%
-  select(doi, oa_status)
+  chart_lizenzen <- data_license_oa_status_count_2 %>%
+    hchart("column",
+           hcaes(x = license, y = count, group = oa_status)) %>%
+    hc_plotOptions(series = list(stacking = "normal")) %>%
+    hc_xAxis(title = list(text = "License")) %>%
+    hc_yAxis(title = list(text = "Number"),
+             labels = list(format = '{value:.0f}')) %>%
+    hc_colors(color) %>%
+    hc_tooltip(pointFormat = "{point.count} articles") %>%
+    hc_chart(backgroundColor = "white") %>%
+    hc_exporting(
+      enabled = TRUE, # always enabled
+      filename = "chart_lizenzen_oa",
+      buttons = list(contextButton = list(menuItems = c('downloadJPEG', 'separator', 'downloadCSV')))
+    )
 
-data_license_oa_status_final_2017 <- data_medbib_license_2017 %>%
-  inner_join(data_license, by = "doi")
-
-data_license_oa_status_final_count_2017 <- data_license_oa_status_final_2017 %>%
-  group_by(license, oa_status) %>%
-  summarise(count = n())
-
-data_license_oa_status_final_count_2_2017 <- data_license_oa_status_final_count_2017 %>%
-  group_by(license) %>%
-  spread(oa_status, count, fill = 0) %>% # to solve order problem
-  gather(oa_status, count, -license) %>%
-  mutate(oa_status = factor(oa_status, levels = oa_status_colors)) %>%
-  arrange(license)
-
-save(data_license_oa_status_final_count_2_2017, file = "data/data_license_oa_status_final_count_2_2017.Rda")
-
-chart_lizenzen_year_2017 <- data_license_oa_status_final_count_2_2017 %>%
-  hchart("column",
-         hcaes(x = license, y = count, group = oa_status)) %>%
-  hc_plotOptions(series = list(stacking = "normal")) %>%
-  hc_xAxis(title = list(text = "License")) %>%
-  hc_yAxis(title = list(text = "Number"),
-           labels = list(format = '{value:.0f}')) %>%
-  hc_colors(color) %>%
-  hc_tooltip(pointFormat = "{point.count} articles") %>%
-  hc_chart(backgroundColor = "white") %>%
-  hc_exporting(
-    enabled = TRUE, # always enabled
-    filename = "chart_lizenzen_oa",
-    buttons = list(contextButton = list(menuItems = c('downloadJPEG', 'separator', 'downloadCSV')))
-  )
-
-save(chart_lizenzen_year_2017, file = "charts/chart_lizenzen_year_2017.Rda")
-
-## only for 2022 ----
-
-data_doi_2022 <- data %>%
-  filter(doi_existent) %>%
-  filter(jahr == 2022)
-
-data_medbib_license_2022 <- data_doi_2022 %>%
-  select(doi, oa_status)
-
-data_license_oa_status_final_2022 <- data_medbib_license_2022 %>%
-  inner_join(data_license, by = "doi")
-
-data_license_oa_status_final_count_2022 <- data_license_oa_status_final_2022 %>%
-  group_by(license, oa_status) %>%
-  summarise(count = n())
-
-data_license_oa_status_final_count_2_2022 <- data_license_oa_status_final_count_2022 %>%
-  group_by(license) %>%
-  spread(oa_status, count, fill = 0) %>% # to solve order problem
-  gather(oa_status, count, -license) %>%
-  mutate(oa_status = factor(oa_status, levels = oa_status_colors)) %>%
-  arrange(license)
-
-save(data_license_oa_status_final_count_2_2022, file = "data/data_license_oa_status_final_count_2_2022.Rda")
-
-chart_lizenzen_year_2022 <- data_license_oa_status_final_count_2_2022 %>%
-  hchart("column",
-         hcaes(x = license, y = count, group = oa_status)) %>%
-  hc_plotOptions(series = list(stacking = "normal")) %>%
-  hc_xAxis(title = list(text = "License")) %>%
-  hc_yAxis(title = list(text = "Number"),
-           labels = list(format = '{value:.0f}')) %>%
-  hc_colors(color) %>%
-  hc_tooltip(pointFormat = "{point.count} articles") %>%
-  hc_chart(backgroundColor = "white") %>%
-  hc_exporting(
-    enabled = TRUE, # always enabled
-    filename = "chart_lizenzen_oa",
-    buttons = list(contextButton = list(menuItems = c('downloadJPEG', 'separator', 'downloadCSV')))
-  )
-
-save(chart_lizenzen_year_2022, file = "charts/chart_lizenzen_year_2022.Rda")
-
-## only for 2023 ----
-
-data_doi_2023 <- data %>%
-  filter(doi_existent) %>%
-  filter(jahr == 2023)
-
-data_medbib_license_2023 <- data_doi_2023 %>%
-  select(doi, oa_status)
-
-data_license_oa_status_final_2023 <- data_medbib_license_2023 %>%
-  inner_join(data_license, by = "doi")
-
-data_license_oa_status_final_count_2023 <- data_license_oa_status_final_2023 %>%
-  group_by(license, oa_status) %>%
-  summarise(count = n())
-
-data_license_oa_status_final_count_2_2023 <- data_license_oa_status_final_count_2023 %>%
-  group_by(license) %>%
-  spread(oa_status, count, fill = 0) %>% # to solve order problem
-  gather(oa_status, count, -license) %>%
-  mutate(oa_status = factor(oa_status, levels = oa_status_colors)) %>%
-  arrange(license)
-
-save(data_license_oa_status_final_count_2_2023, file = "data/data_license_oa_status_final_count_2_2023.Rda")
-
-chart_lizenzen_year_2023 <- data_license_oa_status_final_count_2_2023 %>%
-  hchart("column",
-         hcaes(x = license, y = count, group = oa_status)) %>%
-  hc_plotOptions(series = list(stacking = "normal")) %>%
-  hc_xAxis(title = list(text = "License")) %>%
-  hc_yAxis(title = list(text = "Number"),
-           labels = list(format = '{value:.0f}')) %>%
-  hc_colors(color) %>%
-  hc_tooltip(pointFormat = "{point.count} articles") %>%
-  hc_chart(backgroundColor = "white") %>%
-  hc_exporting(
-    enabled = TRUE, # always enabled
-    filename = "chart_lizenzen_oa",
-    buttons = list(contextButton = list(menuItems = c('downloadJPEG', 'separator', 'downloadCSV')))
-  )
-
-save(chart_lizenzen_year_2023, file = "charts/chart_lizenzen_year_2023.Rda")
-
-#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# Visualize licenses only for OA status gold, green, hybrid ----
-#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-chart_lizenzen_oa <- data_license_oa_status_final_count_2 %>%
-  filter(oa_status %in% c("gold", "hybrid", "green")) %>%
-  hchart("column",
-         hcaes(x = license, y = count, group = oa_status)) %>%
-  hc_plotOptions(series = list(stacking = "normal")) %>%
-  hc_xAxis(title = list(text = "License")) %>%
-  hc_yAxis(title = list(text = "Number"),
-           labels = list(format = '{value:.0f}')) %>%
-  hc_colors(color) %>%
-  hc_tooltip(pointFormat = "{point.count} articles") %>%
-  hc_chart(backgroundColor = "white") %>%
-  hc_exporting(
-    enabled = TRUE, # always enabled
-    filename = "chart_lizenzen_oa",
-    buttons = list(contextButton = list(menuItems = c('downloadJPEG', 'separator', 'downloadCSV')))
-  )
-
-save(chart_lizenzen_oa, file = "charts/chart_lizenzen_oa.Rda")
+  filename = paste0("charts/chart_lizenzen_", filename_addition, ".Rda")
+  save(chart_lizenzen, file = filename)
+  return(filename)
+}
 
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # End ----
