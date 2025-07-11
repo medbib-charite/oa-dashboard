@@ -14,7 +14,7 @@ cc_licenses = c("cc-by", "cc-by-sa", "cc-by-nc", "cc-by-nc-sa", "cc-by-nd", "cc-
 license_levels = c(cc_licenses, "other license", "no license found")
 
 #' Unnest `oa_locations` and find best license according to `license_levels` for each doi
-#' #' @returns A data frame.
+#' @returns A data frame.
 find_best_license <- function(df) {
   # clean licenses
   unnest_clean <- df %>%
