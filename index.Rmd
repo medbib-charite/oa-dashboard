@@ -52,18 +52,12 @@ summary_is_oa <- data %>%
   group_by(jahr, is_oa) %>%
   summarise(count = sum(count), perc = sum(perc))
 
-## 2023
-data_2023 <- data %>%
-  filter(jahr == 2023)
+## 2024
+data_2024 <- data %>%
+  filter(jahr == 2024)
 
-is_corresponding_2023 <- round(proportions(table(data_2023$corresponding_author_cha))*100,1)[["TRUE"]]
-is_doaj_2023 <- round(proportions(table(data_2023$journal_is_in_doaj))*100,1)[["TRUE"]]
-```
-
-### 2020
-```{r}
-rate <- summary_is_oa %>% filter(jahr == 2020 & is_oa == TRUE) %>% pull(perc)
-gauge(rate, min = 0, max = 100, symbol = ' %', gaugeSectors(colors = "#e97202"))
+is_corresponding_2024 <- round(proportions(table(data_2024$corresponding_author_cha))*100,1)[["TRUE"]]
+is_doaj_2024 <- round(proportions(table(data_2024$journal_is_in_doaj))*100,1)[["TRUE"]]
 ```
 
 ### 2021
@@ -84,17 +78,24 @@ rate <- summary_is_oa %>% filter(jahr == 2023 & is_oa == TRUE) %>% pull(perc)
 gauge(rate, min = 0, max = 100, symbol = ' %', gaugeSectors(colors = "#e97202"))
 ```
 
-## Row
-
-### 2023: Charité corresponding author articles among articles involving Charité authors
+### 2024
 ```{r}
-rate <- is_corresponding_2023
+rate <- summary_is_oa %>% filter(jahr == 2024 & is_oa == TRUE) %>% pull(perc)
 gauge(rate, min = 0, max = 100, symbol = ' %', gaugeSectors(colors = "#e97202"))
 ```
 
-### 2023: Percentage of articles involving Charité authors appearing in a DOAJ-listed journal
+
+## Row
+
+### 2024: Charité corresponding author articles among articles involving Charité authors
 ```{r}
-rate <- is_doaj_2023
+rate <- is_corresponding_2024
+gauge(rate, min = 0, max = 100, symbol = ' %', gaugeSectors(colors = "#e97202"))
+```
+
+### 2024: Percentage of articles involving Charité authors appearing in a DOAJ-listed journal
+```{r}
+rate <- is_doaj_2024
 gauge(rate, min = 0, max = 100, symbol = ' %', gaugeSectors(colors = "#F4C244"))
 ```
 
@@ -106,24 +107,24 @@ gauge(rate, min = 0, max = 100, symbol = ' %', gaugeSectors(colors = "#F4C244"))
 
 ## Row {data-height="auto"}
 
-### 2017 - 2023: Articles involving Charité authors by OA status (in %)
+### 2017 - 2024: Articles involving Charité authors by OA status (in %)
 ```{r}
 status_percent
 ```
 
-### 2017 - 2023: Articles with a Charité corresponding author by OA status (in %)
+### 2017 - 2024: Articles with a Charité corresponding author by OA status (in %)
 ```{r}
 status_corresponding_percent
 ```
 
 ## Row {data-height="auto"}
 
-### 2017 - 2023: Articles involving Charité authors by OA status (absolute numbers)
+### 2017 - 2024: Articles involving Charité authors by OA status (absolute numbers)
 ```{r}
 status_absolute_spline
 ```
 
-### 2017 - 2023: Articles with a Charité corresponding author by OA status (absolute numbers)
+### 2017 - 2024: Articles with a Charité corresponding author by OA status (absolute numbers)
 ```{r}
 status_corresponding_absolute_spline
 ```
@@ -135,14 +136,14 @@ status_corresponding_absolute_spline
 
 ## Row {data-height="auto"}
 
-### 2023: Articles by publisher in absolute numbers
+### 2024: Articles by publisher in absolute numbers
 ```{r}
-publisher_2023_absolute
+publisher_2024_absolute
 ```
 
-### 2023: Articles by journal in absolute numbers
+### 2024: Articles by journal in absolute numbers
 ```{r}
-journal_2023_absolute
+journal_2024_absolute
 ```
 
 ## Row {.tabset}
@@ -171,9 +172,9 @@ chart_lizenzen
 ```
 
 
-### only 2023: Licenses for all articles involving Charité authors
+### only 2024: Licenses for all articles involving Charité authors
 ```{r}
-load(visu_licenses(data, 2023))
+load(visu_licenses(data, 2024))
 chart_lizenzen
 ```
 
@@ -186,7 +187,7 @@ chart_lizenzen
 ```{r}
 library(kableExtra)
 
-summary_data_2017_2023 %>%
+summary_data_2017_2024 %>%
   kbl(align = "llll",
       col.names = c("year",
                     "oa_status",
@@ -203,7 +204,7 @@ summary_data_2017_2023 %>%
 ### Articles with a Charité corresponding author, by OA status and year
 
 ```{r}
-summary_corresponding_2017_2023 %>%
+summary_corresponding_2017_2024 %>%
   kbl(align = "llll",
       col.names = c("year",
                     "oa_status",

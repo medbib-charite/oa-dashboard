@@ -138,6 +138,14 @@ unpaywall_2023_slim <- unpaywall_2023_raw %>%
   unpaywall_set_oa() %>%
   unpaywall_slim("2023")
 
+# 2024: Load and clean Unpaywall data ----
+unpaywall_2024_raw <- readRDS("raw_data/unpaywall_2024_2025-07-01.Rds")
+
+unpaywall_2024_slim <- unpaywall_2024_raw %>%
+  find_best_license() %>%
+  unpaywall_set_oa() %>%
+  unpaywall_slim("2024")
+
 # Combine Unpaywall data all years, keep earliest request ----
-unpaywall_2016_2023_slim <- rbind(unpaywall_2016_2020_slim, unpaywall_2021_slim, unpaywall_2022_slim, unpaywall_2023_slim) %>%
+unpaywall_2016_2024_slim <- rbind(unpaywall_2016_2020_slim, unpaywall_2021_slim, unpaywall_2022_slim, unpaywall_2023_slim, unpaywall_2024_slim) %>%
   distinct(doi, .keep_all = TRUE)

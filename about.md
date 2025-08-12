@@ -7,7 +7,7 @@
 - Anja Siebert (Data collection)
 - Jan Taubitz (Concept, Technical implementation), 2021
 
-### Latest Update: May 13, 2025
+### Latest Update: August 12, 2025
 
 ## Sources:
 - [Embase (via Ovid)](http://ovidsp.ovid.com/autologin.html)
@@ -29,10 +29,11 @@ Chosen data sources include information about corresponding authors and their af
 - Unpaywall lookup 2021: September 2022
 - Unpaywall lookup 2022: June 23, 2023
 - Unpaywall lookup 2023: September 25, 2024
-- OpenAPC (a single query for all years): May 13, 2025
+- Unpaywall lookup 2024: July 1, 2025
+- OpenAPC (a single query for all years): August 12, 2025
 
 ## Updates to the dashboard & data deduplication:
-Data collection is time consuming and thus happens annually. Metadata describing articles from Web of Science, EMBASE and from the Charité Medical Library (including our Publication Fund) are combined and deduplicated largely by DOI-matching but also involving manual checks especially where DOIs are missing from the data. Articles without a DOI are deduplicated using the PMID, WOS Accession Number and Embase Accession Number, if applicable. Those deduplications are undertaken firstly within each raw data set (2016–2017, 2018–2020, 2021, 2022, 2023), secondly between these data sets, always preferring records from previous years over newer records.
+Data collection is time consuming and thus happens annually. Metadata describing articles from Web of Science, EMBASE and from the Charité Medical Library (including our Publication Fund) are combined and deduplicated largely by DOI-matching but also involving manual checks especially where DOIs are missing from the data. Articles without a DOI are deduplicated using the PMID, WOS Accession Number and Embase Accession Number, if applicable. Those deduplications are undertaken firstly within each raw data set (2016–2017, 2018–2020, 2021, 2022, 2023, 2024), secondly between these data sets, always preferring records from previous years over newer records.
 
 ## Choice of timeframe & introducing the analyses:
 
@@ -40,7 +41,7 @@ Dashboard data forms the basis of predictions for future open access costs for t
 
 Since open access status changes and in particular green OA is often delayed, data on the OA-status for 2021 articles and beyond is captured as a snapshot at the time of the Unpaywall lookup. However, in the dashboard for the years 2017 and 2018 – 2020 we can see the snapshot across all years at the time of Unpaywall lookups in 2021.
 
-The analysis "Publishers and journals among articles involving Charité authors, by open access status" shows the most recent publisher and journal choices of Charité authors from 2023 and looks at centrally financed OA-costs over the last six years: the blue chart is clickable to show expenditures by publisher or by year, showing the steep rise in central costs since the launch of the Publication Fund in 2018 and introduction of DEAL with Wiley in 2019 and Springer Nature in 2020. For reasons of consistency and standardization of publisher names, we use our own expenditure data after it has been enriched by OpenAPC. Actual and complete costs for the institution are likely to be much higher than reported here, since data is currently only available for centrally financed articles. Efforts are being made to complete the picture.
+The analysis "Publishers and journals among articles involving Charité authors, by open access status" shows the most recent publisher and journal choices of Charité authors from 2024 and looks at centrally financed OA-costs over the last six years: the blue chart is clickable to show expenditures by publisher or by year, showing the steep rise in central costs since the launch of the Publication Fund in 2018 and introduction of DEAL with Wiley in 2019 and Springer Nature in 2020. For reasons of consistency and standardization of publisher names, we use our own expenditure data after it has been enriched by OpenAPC. Actual and complete costs for the institution are likely to be much higher than reported here, since data is currently only available for centrally financed articles. Efforts are being made to complete the picture.
 
 The last analysis looks at the use of open licenses in specific years, according to the open access status of an article.
 

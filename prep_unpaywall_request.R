@@ -127,3 +127,20 @@ exclude_unpw_2024 <- c(
 
 # 2024 ----
 request_and_save_unpaywall(file = "raw_data/2024.xlsx", sheet = "Merge", year = 2024, excl = exclude_unpw_2024)
+
+
+# other approaches
+# datacite <- data.frame(doi=exclude_unpw_2024) |>
+#   mutate(url = paste0("https://api.datacite.org/dois/", doi)) |>
+#   pull(url)
+#
+# for (u in datacite) {
+#   print(httr::GET(u, httr::accept_json()))
+# }
+#
+# plyr::llply(dois, tryCatch(oadoi_fetch_, NA), email, .progress = .progress) %>%
+#
+#   graceful_fetch_oa <- function(variables) {
+#     tryCatch()
+#   }
+
