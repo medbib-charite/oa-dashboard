@@ -875,289 +875,62 @@ status_corresponding_percent <-
 # Visualizations of journals and oa_status ----
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-## 2020 ----
-#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#' Create a horizontal bar chart with stacked columns, one column for each journal.
+#' @param data_df The data; must include cols `jahr`, `zeitschrift`, and `oa_status`.
+#' @param year (optional) The year which data the chart will include. If no year is given,
+#' it will be about all years (no filter applied).
+#' @returns the filename incl. a chart `chart_lizenzen` that can be loaded e.g. in the Rmd.
+visu_journals_and_status <- function(data_df, year){
+  if (missing(year)) {
+    data_filtered_year <- data_df %>%
+      filter(jahr %in% c(2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024)) #TODO: Implement constant for those relevant years
+    filename_addition <- "all_years"
+  } else {
+    data_filtered_year <- data_df %>%
+      filter(jahr == year)
+    filename_addition <- year
+  }
+  filename = paste0("data/journal_", filename_addition, "_absolute.Rda")
 
-summary_journal_2020 <- data %>%
-  filter(jahr == 2020) %>%
-  group_by(zeitschrift, oa_status) %>%
-  summarise(value = n(), .groups = "drop_last") %>%
-  mutate(value_zs = sum(value)) %>%
-  ungroup() %>%
-  filter(value_zs >= 5) %>%
-  mutate(zeitschrift = forcats::fct_reorder(zeitschrift, -value_zs))
+  summary_journal <- data_filtered_year %>%
+    filter(jahr == year) %>%
+    group_by(zeitschrift, oa_status) %>%
+    summarise(value = n(), .groups = "drop_last") %>%
+    mutate(value_zs = sum(value)) %>%
+    ungroup() %>%
+    filter(value_zs >= 5) %>%
+    mutate(zeitschrift = forcats::fct_reorder(zeitschrift, -value_zs))
 
-summary_journal_2020_2 <- summary_journal_2020 %>%
-  group_by(zeitschrift) %>%
-  spread(oa_status, value, fill = 0) %>%
-  gather(oa_status, value, 3:8) %>%
-  mutate(oa_status = factor(oa_status, levels = oa_status_colors)) %>%
-  mutate(percent = round(value / sum(value) * 100, 1))
+  summary_journal_2 <- summary_journal %>%
+    group_by(zeitschrift) %>%
+    spread(oa_status, value, fill = 0) %>%
+    gather(oa_status, value, 3:8) %>%
+    mutate(oa_status = factor(oa_status, levels = oa_status_colors)) %>%
+    mutate(percent = round(value / sum(value) * 100, 1))
 
-journal_2020_absolute <- summary_journal_2020_2 %>%
-  hchart("bar", hcaes(x = zeitschrift, y = value, group = oa_status)) %>%
-  hc_plotOptions(series = list(stacking = "normal")) %>%
-  hc_colors(color) %>%
-  hc_xAxis(min = 0,
-           max = 15,
-           scrollbar = list(enabled = TRUE)) %>%
-  hc_size(height = 500) %>%
-  hc_xAxis(title = list(text = "Journal")) %>%
-  hc_yAxis(title = list(text = "Number"),
-           reversedStacks = FALSE) %>%
-  hc_tooltip(pointFormat = "<b>{point.oa_status}</b><br>{point.value} articles ({point.percent} %)<br>{point.value_zs} total articles") %>%
-  hc_chart(backgroundColor = "white") %>%
-  hc_exporting(
-    enabled = TRUE, # always enabled
-    filename = "journal_2020_absolute",
-    buttons = list(contextButton = list(menuItems = c('downloadJPEG', 'separator', 'downloadCSV')))
-  )
+  journal_absolute <- summary_journal_2 %>%
+    hchart("bar", hcaes(x = zeitschrift, y = value, group = oa_status)) %>%
+    hc_plotOptions(series = list(stacking = "normal")) %>%
+    hc_colors(color) %>%
+    hc_xAxis(min = 0,
+             max = 15,
+             scrollbar = list(enabled = TRUE)) %>%
+    hc_size(height = 500) %>%
+    hc_xAxis(title = list(text = "Journal")) %>%
+    hc_yAxis(title = list(text = "Number"),
+             reversedStacks = FALSE) %>%
+    hc_tooltip(pointFormat = "<b>{point.oa_status}</b><br>{point.value} articles ({point.percent} %)<br>{point.value_zs} total articles") %>%
+    hc_chart(backgroundColor = "white") %>%
+    hc_exporting(
+      enabled = TRUE, # always enabled
+      filename = paste0("journal_", filename_addition, "_absolute"),
+      buttons = list(contextButton = list(menuItems = c('downloadJPEG', 'separator', 'downloadCSV')))
+    )
+  save(journal_absolute, file = filename)
+  return(filename)
+}
 
-journal_2020_percent <- summary_journal_2020_2 %>%
-  hchart("bar", hcaes(x = zeitschrift, y = percent, group = oa_status)) %>%
-  hc_plotOptions(series = list(stacking = "normal")) %>%
-  hc_colors(color) %>%
-  hc_xAxis(min = 0,
-           max = 15,
-           scrollbar = list(enabled = TRUE)) %>%
-  hc_yAxis(labels = list(format = '{value} %'),
-                         max = 100, reversedStacks = FALSE) %>%
-  hc_size(height = 500) %>%
-  hc_tooltip(pointFormat = "<b>{point.oa_status}</b><br>{point.value} articles ({point.percent} %)<br>{point.value_zs} total articles") %>%
-  hc_chart(backgroundColor = "white") %>%
-  hc_exporting(
-    enabled = TRUE, # always enabled
-    filename = "journal_2020_percent",
-    buttons = list(contextButton = list(menuItems = c('downloadJPEG', 'separator', 'downloadCSV')))
-  )
-
-#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-## 2021 ----
-#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-summary_journal_2021 <- data %>%
-  filter(jahr == 2021) %>%
-  group_by(zeitschrift, oa_status) %>%
-  summarise(value = n(), .groups = "drop_last") %>%
-  mutate(value_zs = sum(value)) %>%
-  ungroup() %>%
-  filter(value_zs >= 5) %>%
-  mutate(zeitschrift = forcats::fct_reorder(zeitschrift, -value_zs))
-
-summary_journal_2021_2 <- summary_journal_2021 %>%
-  group_by(zeitschrift) %>%
-  spread(oa_status, value, fill = 0) %>%
-  gather(oa_status, value, 3:8) %>%
-  mutate(oa_status = factor(oa_status, levels = oa_status_colors)) %>%
-  mutate(percent = round(value / sum(value) * 100, 1))
-
-journal_2021_absolute <- summary_journal_2021_2 %>%
-  hchart("bar", hcaes(x = zeitschrift, y = value, group = oa_status)) %>%
-  hc_plotOptions(series = list(stacking = "normal")) %>%
-  hc_colors(color) %>%
-  hc_xAxis(min = 0,
-           max = 15,
-           scrollbar = list(enabled = TRUE)) %>%
-  hc_size(height = 500) %>%
-  hc_xAxis(title = list(text = "Journal")) %>%
-  hc_yAxis(title = list(text = "Number"),
-           reversedStacks = FALSE) %>%
-  hc_tooltip(pointFormat = "<b>{point.oa_status}</b><br>{point.value} articles ({point.percent} %)<br>{point.value_zs} total articles") %>%
-  hc_chart(backgroundColor = "white") %>%
-  hc_exporting(
-    enabled = TRUE, # always enabled
-    filename = "journal_2021_absolute",
-    buttons = list(contextButton = list(menuItems = c('downloadJPEG', 'separator', 'downloadCSV')))
-  )
-
-journal_2021_percent <- summary_journal_2021_2 %>%
-  hchart("bar", hcaes(x = zeitschrift, y = percent, group = oa_status)) %>%
-  hc_plotOptions(series = list(stacking = "normal")) %>%
-  hc_colors(color) %>%
-  hc_xAxis(min = 0,
-           max = 15,
-           scrollbar = list(enabled = TRUE)) %>%
-  hc_yAxis(labels = list(format = '{value} %'),
-           max = 100, reversedStacks = FALSE) %>%
-  hc_size(height = 500) %>%
-  hc_tooltip(pointFormat = "<b>{point.oa_status}</b><br>{point.value} articles ({point.percent} %)<br>{point.value_zs} total articles") %>%
-  hc_chart(backgroundColor = "white") %>%
-  hc_exporting(
-    enabled = TRUE, # always enabled
-    filename = "journal_2021_percent",
-    buttons = list(contextButton = list(menuItems = c('downloadJPEG', 'separator', 'downloadCSV')))
-  )
-
-#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-## 2022 ----
-#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-summary_journal_2022 <- data %>%
-  filter(jahr == 2022) %>%
-  group_by(zeitschrift, oa_status) %>%
-  summarise(value = n(), .groups = "drop_last") %>%
-  mutate(value_zs = sum(value)) %>%
-  ungroup() %>%
-  filter(value_zs >= 5) %>%
-  mutate(zeitschrift = forcats::fct_reorder(zeitschrift, -value_zs))
-
-summary_journal_2022_2 <- summary_journal_2022 %>%
-  group_by(zeitschrift) %>%
-  spread(oa_status, value, fill = 0) %>%
-  gather(oa_status, value, 3:8) %>%
-  mutate(oa_status = factor(oa_status, levels = oa_status_colors)) %>%
-  mutate(percent = round(value / sum(value) * 100, 1))
-
-journal_2022_absolute <- summary_journal_2022_2 %>%
-  hchart("bar", hcaes(x = zeitschrift, y = value, group = oa_status)) %>%
-  hc_plotOptions(series = list(stacking = "normal")) %>%
-  hc_colors(color) %>%
-  hc_xAxis(min = 0,
-           max = 15,
-           scrollbar = list(enabled = TRUE)) %>%
-  hc_size(height = 500) %>%
-  hc_xAxis(title = list(text = "Journal")) %>%
-  hc_yAxis(title = list(text = "Number"),
-           reversedStacks = FALSE) %>%
-  hc_tooltip(pointFormat = "<b>{point.oa_status}</b><br>{point.value} articles ({point.percent} %)<br>{point.value_zs} total articles") %>%
-  hc_chart(backgroundColor = "white") %>%
-  hc_exporting(
-    enabled = TRUE, # always enabled
-    filename = "journal_2022_absolute",
-    buttons = list(contextButton = list(menuItems = c('downloadJPEG', 'separator', 'downloadCSV')))
-  )
-
-journal_2022_percent <- summary_journal_2022_2 %>%
-  hchart("bar", hcaes(x = zeitschrift, y = percent, group = oa_status)) %>%
-  hc_plotOptions(series = list(stacking = "normal")) %>%
-  hc_colors(color) %>%
-  hc_xAxis(min = 0,
-           max = 15,
-           scrollbar = list(enabled = TRUE)) %>%
-  hc_yAxis(labels = list(format = '{value} %'),
-           max = 100, reversedStacks = FALSE) %>%
-  hc_size(height = 500) %>%
-  hc_tooltip(pointFormat = "<b>{point.oa_status}</b><br>{point.value} articles ({point.percent} %)<br>{point.value_zs} total articles") %>%
-  hc_chart(backgroundColor = "white") %>%
-  hc_exporting(
-    enabled = TRUE, # always enabled
-    filename = "journal_2022_percent",
-    buttons = list(contextButton = list(menuItems = c('downloadJPEG', 'separator', 'downloadCSV')))
-  )
-#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-## 2023 ----
-#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-summary_journal_2023 <- data %>%
-  filter(jahr == 2023) %>%
-  group_by(zeitschrift, oa_status) %>%
-  summarise(value = n(), .groups = "drop_last") %>%
-  mutate(value_zs = sum(value)) %>%
-  ungroup() %>%
-  filter(value_zs >= 5) %>%
-  mutate(zeitschrift = forcats::fct_reorder(zeitschrift, -value_zs))
-
-summary_journal_2023_2 <- summary_journal_2023 %>%
-  group_by(zeitschrift) %>%
-  spread(oa_status, value, fill = 0) %>%
-  gather(oa_status, value, 3:8) %>%
-  mutate(oa_status = factor(oa_status, levels = oa_status_colors)) %>%
-  mutate(percent = round(value / sum(value) * 100, 1))
-
-journal_2023_absolute <- summary_journal_2023_2 %>%
-  hchart("bar", hcaes(x = zeitschrift, y = value, group = oa_status)) %>%
-  hc_plotOptions(series = list(stacking = "normal")) %>%
-  hc_colors(color) %>%
-  hc_xAxis(min = 0,
-           max = 15,
-           scrollbar = list(enabled = TRUE)) %>%
-  hc_size(height = 500) %>%
-  hc_xAxis(title = list(text = "Journal")) %>%
-  hc_yAxis(title = list(text = "Number"),
-           reversedStacks = FALSE) %>%
-  hc_tooltip(pointFormat = "<b>{point.oa_status}</b><br>{point.value} articles ({point.percent} %)<br>{point.value_zs} total articles") %>%
-  hc_chart(backgroundColor = "white") %>%
-  hc_exporting(
-    enabled = TRUE, # always enabled
-    filename = "journal_2023_absolute",
-    buttons = list(contextButton = list(menuItems = c('downloadJPEG', 'separator', 'downloadCSV')))
-  )
-
-journal_2023_percent <- summary_journal_2023_2 %>%
-  hchart("bar", hcaes(x = zeitschrift, y = percent, group = oa_status)) %>%
-  hc_plotOptions(series = list(stacking = "normal")) %>%
-  hc_colors(color) %>%
-  hc_xAxis(min = 0,
-           max = 15,
-           scrollbar = list(enabled = TRUE)) %>%
-  hc_yAxis(labels = list(format = '{value} %'),
-           max = 100, reversedStacks = FALSE) %>%
-  hc_size(height = 500) %>%
-  hc_tooltip(pointFormat = "<b>{point.oa_status}</b><br>{point.value} articles ({point.percent} %)<br>{point.value_zs} total articles") %>%
-  hc_chart(backgroundColor = "white") %>%
-  hc_exporting(
-    enabled = TRUE, # always enabled
-    filename = "journal_2023_percent",
-    buttons = list(contextButton = list(menuItems = c('downloadJPEG', 'separator', 'downloadCSV')))
-  )
-
-#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-## 2024 ----
-#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-summary_journal_2024 <- data %>%
-  filter(jahr == 2024) %>%
-  group_by(zeitschrift, oa_status) %>%
-  summarise(value = n(), .groups = "drop_last") %>%
-  mutate(value_zs = sum(value)) %>%
-  ungroup() %>%
-  filter(value_zs >= 5) %>%
-  mutate(zeitschrift = forcats::fct_reorder(zeitschrift, -value_zs))
-
-summary_journal_2024_2 <- summary_journal_2024 %>%
-  group_by(zeitschrift) %>%
-  spread(oa_status, value, fill = 0) %>%
-  gather(oa_status, value, 3:8) %>%
-  mutate(oa_status = factor(oa_status, levels = oa_status_colors)) %>%
-  mutate(percent = round(value / sum(value) * 100, 1))
-
-journal_2024_absolute <- summary_journal_2024_2 %>%
-  hchart("bar", hcaes(x = zeitschrift, y = value, group = oa_status)) %>%
-  hc_plotOptions(series = list(stacking = "normal")) %>%
-  hc_colors(color) %>%
-  hc_xAxis(min = 0,
-           max = 15,
-           scrollbar = list(enabled = TRUE)) %>%
-  hc_size(height = 500) %>%
-  hc_xAxis(title = list(text = "Journal")) %>%
-  hc_yAxis(title = list(text = "Number"),
-           reversedStacks = FALSE) %>%
-  hc_tooltip(pointFormat = "<b>{point.oa_status}</b><br>{point.value} articles ({point.percent} %)<br>{point.value_zs} total articles") %>%
-  hc_chart(backgroundColor = "white") %>%
-  hc_exporting(
-    enabled = TRUE, # always enabled
-    filename = "journal_2024_absolute",
-    buttons = list(contextButton = list(menuItems = c('downloadJPEG', 'separator', 'downloadCSV')))
-  )
-
-journal_2024_percent <- summary_journal_2024_2 %>%
-  hchart("bar", hcaes(x = zeitschrift, y = percent, group = oa_status)) %>%
-  hc_plotOptions(series = list(stacking = "normal")) %>%
-  hc_colors(color) %>%
-  hc_xAxis(min = 0,
-           max = 15,
-           scrollbar = list(enabled = TRUE)) %>%
-  hc_yAxis(labels = list(format = '{value} %'),
-           max = 100, reversedStacks = FALSE) %>%
-  hc_size(height = 500) %>%
-  hc_tooltip(pointFormat = "<b>{point.oa_status}</b><br>{point.value} articles ({point.percent} %)<br>{point.value_zs} total articles") %>%
-  hc_chart(backgroundColor = "white") %>%
-  hc_exporting(
-    enabled = TRUE, # always enabled
-    filename = "journal_2024_percent",
-    buttons = list(contextButton = list(menuItems = c('downloadJPEG', 'separator', 'downloadCSV')))
-  )
+# journal_2020_absolute <- visu_journals_and_status(data_df = data, year = 2020)
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # Visualizations of publishers (from Unpaywall) and oa_status ----

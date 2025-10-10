@@ -122,7 +122,7 @@ library(roadoi)
 visu_licenses <- function(data_df, year){
   if (missing(year)) {
     data_filtered_year <- data_df %>%
-      filter(jahr %in% c(2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023)) #TODO: Implement constant for those relevant years
+      filter(jahr %in% c(2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024)) #TODO: Implement constant for those relevant years
     filename_addition <- "all_years"
   } else {
     data_filtered_year <- data_df %>%

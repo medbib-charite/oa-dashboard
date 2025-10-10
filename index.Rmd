@@ -143,7 +143,8 @@ publisher_2024_absolute
 
 ### 2024: Articles by journal in absolute numbers
 ```{r}
-journal_2024_absolute
+load(visu_journals_and_status(data_df = data, year = 2024))
+journal_absolute
 ```
 
 ## Row {.tabset}
