@@ -138,7 +138,8 @@ status_corresponding_absolute_spline
 
 ### 2024: Articles by publisher in absolute numbers
 ```{r}
-publisher_2024_absolute
+load(visu_publishers_and_status(data_df = data, year = 2024))
+publisher_absolute
 ```
 
 ### 2024: Articles by journal in absolute numbers
